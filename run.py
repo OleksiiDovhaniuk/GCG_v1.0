@@ -1,20 +1,24 @@
+# general imports
 import kivy
 kivy.require('1.10.1')
 import string
 
-# kivy lib import
+# kivy lib imports
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.progressbar import ProgressBar
 from kivy.clock import Clock
+from kivy.garden.graph import MeshLinePlot
 
-# own classes import
+# own classes imports
 from fileWork import FileWork
 from process import Process
 
 # UI of Run Screen
 Builder.load_string('''
+#:import MeshLinePlot kivy.garden.graph.MeshLinePlot
+
 <RunScreen>:
     name : "RunScreen"
     on_enter: root.go()
@@ -64,14 +68,20 @@ Builder.load_string('''
             id:lblProgress
             text: "0%"
 
-        ProgressBar:
-            id: pbFitnessFunction
-            foreground_color: (.53, .15, .15, 1)
-            max: 1
-        # Plot:
-        #     id: pltFitnessFunction
-        #     xlabel: "Generation"
-        #     ylabel: "Fitness Function Values"
+        BoxLayout:
+            Graph:
+                id: grph
+                xmax: 1
+                ymax: 10000
+                xlable: "Generation"
+                ylable: "Fitness function value"
+                y_ticks_major: 1000
+                x_grid_lable: True
+                y_grid_lable: True
+                padding: 1
+                x_grid_lable: True
+                y_grid_lable: True
+
 
         Label:
             id:lblFitnessFunction
@@ -86,8 +96,15 @@ class RunScreen(Screen):
         super(RunScreen, self).__init__(**kwargs)
         self.refresh_process_trigger = Clock.create_trigger(self.refresh_process)
         self.update_Configurations()
+        self.plotMin = MeshLinePlot(color=[0, 1, 0, 1])
+        self.plotMax = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plotAverage = MeshLinePlot(color=[1, 0.5, 0.5, 1])
         
     def go(self):
+        self.ids.grph.add_plot(self.plotMin)
+        self.ids.grph.add_plot(self.plotMax)
+        self.ids.grph.add_plot(self.plotAverage)
+        
         self.update_Configurations()
         for _ in range (self.generations_number):
             self.refresh_process_trigger()
@@ -116,9 +133,11 @@ class RunScreen(Screen):
             # Change digit text, that shows percentage of the algorithm completing 
             self.ids.lblProgress.text = str(round(self.ids.pbProcess.value * 100)) + '%'
 
-            # Change fitness function progress bar value 
-            self.ids.pbFitnessFunction.value = self.process.current_averageResult
-            # Change digit of fitness function on the process
+            # # Change fitness function progress bar value 
+            self.plotMin.points = [(x, y * 10000) for x, y in enumerate(self.process.minResult_list)] 
+            self.plotMax.points = [(x, y * 10000) for x, y in enumerate(self.process.maxResult_list)] 
+            self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(self.process.averageResult_list)] 
+            # # Change digit of fitness function on the process
             self.ids.lblFitnessFunction.text = str(round(self.process.current_averageResult, 8))
 
             # Call trigger for refreshing run screen 
@@ -133,9 +152,14 @@ class RunScreen(Screen):
         self.ids.lblProgress.text = "0%"
         self.ids.pbProcess.value = 0
         self.ids.lblFitnessFunction.text = "0"
-        self.ids.pbFitnessFunction.value = 0
         self.process.current_averageResult = None
         self.process.generation = None
+        self.process.averageResult_list = []
+        self.plotAverage.points = []
+        self.process.maxResult_list = []
+        self.plotMax.points = []
+        self.process.minResult_list = []
+        self.plotMin.points = []
 
     def update_Configurations(self):
         fileWork = FileWork() 
@@ -154,8 +178,12 @@ class RunScreen(Screen):
         crossing_chance = fileWork.get_crossingChance()
         mutation_chance = fileWork.get_mutationChance()
         fitness_coefs = fileWork.get_coefficients()
-
         self.process = Process(generations_number, insNumber, outsNumber, emptyInputs_value,generation_size, 
             genes_number, noneNode_chance, crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs)
         self.generations_number = self.process.generations_number
         self.step = 1 / generations_number
+
+        self.ids.grph.xmax = self.generations_number
+        # self.ids.grph.x_ticks_minor = self.generations_number // 100
+        self.ids.grph.x_ticks_major = self.generations_number // 10
+        

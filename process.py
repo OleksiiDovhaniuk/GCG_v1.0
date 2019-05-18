@@ -23,6 +23,9 @@ class Process:
         self.mutation_chance = mutation_chance
         self.winnerGene = None
         self.winnerResult = None
+        self.averageResult_list = []
+        self.maxResult_list = []
+        self.minResult_list = []
 
         if generations_number <= 100:
             self.step = 1
@@ -57,10 +60,19 @@ class Process:
 
         # find average fitness function value of current generation
         sum = 0
+        max = 0
+        min = 1
         for i in range(len(results)):
             sum += results[i]
+            if results[i] > max:
+                max = results[i]
+            if results[i] < min:
+                min = results[i]
         average_result = sum / len(results)
         self.current_averageResult = average_result
+        self.averageResult_list.append(average_result)
+        self.maxResult_list.append(max)
+        self.minResult_list.append(min)
         
         # global generation changes to next step generation
         self.generation = generation

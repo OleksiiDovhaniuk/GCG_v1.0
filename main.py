@@ -1,11 +1,8 @@
 from kivy.app import App
 from kivy.core.window import Window
 from setUp import SetUp
-import pyqtgraph.examples
-
 
 set_up = SetUp()
-
 
 class mainApp(App):
     set_up.set_up()
@@ -25,4 +22,3 @@ sample_app.run()
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-    pyqtgraph.examples.run()
