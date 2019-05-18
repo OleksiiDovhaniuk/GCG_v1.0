@@ -159,6 +159,7 @@ class FileWork:
             return content_list[0]
         except:
             print('Could not return input names string type (fileWork.str_insNames()).')
+            str_result = ''
             for x in self.default_inputNames:
                 str_result += x
             return str_result
@@ -169,6 +170,7 @@ class FileWork:
             return content_list[1][1:]
         except:
             print('Could not return output names string type (fileWork.str_outsNames()).')
+            str_result = ''
             for x in self.default_outputNames:
                 str_result += x
             return str_result
@@ -179,6 +181,7 @@ class FileWork:
             return content_list[2][1:]
         except:
             print('Could not return input values string type (fileWork.str_insValues()).')
+            str_result = ''
             for x in self.default_inputValues:
                 str_result += str(x)
             return str_result
