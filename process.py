@@ -2,11 +2,11 @@ from geneticAlgorithm import GeneticAlgorithm
 from calculation import Calculation
 
 class Process:
-    def __init__(self, generations_number, insNumber, outsNumber, emptyInputs_value, generation_size, genes_number, noneNode_chance,
+    def __init__(self, generations_number, emptyInputs_value, generation_size, genes_number, noneNode_chance,
         crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs):
         self.generations_number = generations_number
-        self.insNumber = insNumber
-        self.outsNumber = outsNumber
+        self.insNumber = len(ins_list)
+        self.outsNumber = len(outs_list)
         self.emptyInputs_value = emptyInputs_value
         self.generation_size = generation_size
         self.genes_number = genes_number
@@ -26,6 +26,8 @@ class Process:
         self.averageResult_list = []
         self.maxResult_list = []
         self.minResult_list = []
+        self.maxResult = 0
+        self.minResult = 1
 
         if generations_number <= 100:
             self.step = 1
@@ -33,7 +35,7 @@ class Process:
             self.step = generations_number // 100
 
     def go(self):
-        fitness_coefs = self.fitness_coefs
+        fitness_coefs = self.fitness_coefs.copy()
         cal = Calculation(fitness_coefs[0], fitness_coefs[1], fitness_coefs[2], fitness_coefs[3])
         GenAlg = GeneticAlgorithm()
         generation = self.generation
@@ -71,7 +73,11 @@ class Process:
         average_result = sum / len(results)
         self.current_averageResult = average_result
         self.averageResult_list.append(average_result)
+        if max > self.maxResult:
+            self.maxResult = max
         self.maxResult_list.append(max)
+        if min < self.minResult:
+            self.minResult = min
         self.minResult_list.append(min)
         
         # global generation changes to next step generation

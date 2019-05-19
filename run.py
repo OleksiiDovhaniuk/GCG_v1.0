@@ -71,7 +71,6 @@ Builder.load_string('''
         BoxLayout:
             Graph:
                 id: grph
-                xmax: 1
                 ymax: 10000
                 xlable: "Generation"
                 ylable: "Fitness function value"
@@ -95,7 +94,6 @@ class RunScreen(Screen):
     def __init__(self, **kwargs):
         super(RunScreen, self).__init__(**kwargs)
         self.refresh_process_trigger = Clock.create_trigger(self.refresh_process)
-        self.update_Configurations()
         self.plotMin = MeshLinePlot(color=[0, 1, 0, 1])
         self.plotMax = MeshLinePlot(color=[1, 0, 0, 1])
         self.plotAverage = MeshLinePlot(color=[1, 0.5, 0.5, 1])
@@ -104,6 +102,9 @@ class RunScreen(Screen):
         self.ids.grph.add_plot(self.plotMin)
         self.ids.grph.add_plot(self.plotMax)
         self.ids.grph.add_plot(self.plotAverage)
+        self.ids.grph.xmax = 1
+        self.ids.grph.ymax = 10000
+        self.ids.grph.ymin = 0
         
         self.update_Configurations()
         for _ in range (self.generations_number):
@@ -123,7 +124,7 @@ class RunScreen(Screen):
                 if i < len(print_result[0]) - 1:
                     str_result += '\n'
             self.ids.tinResult1.text = str_result
-            self.ids.lblResult2.text = str(round(self.process.winnerResult, 8))
+            self.ids.lblResult2.text = str(round(self.process.winnerResult, 12))
         
     def refresh_process(self, dt):
         self.process.go()
@@ -133,13 +134,17 @@ class RunScreen(Screen):
             # Change digit text, that shows percentage of the algorithm completing 
             self.ids.lblProgress.text = str(round(self.ids.pbProcess.value * 100)) + '%'
 
-            # # Change fitness function progress bar value 
+            # Change fitness function progress bar value 
             self.plotMin.points = [(x, y * 10000) for x, y in enumerate(self.process.minResult_list)] 
             self.plotMax.points = [(x, y * 10000) for x, y in enumerate(self.process.maxResult_list)] 
             self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(self.process.averageResult_list)] 
-            # # Change digit of fitness function on the process
+            # Change digit of fitness function on the process
             self.ids.lblFitnessFunction.text = str(round(self.process.current_averageResult, 8))
-
+            # dinamic graph scope changing 
+            self.ids.grph.xmax += 1
+            self.ids.grph.ymax = self.process.maxResult * 10000
+            self.ids.grph.ymin = self.process.minResult * 10000
+            # self.ids.grph.ymin = 0
             # Call trigger for refreshing run screen 
             self.refresh_process_trigger()
         else:
@@ -147,6 +152,7 @@ class RunScreen(Screen):
 
     def cansel(self):
         Clock.unschedule(self.refresh_process_trigger)
+
         self.ids.tinResult1.text = "Result1"
         self.ids.lblResult2.text = "Result2"
         self.ids.lblProgress.text = "0%"
@@ -155,18 +161,26 @@ class RunScreen(Screen):
         self.process.current_averageResult = None
         self.process.generation = None
         self.process.averageResult_list = []
-        self.plotAverage.points = []
         self.process.maxResult_list = []
-        self.plotMax.points = []
         self.process.minResult_list = []
-        self.plotMin.points = []
+
+        # remove all plots
+        self.ids.grph.remove_plot(self.plotMin)
+        self.ids.grph.remove_plot(self.plotMax)
+        self.ids.grph.remove_plot(self.plotAverage)
+        self.process.maxResult = 0
+        self.process.minResult = 1
 
     def update_Configurations(self):
         fileWork = FileWork() 
 
         generations_number = fileWork.get_generationNumber()
         ins_list = fileWork.get_insValues()
+        # ins_list = [[0, 1], [1, 1]]
         outs_list = fileWork.get_outsValues()
+        # print(str(ins_list))
+        # print(str(outs_list))
+        # print('-------------')
         insNumber = len(ins_list[0])
         outsNumber = len(outs_list[0])
         # print('insNumber:' + str(insNumber) + ';outsNumber:' + str(outsNumber))
@@ -178,12 +192,10 @@ class RunScreen(Screen):
         crossing_chance = fileWork.get_crossingChance()
         mutation_chance = fileWork.get_mutationChance()
         fitness_coefs = fileWork.get_coefficients()
-        self.process = Process(generations_number, insNumber, outsNumber, emptyInputs_value,generation_size, 
+        self.process = Process(generations_number, emptyInputs_value,generation_size, 
             genes_number, noneNode_chance, crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs)
         self.generations_number = self.process.generations_number
         self.step = 1 / generations_number
 
-        self.ids.grph.xmax = self.generations_number
-        # self.ids.grph.x_ticks_minor = self.generations_number // 100
         self.ids.grph.x_ticks_major = self.generations_number // 10
         
