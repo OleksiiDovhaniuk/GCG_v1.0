@@ -119,7 +119,7 @@ class GeneticAlgorithm():
         pairedParents_list2D[0] = parent_list[:half].copy()
         pairedParents_list2D[1] = parent_list[half:].copy()
 
-        # print(str(pairedParents_list2D))
+        print(str(pairedParents_list2D))
         return pairedParents_list2D
 
     def crossing(self, generation_list4D, pairedParents_list2D, crossing_chance):
@@ -143,7 +143,7 @@ class GeneticAlgorithm():
                 ind += 1
             alet_list.append(ind)
         
-        # print(str(alet_list))
+        print(str(alet_list))
 
         for i in range (length):
             parents_i = pairedParents_list2D[0][i]
@@ -177,9 +177,9 @@ class GeneticAlgorithm():
         if length != len(pairedParents_list2D[1]):
             crossoveredGeneration_list4D.append(pairedParents_list2D[1][length])
 
-        # for x in crossoveredGeneration_list4D:
-        #     print(str(x))
-        # print('CrossoveredGeneration')
+        for x in crossoveredGeneration_list4D:
+            print(str(x))
+        print('CrossoveredGeneration')
         return crossoveredGeneration_list4D
 
     def mutation(self, generation_list4D, mutation_chance, noneNode_chance):
@@ -217,10 +217,10 @@ class GeneticAlgorithm():
                 population_list2D.append([i+1, j])
         population_list2D.append([0, 0])
 
-        # print(str(alet_list))
-        # print(str(mutationChance_list))
+        print(str(alet_list))
+        print(str(mutationChance_list))
         for i in range(length):
-            x = generation_list4D[i]
+            x = generation_list4D[i].copy()
             if mutationChance_list[i] <= mutation_chance:
                 alet_part = []
                 alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
@@ -229,12 +229,20 @@ class GeneticAlgorithm():
                     alet_part2D.append(population_list2D[y])
                 
                 x[alet_list[i]] = alet_part2D
+                while x in mutatedGeneration_list4D: 
+                    alet_part = []
+                    alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
+                    alet_part2D = []
+                    for y in alet_part:
+                        alet_part2D.append(population_list2D[y])
+                    
+                    x[alet_list[i]] = alet_part2D
 
             mutatedGeneration_list4D.append(x)
 
-        # for x in mutatedGeneration_list4D:
-        #     print(str(x))
-        # print('mutatedGeneration_list4D')
+        for x in mutatedGeneration_list4D:
+            print(str(x))
+        print('mutatedGeneration_list4D')
         return mutatedGeneration_list4D
 
 if __name__ == '__main__':

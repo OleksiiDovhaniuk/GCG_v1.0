@@ -159,23 +159,28 @@ class Calculation:
         2
         >>> c.getErrors(gene_test5, insInv_test5, outsInv_test5, 1)
         1
+        >>> c.getErrors(gene_test6, insInv_test6, outsInv_test6, 1)
+        1
+        >>> c.getErrors(gene_test7, insInv_test7, outsInv_test6, 1)
+        0
         """
 
         genes_list3D = gene_list3D.copy()
         ins_len = len(ins_list2D[0])
         errorsNumber_list = [0] * ins_len
        
+        # print('ins_list2d: ' + str(ins_list2D))
         for i in range(len(ins_list2D)):
             activeSignals_list = ins_list2D[i].copy()
             for x in genes_list3D:
                 check_list = [0]
                 for j in range(len(x)):
                     indChanges_list = []
-                    elementSignals_list = [emptyInputs_value] * 3
                     if x[j][0] not in check_list:
+                        elementSignals_list = [emptyInputs_value] * 3
                         currentCheck = x[j][0]
                         check_list.append(currentCheck)
-                        elementSignals_list[ x[j][1]] = activeSignals_list[j]
+                        elementSignals_list[x[j][1]] = activeSignals_list[j]
                         indChanges_list.append(j)
                         for k in range(len(x)-j-1):
                             p = k + j + 1
@@ -300,10 +305,15 @@ if __name__ == '__main__':
                                                  [[2,0], [1,0], [3,0]], [[2,0], [3,0], [1,0]], \
                                                  [[3,0], [1,0], [2,0]], [[3,0], [2,0], [1,0]]],
                                 'gene_test5':   [[[1,1], [0,0]], [[1,0], [0,0]]],
+                                'gene_test6':   [[[1,1]], [[0,0]]],
+                                'gene_test7':   [[[1,0]], [[0,0]], [[1,2], [0,0]]],
                                 'ins2_1_test1': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
                                 'ins2_1_test2': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
                                 'insInv_test5': [[0, 1], [1, 1]],
-                                'outsInv_test5': [[1, 1], [0, 1]],
+                                'insInv_test6': [[0], [1]],
+                                'insInv_test7': [[0, 1], [0, 0]],
+                                'outsInv_test5':[[1, 1], [0, 1]],
+                                'outsInv_test6':[[1], [0]],
                                 'outs_OR':      [[0], [1], [1], [1]],
                                 'outs_AND':     [[0], [0], [0], [1]],
                                 'outs_NOR':     [[1], [0], [0], [0]],

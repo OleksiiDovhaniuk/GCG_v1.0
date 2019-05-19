@@ -71,7 +71,6 @@ Builder.load_string('''
         BoxLayout:
             Graph:
                 id: grph
-                ymax: 10000
                 xlable: "Generation"
                 ylable: "Fitness function value"
                 y_ticks_major: 1000
@@ -94,17 +93,18 @@ class RunScreen(Screen):
     def __init__(self, **kwargs):
         super(RunScreen, self).__init__(**kwargs)
         self.refresh_process_trigger = Clock.create_trigger(self.refresh_process)
-        self.plotMin = MeshLinePlot(color=[0, 1, 0, 1])
-        self.plotMax = MeshLinePlot(color=[1, 0, 0, 1])
-        self.plotAverage = MeshLinePlot(color=[1, 0.5, 0.5, 1])
-        
+        # Min plot is GREEN
+        self.plotMin = MeshLinePlot(color=[0, 1, 0, 0.7])
+        # Max plot is RED
+        self.plotMax = MeshLinePlot(color=[1, 0, 0, 0.7])
+        # Average plot is BLUE
+        self.plotAverage = MeshLinePlot(color=[0, 0, 1, 1])
+
     def go(self):
         self.ids.grph.add_plot(self.plotMin)
         self.ids.grph.add_plot(self.plotMax)
         self.ids.grph.add_plot(self.plotAverage)
-        self.ids.grph.xmax = 1
-        self.ids.grph.ymax = 10000
-        self.ids.grph.ymin = 0
+        self.ids.grph.xmax = 5
         
         self.update_Configurations()
         for _ in range (self.generations_number):
@@ -142,8 +142,12 @@ class RunScreen(Screen):
             self.ids.lblFitnessFunction.text = str(round(self.process.current_averageResult, 8))
             # dinamic graph scope changing 
             self.ids.grph.xmax += 1
-            self.ids.grph.ymax = self.process.maxResult * 10000
-            self.ids.grph.ymin = self.process.minResult * 10000
+            if self.process.maxResult == self.process.minResult:
+                self.ids.grph.ymax = self.process.maxResult * 10000
+                self.ids.grph.ymin = self.process.minResult * 10000 - 1
+            else:
+                self.ids.grph.ymax = self.process.maxResult * 10000
+                self.ids.grph.ymin = self.process.minResult * 10000
             # self.ids.grph.ymin = 0
             # Call trigger for refreshing run screen 
             self.refresh_process_trigger()
@@ -158,18 +162,12 @@ class RunScreen(Screen):
         self.ids.lblProgress.text = "0%"
         self.ids.pbProcess.value = 0
         self.ids.lblFitnessFunction.text = "0"
-        self.process.current_averageResult = None
-        self.process.generation = None
-        self.process.averageResult_list = []
-        self.process.maxResult_list = []
-        self.process.minResult_list = []
+        self.process = None
 
         # remove all plots
         self.ids.grph.remove_plot(self.plotMin)
         self.ids.grph.remove_plot(self.plotMax)
         self.ids.grph.remove_plot(self.plotAverage)
-        self.process.maxResult = 0
-        self.process.minResult = 1
 
     def update_Configurations(self):
         fileWork = FileWork() 

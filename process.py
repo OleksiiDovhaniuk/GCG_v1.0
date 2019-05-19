@@ -5,8 +5,8 @@ class Process:
     def __init__(self, generations_number, emptyInputs_value, generation_size, genes_number, noneNode_chance,
         crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs):
         self.generations_number = generations_number
-        self.insNumber = len(ins_list)
-        self.outsNumber = len(outs_list)
+        self.insNumber = len(ins_list[0])
+        self.outsNumber = len(outs_list[0])
         self.emptyInputs_value = emptyInputs_value
         self.generation_size = generation_size
         self.genes_number = genes_number
