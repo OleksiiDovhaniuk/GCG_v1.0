@@ -1,6 +1,13 @@
+import os
 class FileWork:
 
     def __init__(self, **kwargs):
+        script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+        rel_path_configurations = "Saves/configurations.txt"
+        self.abs_file_path_configurations = os.path.join(script_dir, rel_path_configurations)
+        rel_path_truthTable = "Saves/truthTable.txt"
+        self.abs_file_path_truthTable = os.path.join(script_dir, rel_path_truthTable)
+
         self.default_inputNames = ['A_default', 'B_default']
         self.default_outputNames = ['C_default']
         self.default_inputValues = [[0, 0], [0, 1], [1, 0], [1, 1]]
@@ -16,7 +23,8 @@ class FileWork:
 # ------------------------------- SAVES ------------------------------------- #  
     # ------------------------- TRUTH TABLE ------------------------- #
     def save_truthTable(self, inputNames, outputNames, inputValues, outputValues):
-        f = open('D:/Workspace/Oleksii Dovhaniuk/Python/CHNU/Bachelor/Saves/truthTable.txt', 'w')
+
+        f = open(self.abs_file_path_truthTable, 'w')
         f.write(inputNames + '$\n')
         f.write(outputNames + '$\n')
         f.write(inputValues + '$\n')
@@ -26,7 +34,7 @@ class FileWork:
     # ------------------------- CONFIGURATIONS ------------------------- #
     def save_configurations(self, generation_number, generation_size, 
     genes_number, crossing_chance, mutation_chance, fitnessFunction_coefficients):
-        f = open('D:/Workspace/Oleksii Dovhaniuk/Python/CHNU/Bachelor/Saves/configurations.txt', 'w')
+        f = open(self.abs_file_path_configurations, 'w')
         f.write(generation_number + '$\n')
         f.write(generation_size + '$\n')
         f.write(genes_number + '$\n')
@@ -39,7 +47,7 @@ class FileWork:
     # -------------------------TRUTH TABLE------------------------- #
     def read_truthTable(self):
         try:
-            f = open ('D:/Workspace/Oleksii Dovhaniuk/Python/CHNU/Bachelor/Saves/truthTable.txt', 'r')
+            f = open (self.abs_file_path_truthTable, 'r')
             if f.mode == 'r':
                 content = f.read()
             content_list = content.split('$')  
@@ -51,7 +59,7 @@ class FileWork:
     # ------------------------- CONFIGURATIONS ------------------------- #
     def read_configurations(self):
         try:
-            f = open ('D:/Workspace/Oleksii Dovhaniuk/Python/CHNU/Bachelor/Saves/configurations.txt', 'r')
+            f = open (self.abs_file_path_configurations, 'r')
             if f.mode == 'r':
                 content = f.read()
             content_list = content.split('$')  

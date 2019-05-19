@@ -137,7 +137,7 @@ class Calculation:
         else:
             return signals_list
 
-    def getErrors(self, gene_list3D, truth_ins_list2D, truth_outs_list2D, emptyInputs_value):
+    def getErrors(self, gene_list3D, ins_list2D, outs_list2D, emptyInputs_value):
         """ Return errors number of schemotechnical system.
    
         Examples of execution:
@@ -145,28 +145,28 @@ class Calculation:
         1
         >>> c.getErrors(gene_test2, ins2_1_test2, outs_OR, 0)
         1
-        >>> c.getErrors(gene_test1, ins2_1_test3, outs_AND, 0)
+        >>> c.getErrors(gene_test1, ins2_1_test1, outs_AND, 0)
         0
-        >>> c.getErrors(gene_test2, ins2_1_test4, outs_AND, 0)
+        >>> c.getErrors(gene_test2, ins2_1_test2, outs_AND, 0)
         1
-        >>> c.getErrors(gene_test1, ins2_1_test5, outs_NOR, 0)
+        >>> c.getErrors(gene_test1, ins2_1_test1, outs_NOR, 0)
         2
-        >>> c.getErrors(gene_test2, ins2_1_test6, outs_NOR, 0)
+        >>> c.getErrors(gene_test2, ins2_1_test2, outs_NOR, 0)
         2
-        >>> c.getErrors(gene_test1, ins2_1_test7, outs_NAND, 0)
+        >>> c.getErrors(gene_test1, ins2_1_test1, outs_NAND, 0)
         2
-        >>> c.getErrors(gene_test2, ins2_1_test8, outs_NAND, 0)
+        >>> c.getErrors(gene_test2, ins2_1_test2, outs_NAND, 0)
         2
+        >>> c.getErrors(gene_test5, insInv_test5, outsInv_test5, 1)
+        1
         """
 
-        genes_list3D = gene_list3D
-        ins_list2D = truth_ins_list2D
-        outs_list2D = truth_outs_list2D
+        genes_list3D = gene_list3D.copy()
         ins_len = len(ins_list2D[0])
         errorsNumber_list = [0] * ins_len
        
         for i in range(len(ins_list2D)):
-            activeSignals_list = ins_list2D[i]
+            activeSignals_list = ins_list2D[i].copy()
             for x in genes_list3D:
                 check_list = [0]
                 for j in range(len(x)):
@@ -183,9 +183,11 @@ class Calculation:
                                 elementSignals_list[ x[p][1]] = activeSignals_list[p]
                                 indChanges_list.append(p)
                         elementSignals_list = self.getFredkinElResolt(elementSignals_list)
+                        # print(str(elementSignals_list))
                         for k in range(len(indChanges_list)):
                             ind_k = indChanges_list[k]
                             activeSignals_list[ind_k] = elementSignals_list[x[ind_k][1]]
+                        # print(str(activeSignals_list))
                         
             for x in outs_list2D[i]:
                 for k in range(len(activeSignals_list)):
@@ -283,10 +285,6 @@ class Calculation:
             c = self.getQuantumCost(list4D[i], self.fredkin_quantum_cost)
             g = self.getGarbageOutput(len(input_signals_list2D[0]), len(output_signals_list2D[0]))
             s = self.getDelay(list4D[i], self.fredkin_delay)
-            # print('er = ' + str(errors))
-            # print('c = ' + str(c))
-            # print('g = ' + str(g))
-            # print('s = ' + str(s))
             fitnessFunction_value = self.fitnessFunctionValue(self.alpha, errors, self.betta, c, self.gamma, g, self.delta, s) 
             fitnessFunction_results.append(fitnessFunction_value)
 
@@ -301,14 +299,11 @@ if __name__ == '__main__':
                                 'gene_test4':   [[[1,0], [2,0], [3,0]], [[1,0], [3,0], [2,0]], \
                                                  [[2,0], [1,0], [3,0]], [[2,0], [3,0], [1,0]], \
                                                  [[3,0], [1,0], [2,0]], [[3,0], [2,0], [1,0]]],
+                                'gene_test5':   [[[1,1], [0,0]], [[1,0], [0,0]]],
                                 'ins2_1_test1': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
                                 'ins2_1_test2': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
-                                'ins2_1_test3': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
-                                'ins2_1_test4': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
-                                'ins2_1_test5': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
-                                'ins2_1_test6': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
-                                'ins2_1_test7': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
-                                'ins2_1_test8': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
+                                'insInv_test5': [[0, 1], [1, 1]],
+                                'outsInv_test5': [[1, 1], [0, 1]],
                                 'outs_OR':      [[0], [1], [1], [1]],
                                 'outs_AND':     [[0], [0], [0], [1]],
                                 'outs_NOR':     [[1], [0], [0], [0]],

@@ -116,10 +116,10 @@ class GeneticAlgorithm():
         """
         pairedParents_list2D = [[], []]
         half = len(parent_list)//2
-        pairedParents_list2D[0] = parent_list[:half]
-        pairedParents_list2D[1] = parent_list[half:]
+        pairedParents_list2D[0] = parent_list[:half].copy()
+        pairedParents_list2D[1] = parent_list[half:].copy()
 
-        print(str(pairedParents_list2D))
+        # print(str(pairedParents_list2D))
         return pairedParents_list2D
 
     def crossing(self, generation_list4D, pairedParents_list2D, crossing_chance):
@@ -148,26 +148,38 @@ class GeneticAlgorithm():
         for i in range (length):
             parents_i = pairedParents_list2D[0][i]
             parents_j = pairedParents_list2D[1][i]
-            x = generation_list4D[parents_i]
-            y = generation_list4D[parents_j]
+            x = generation_list4D[parents_i].copy()
+            y = generation_list4D[parents_j].copy()
             if crossingChance_list[i]<=crossing_chance:
                 crop_len = gene_len - alet_list[i]
                 for j in range (crop_len):
                     z = x[j] 
                     x[j] = y[j]
                     y[j] = z
-            
+            j = 0
+            while (((x in crossoveredGeneration_list4D) or (y in crossoveredGeneration_list4D)) 
+                    and (j < len(generation_list4D))):
+                x = generation_list4D[parents_i].copy()
+                y = generation_list4D[j].copy()
+                j += 1
+                crop_len = gene_len - alet_list[i]
+                for k in range (crop_len):
+                    z = x[k] 
+                    x[k] = y[k]
+                    y[k] = z
+
             crossoveredGeneration_list4D.append(x)
             crossoveredGeneration_list4D.append(y)
+
 
         # if number of genes in generation is not deisible by 2, 
         # than just live last parent in new generation
         if length != len(pairedParents_list2D[1]):
             crossoveredGeneration_list4D.append(pairedParents_list2D[1][length])
 
-        for x in crossoveredGeneration_list4D:
-            print(str(x))
-        print('CrossoveredGeneration')
+        # for x in crossoveredGeneration_list4D:
+        #     print(str(x))
+        # print('CrossoveredGeneration')
         return crossoveredGeneration_list4D
 
     def mutation(self, generation_list4D, mutation_chance, noneNode_chance):
@@ -205,8 +217,8 @@ class GeneticAlgorithm():
                 population_list2D.append([i+1, j])
         population_list2D.append([0, 0])
 
-        print(str(alet_list))
-        print(str(mutationChance_list))
+        # print(str(alet_list))
+        # print(str(mutationChance_list))
         for i in range(length):
             x = generation_list4D[i]
             if mutationChance_list[i] <= mutation_chance:
@@ -220,9 +232,9 @@ class GeneticAlgorithm():
 
             mutatedGeneration_list4D.append(x)
 
-        for x in mutatedGeneration_list4D:
-            print(str(x))
-        print('mutatedGeneration_list4D')
+        # for x in mutatedGeneration_list4D:
+        #     print(str(x))
+        # print('mutatedGeneration_list4D')
         return mutatedGeneration_list4D
 
 if __name__ == '__main__':
