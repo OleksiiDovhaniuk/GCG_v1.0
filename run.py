@@ -104,7 +104,7 @@ class RunScreen(Screen):
         self.ids.grph.add_plot(self.plotMin)
         self.ids.grph.add_plot(self.plotMax)
         self.ids.grph.add_plot(self.plotAverage)
-        self.ids.grph.xmax = 5
+        self.ids.grph.xmax = 1
         
         self.update_Configurations()
         for _ in range (self.generations_number):
@@ -176,9 +176,11 @@ class RunScreen(Screen):
         ins_list = fileWork.get_insValues()
         # ins_list = [[0, 1], [1, 1]]
         outs_list = fileWork.get_outsValues()
-        # print(str(ins_list))
-        # print(str(outs_list))
-        # print('-------------')
+        for x in ins_list:
+            print(str(x))
+        for x in outs_list:
+            print(str(x))
+        print('-------------')
         insNumber = len(ins_list[0])
         outsNumber = len(outs_list[0])
         # print('insNumber:' + str(insNumber) + ';outsNumber:' + str(outsNumber))
@@ -186,7 +188,7 @@ class RunScreen(Screen):
 
         generation_size = fileWork.get_generationSize()
         genes_number = fileWork.get_genesNumber()
-        noneNode_chance = 0.5
+        noneNode_chance = 0.28571
         crossing_chance = fileWork.get_crossingChance()
         mutation_chance = fileWork.get_mutationChance()
         fitness_coefs = fileWork.get_coefficients()
