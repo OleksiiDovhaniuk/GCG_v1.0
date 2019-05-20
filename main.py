@@ -8,7 +8,8 @@ class mainApp(App):
     set_up.set_up()
 
     def build(self):
-        Window.size = 600, 400
+        Window.toggle_fullscreen()
+        Window.fullscreen = False
         # Window.fullscreen = True
         # self.icon = 'ICOs/Graphicloads-Flat-Finance-Global.ico'
         self.title = 'GCG v1.0'

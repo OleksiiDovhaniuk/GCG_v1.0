@@ -28,6 +28,8 @@ class Process:
         self.minResult_list = []
         self.maxResult = 0
         self.minResult = 1
+        self.current_maxResult = 0
+        self.current_minResult = 1
 
         if generations_number <= 100:
             self.step = 1
@@ -73,9 +75,11 @@ class Process:
         average_result = sum / len(results)
         self.current_averageResult = average_result
         self.averageResult_list.append(average_result)
+        self.current_maxResult = max
         if max > self.maxResult:
             self.maxResult = max
         self.maxResult_list.append(max)
+        self.current_minResult = min
         if min < self.minResult:
             self.minResult = min
         self.minResult_list.append(min)
