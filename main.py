@@ -12,7 +12,7 @@ class mainApp(App):
         Window.fullscreen = False
         # Window.fullscreen = True
         # self.icon = 'ICOs/Graphicloads-Flat-Finance-Global.ico'
-        self.title = 'GCG v1.0'
+        self.title = 'GGC v1.0'
         Window.clearcolor = (.12, .14, .15, 1)
         return set_up.screen_manager
 

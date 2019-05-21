@@ -169,7 +169,7 @@ Builder.load_string('''
                     id: lblCurrentAverage
                     size: (5, 15)
                     size_hint: (None, None)
-                    color: (0, 0, 1, 0.7)
+                    color: (0.5, 0.5, 1, 1)
                     pos_hint: {'x':0.3, 'y':0.5}
                 UbuntuLbl:
                     id: lblCurrentMin
@@ -203,7 +203,7 @@ Builder.load_string('''
                 UbuntuActBtn:
                     id: lblAveragePlot
                     text: "Average FF Values"
-                    color: (0, 0, 1, 0.7)
+                    color: (0.5, 0.5, 1, 1)
             BoxLayout:
                 orientation: 'horizontal'
                 CheckBox:
@@ -247,6 +247,12 @@ Builder.load_string('''
                 id: pbProcess
                 padding: 100
                 max: 1
+            
+            UbuntuLbl:
+                size:(100, 15)
+                size_hint: (None, None)
+                id:lblClock
+                text: "00:00:00"
 
 ''')
 
@@ -264,7 +270,7 @@ class RunScreen(Screen):
         # Average plot is BLUE
         self.plotAverage = MeshLinePlot(color=[0, 0, 1, 1])
 
-        self.iteration = -1
+        self.iteration = 0
 
     def go(self):
         self.ids.grph.add_plot(self.plotMin)
@@ -273,6 +279,7 @@ class RunScreen(Screen):
         self.ids.grph.xmax = 1
         
         self.update_Configurations()
+        self.clock_event = Clock.schedule_interval(self.clock_update, 1)
         for _ in range (self.generations_number):
             self.refresh_process_trigger()
 
@@ -329,6 +336,7 @@ class RunScreen(Screen):
             self.refresh_process_trigger()
         else:
             self.show_results()
+            Clock.unschedule(self.clock_event)
 
     def cansel_to_run(self):
         self.ids.btCancelRun.text = "Run"
@@ -340,9 +348,11 @@ class RunScreen(Screen):
 
     def cansel(self):
         Clock.unschedule(self.refresh_process_trigger)
+        Clock.unschedule(self.clock_event)
 
         self.ids.tinResult.text = ''
         self.ids.lblProgress.text = '0%'
+        self.ids.lblClock.text = '00:00:00'
         self.ids.pbProcess.value = 0
         self.process = None
 
@@ -381,3 +391,26 @@ class RunScreen(Screen):
         self.step = 1 / generations_number
         
         self.ids.grph.x_ticks_major = self.generations_number // 10
+
+    def clock_update(self, dt):
+        clock_str = self.ids.lblClock.text
+        clock_int = [int(s) for s in clock_str.split(':')]
+        if clock_int[2] < 60:
+            clock_int[2] +=1
+        else:
+            clock_int[2] = 0
+            if clock_int[1] < 60:
+                clock_int[1] +=1
+            else:
+                clock_int[1] = 0
+                clock_int[0] += 1
+
+        clock_str = ''
+        for i in range(3):
+            if clock_int[i] < 10:
+                clock_str += '0' + str(clock_int[i])
+            else:
+                clock_str += str(clock_int[i])
+            clock_str += ':'
+        clock_str = clock_str[:8]
+        self.ids.lblClock.text = clock_str
