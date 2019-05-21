@@ -216,11 +216,12 @@ Builder.load_string('''
                     text: "Min FF Values"
                     color: (0, 1, 0, 0.7)
         BoxLayout:
+            size: (400, 150)
+            size_hint: (1, None)
             ScrollView:
                 id:scroller
                 TextInput:
-                    id: tinResult1
-                    text: "Result1"
+                    id: tinResult
                     multiline: True
                     size_hint: (None, None)
                     width: scroller.width
@@ -279,8 +280,7 @@ class RunScreen(Screen):
         self.process.set_winnerResult()
         str_result = ''
         if self.process.winnerGene is None:
-            self.ids.tinResult1.text = str(None)
-            self.ids.lblResult2.text = str('The attempt has been failed')
+            self.ids.tinResult.text = str('The attempt has been failed')
         else:
             print_result = self.process.winnerGene
             for i in range (len(print_result[0])):
@@ -288,8 +288,8 @@ class RunScreen(Screen):
                     str_result += str(print_result[j][i]) + ' '
                 if i < len(print_result[0]) - 1:
                     str_result += '\n'
-            self.ids.tinResult1.text = str_result
-            self.ids.tinResult1.text += '\nwith Fitness function value equal: ' + str(round(self.process.winnerResult, 12))
+            self.ids.tinResult.text = str_result
+            self.ids.tinResult.text += '\nFitness function value equal: ' + str(round(self.process.winnerResult, 12))
         
     def refresh_process(self, dt):
         self.process.go()
@@ -306,9 +306,11 @@ class RunScreen(Screen):
             # Change digit of fitness function on the process
             
             self.ids.lblCurrentMin.text = str(round(self.process.current_minResult, 6))
-            self.ids.lblCurrentMin.size_hint[1] = self.process.current_minResult
+            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_minResult 
             self.ids.lblCurrentAverage.text = str(round(self.process.current_averageResult, 6))
+            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_averageResult
             self.ids.lblCurrentMax.text = str(round(self.process.current_maxResult, 6))
+            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_maxResult
             # dinamic graph scope changing 
             self.ids.grph.xmax += 1
             self.ids.grph.ymax = self.process.maxResult * 10000
@@ -339,8 +341,8 @@ class RunScreen(Screen):
     def cansel(self):
         Clock.unschedule(self.refresh_process_trigger)
 
-        self.ids.tinResult1.text = "Result1"
-        self.ids.lblProgress.text = "0%"
+        self.ids.tinResult.text = ''
+        self.ids.lblProgress.text = '0%'
         self.ids.pbProcess.value = 0
         self.process = None
 
@@ -356,12 +358,11 @@ class RunScreen(Screen):
 
         generations_number = fileWork.get_generationNumber()
         ins_list = fileWork.get_insValues()
-        # ins_list = [[0, 1], [1, 1]]
         outs_list = fileWork.get_outsValues()
-        for x in ins_list:
-            print(str(x))
-        for x in outs_list:
-            print(str(x))
+        # for x in ins_list:
+        #     print(str(x))
+        # for x in outs_list:
+        #     print(str(x))
         print('-------------')
         insNumber = len(ins_list[0])
         outsNumber = len(outs_list[0])

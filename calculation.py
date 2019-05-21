@@ -152,7 +152,7 @@ class Calculation:
         >>> c.getErrors(gene_test1, ins2_1_test1, outs_NOR, 0)
         2
         >>> c.getErrors(gene_test2, ins2_1_test2, outs_NOR, 0)
-        2
+        1
         >>> c.getErrors(gene_test1, ins2_1_test1, outs_NAND, 0)
         2
         >>> c.getErrors(gene_test2, ins2_1_test2, outs_NAND, 0)
@@ -163,16 +163,20 @@ class Calculation:
         1
         >>> c.getErrors(gene_test7, insInv_test7, outsInv_test6, 1)
         0
+        >>> c.getErrors(gene_test8, ins2_1_test1, outs3s_test8, 1)
+        0
         """
 
         genes_list3D = gene_list3D.copy()
         ins_len = len(ins_list2D[0])
         length = len(ins_list2D)
         errorsNumber_list = []
+        for _ in range(len(outs_list2D[0])):
+            errorsNumber_list.append([])
         allRez_list = []
         outputs_list2D = outs_list2D.copy()
-        print('-----------------------------------------')
-        print(str(gene_list3D))
+        # print('-----------------------------------------')
+        # print(str(gene_list3D))
         # print(str(ins_list2D))
         # print(str(outs_list2D))
         # print('ins_list2d: ' + str(ins_list2D))
@@ -186,7 +190,8 @@ class Calculation:
                             is_using = True
                 if not is_using:
                     allRez_list.append(ins_list2D[i][j])
-                    errorsNumber_list.append(0)
+                    for z in errorsNumber_list:
+                        z.append(0)
 
             activeSignals_list = ins_list2D[i].copy()
             for ind in range(len(genes_list3D)):
@@ -194,57 +199,71 @@ class Calculation:
                 check_list = [0]
                 for j in range(len(x)):
                     indChanges_list = []
+                    elem_outs_ind_list = [0, 1, 2]
                     if x[j][0] not in check_list:
                         elementSignals_list = [emptyInputs_value] * 3
                         currentCheck = x[j][0]
                         check_list.append(currentCheck)
                         elementSignals_list[x[j][1]] = activeSignals_list[j]
+                        elem_outs_ind_list.remove(x[j][1])
                         indChanges_list.append(j)
                         for k in range(len(x)-j-1):
                             p = k + j + 1
                             if x[p][0] == currentCheck:
-                                elementSignals_list[ x[p][1]] = activeSignals_list[p]
+                                elementSignals_list[x[p][1]] = activeSignals_list[p]
+                                try:
+                                    elem_outs_ind_list.remove(x[p][1])
+                                except:
+                                    # print(str(x[j][1]))
+                                    # for x in genes_list3D:
+                                    #     print(str(x))
+                                    print('calculation.py in getErrors elem_outs_ind_list.remove(x[p][1]) ValueError: list.remove(x): x not in list')
                                 indChanges_list.append(p)
+                        # print('----------------------------------')
                         elementSignals_list = self.getFredkinElResolt(elementSignals_list)
+                        for y in elem_outs_ind_list:
+                            allRez_list.append(elementSignals_list[y])
+                            for z in errorsNumber_list:
+                                z.append(0)
                         # print('before: ' + str(elementSignals_list))
-                        delta = 0
                         for k in range(len(indChanges_list)):
                             ind_k = indChanges_list[k]
                             ind_x = x[ind_k][1] 
                             # print(str(ind_x))
                             elementSignal = elementSignals_list[ind_x]
-                            # activeSignals_list[ind_k] = elementSignals_list[x[ind_k][1]]
                             activeSignals_list[ind_k] = elementSignal
                             is_using = False
                             for r in range(len(genes_list3D) - ind - 1):
                                 q = ind + r + 1
                                 if genes_list3D[q][ind_k] != [0, 0]:
                                     is_using = True
-                                    # print()
                             if not is_using:
                                 allRez_list.append(elementSignal)
-                                errorsNumber_list.append(0)
+                                for z in errorsNumber_list:
+                                    z.append(0)
 
                             # print('after' +str(elementSignals_list))
-                        # for y in elementSignals_list:
-                        #     allRez_list.append(y)
-                        #     errorsNumber_list.append(0)
-                        # # print(str(activeSignals_list))
+                        # print(str(activeSignals_list))
 
-            # print(str(allRez_list))
-            for x in outputs_list2D[i]:
+            # print("allRez_list" + str(allRez_list))
+            for j in range(len(outputs_list2D[i])):
                 for k in range(len(allRez_list)):
-                    if x != allRez_list[k]:
-                        errorsNumber_list[k] += 1
+                    if outputs_list2D[i][j] != allRez_list[k]:
+                        errorsNumber_list[j][k] += 1
 
-        errorsNumber_list = errorsNumber_list[:len(allRez_list)]
+        for i in range(len(errorsNumber_list)):
+            errorsNumber_list[i] = errorsNumber_list[i][:len(allRez_list)]
         # print(str(errorsNumber_list))
-        errorsNumber_min = errorsNumber_list[0]
+        errorsNumber = 0
         for x in errorsNumber_list:
-            if x < errorsNumber_min:
-                errorsNumber_min = x
+            min = length
+            for y in x:
+                if y < min:
+                    min = y
+            errorsNumber += min
+            errorsNumber_list.remove(x)
 
-        return errorsNumber_min
+        return errorsNumber
 
     def getDelay(self, gene_list3D, element_delay):
         """ Return delay value of system in ns.
@@ -347,6 +366,8 @@ if __name__ == '__main__':
                                 'gene_test5':   [[[1,1], [0,0]], [[1,0], [0,0]]],
                                 'gene_test6':   [[[1,1]], [[0,0]]],
                                 'gene_test7':   [[[1,0], [0,0]], [[1,2], [0,0]]],
+                                'gene_test8':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], \
+                                                 [[2,1], [2,2], [0,0]], [[3,0], [3,1], [3,2]]],
                                 'ins2_1_test1': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
                                 'ins2_1_test2': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
                                 'insInv_test5': [[0, 1], [1, 1]],
@@ -357,5 +378,6 @@ if __name__ == '__main__':
                                 'outs_OR':      [[0], [1], [1], [1]],
                                 'outs_AND':     [[0], [0], [0], [1]],
                                 'outs_NOR':     [[1], [0], [0], [0]],
-                                'outs_NAND':    [[1], [1], [1], [0]]
+                                'outs_NAND':    [[1], [1], [1], [0]],
+                                'outs3s_test8': [[0,0,1],[0,1,1],[1,0,1],[1,1,1]]
                                 })

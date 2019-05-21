@@ -12,6 +12,7 @@ class GeneticAlgorithm():
      
         Examples of execution:
         >>> g.createGeneration(insNumber_test1, outsNumber_test1, generation_size_test1, genes_number_test1, noneNode_chance_test1)
+
         """
         alet_list = []
         alet_list2D = []
@@ -45,9 +46,17 @@ class GeneticAlgorithm():
                 population_list2D.append([i+1, j])
         population_list2D.append([0, 0])
 
+        # print(str(population_list))
         for _ in range(z_len):
             for _ in range(y_len):
                 alet_list = np.random.choice(population_list, p=populationChance_list, replace=True, size = x_len)
+                check_list = []
+                for i in range(x_len):
+                    if alet_list[i] != populetion_len:
+                        while alet_list[i] in check_list:
+                            alet_list[i] = np.random.randint(0, populetion_len)
+                        check_list.append(alet_list[i])
+                # print(str(alet_list))
                 for k in range(x_len):
                     alet_list2D.append(population_list2D[alet_list[k]])
                 gene_list3D.append(alet_list2D)
@@ -175,7 +184,9 @@ class GeneticAlgorithm():
         # if number of genes in generation is not deisible by 2, 
         # than just live last parent in new generation
         if length != len(pairedParents_list2D[1]):
-            crossoveredGeneration_list4D.append(pairedParents_list2D[1][length])
+            parents_i = pairedParents_list2D[1][length]
+            x = generation_list4D[parents_i].copy()
+            crossoveredGeneration_list4D.append(x)
 
         # for x in crossoveredGeneration_list4D:
         #     print(str(x))
@@ -224,6 +235,12 @@ class GeneticAlgorithm():
             if mutationChance_list[i] <= mutation_chance:
                 alet_part = []
                 alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
+                check_list = []
+                for i in range(chromosom_len):
+                    if alet_part[i] != populetion_len:
+                        while alet_part[i] in check_list:
+                            alet_part[i] = np.random.randint(0, populetion_len)
+                        check_list.append(alet_part[i])
                 alet_part2D = []
                 for y in alet_part:
                     alet_part2D.append(population_list2D[y])
@@ -232,6 +249,12 @@ class GeneticAlgorithm():
                 while x in mutatedGeneration_list4D: 
                     alet_part = []
                     alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
+                    check_list = []
+                    for i in range(chromosom_len):
+                        if alet_part[i] != populetion_len:
+                            while alet_part[i] in check_list:
+                                alet_part[i] = np.random.randint(0, populetion_len)
+                            check_list.append(alet_part[i])
                     alet_part2D = []
                     for y in alet_part:
                         alet_part2D.append(population_list2D[y])
@@ -257,10 +280,10 @@ if __name__ == '__main__':
                                 'gene_test6':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
                                 'gene_test7':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
 
-                                'insNumber_test1':          2, 
-                                'outsNumber_test1':         1, 
-                                'generation_size_test1':    4, 
-                                'genes_number_test1':       2, 
+                                'insNumber_test1':          7, 
+                                'outsNumber_test1':         2, 
+                                'generation_size_test1':    100, 
+                                'genes_number_test1':       10, 
                                 'noneNode_chance_test1':    .3,
                                 'crossing_chance':          .9,
                                 
