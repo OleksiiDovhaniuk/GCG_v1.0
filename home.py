@@ -16,12 +16,32 @@ Builder.load_string('''
         root.manager.transition.duration = .30
 <UbuntuLbl@Label>:
     font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
-    font_size: 14
+    font_size: 18
     markup: True
+    color: (0,0,0,1)
 <UbuntuActBtn@ActionButton>:
     font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
-    font_size: 14
+    background_image: 'res/images/bg_normal.png'
+    background_color: hex('#e3eaea')
+    font_size: 18
     markup: True
+    color: (0,0,0,1)
+
+<UbuntuBtn@Button>:
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    background_image: 'res/images/bg_normal.png'
+    background_color: hex('#e3eaea')
+    font_size: 18
+    markup: True
+    color: (0,0,0,1)
+
+<UbuntuTxtIn@TextInput>:
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    background_image: 'res/images/bg_normal.png'
+    background_disabled_down: hex('#e3eaea')
+    font_size: 18
+    markup: True
+    color: (0,0,0,1)
 
 <HomeScreen>:
     GridLayout:
@@ -32,29 +52,31 @@ Builder.load_string('''
             size_hint: (1, None)
             pos_hint: {'top':1}
             background_image: 'res/images/bg_normal.png'
-            background_color: hex('#161b1e')
+            background_color: hex('#e3eaea')
             ActionView:
                 use_separator: True
                 ActionPrevious:
-                    title: 'GCG v1.0'
+                    title: 'GGC v1.0'
                     with_previous: False
+                    font_size: 18
+                    color: (0,0,0,1)
                 ActionGroup:
                     text: 'File' 
                     mode: 'spinner'
-                    size_hint: (0.3, 1)
-                    
+                   
+                    size_hint: (.3, 1)
+                    color: (0,0,0,1)
                     UbuntuActBtn:
                         id: btSetFunction
                         text: "Configurations"
-                        background_color: hex('#b7e3ff')
                         on_release:
                             root.manager.transition.direction = 'left'
                             root.manager.transition.duration = .30
                             root.manager.current = 'ConfigurationsScreen'
+                        
                     UbuntuActBtn:
                         id: btSetTruthTable
                         text: "Set Truth Table"
-                        background_color: hex('#b7e3ff')
                         on_release:   
                             root.manager.transition.direction = 'left'
                             root.manager.transition.duration = .30           
@@ -62,15 +84,14 @@ Builder.load_string('''
                     UbuntuActBtn:
                         id: btnExit
                         text: "Exit"
-                        background_color: hex('#b7e3ff')
-                        color: hex('#d14d70')
+                        color: hex('#0e7c7c')
                         on_release: app.stop() 
                 UbuntuActBtn:
                     id: btRun
                     text: "Run"
                     pos_hint: {'center':1}
-                    color: hex('#74f0f7')
-                    size_hint: (0.3, 1)
+                    color: hex('#0e7c7c')
+                    size_hint: (.3, 1)
                     on_release:
                         root.manager.transition.direction = 'left'
                         root.manager.transition.duration = .30

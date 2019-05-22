@@ -16,55 +16,55 @@ Builder.load_string('''
         padding: 50
         spacing: 10
 
-        Label:
+        UbuntuLbl:
             id: lblGenerationNumber
             text: "Generation Number"
         TextInput:
             id: tinGenerationNumber
             multiline: False
 
-        Label:
+        UbuntuLbl:
             id: lblGenerationSize
             text: "Generation Size"
         TextInput:
             id: tinGenerationSize
             multiline: True
 
-        Label:
+        UbuntuLbl:
             id: GenesNumber
             text: "Genes Number"
         TextInput:
             id: tinGenesNumber
             multiline: False
 
-        Label:
+        UbuntuLbl:
             id: lblCoefficients
             text: "Coefficients"
         TextInput:
             id: tinCoefficients
             multiline: True
 
-        Label:
+        UbuntuLbl:
             id: lblCrossing
-            text: "Crossing Chance"
+            text: "Crossover Chance"
         TextInput:
             id: tinCrossing
             multiline: True
 
-        Label:
+        UbuntuLbl:
             id: lblMutation
             text: "Mutation Chance"
         TextInput:
             id: tinMutation
             multiline: True
 
-        Button:
+        UbuntuBtn:
             id: btSaveToFile
             text: "Save"
             on_press:
                 root.save_configurations()
         
-        Button:
+        UbuntuBtn:
             id: btRun
             text: "Run"
             on_press:
@@ -72,7 +72,7 @@ Builder.load_string('''
                 root.manager.transition.duration = .30
                 root.manager.current = 'RunScreen'
 
-        Button:
+        UbuntuBtn:
             id: btHome
             text: "Home"
             on_press:

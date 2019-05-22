@@ -1,4 +1,6 @@
 import math
+from mpi4py import MPI
+import numpy as np
 
 class Calculation:
     """ Class that consists all functions for culculation processes.
@@ -11,6 +13,8 @@ class Calculation:
         Examples of execution:
         >>> c.__init__(.9, .034, .033, .033)
         """
+        self.comm = MPI.COMM_WORLD
+
         self.alpha = alpha
         self.betta = betta
         self.delta = delta
@@ -165,15 +169,20 @@ class Calculation:
         0
         >>> c.getErrors(gene_test8, ins2_1_test1, outs3s_test8, 1)
         0
-        >>> c.getErrors(gene_test9, ins_test9, outs_test9, 0)
-        0
-        >>> c.getErrors(gene_test10, ins_test10, outs_test10, 0)
-        0
         """
+
+        # Setting up paralel variables
+        comm = self.comm
+        new_ins_list2D = np.empty(comm.size, dtype=np.float64) 
+        # for i in range(len(ins_list2D)):
+        #     new_ins_list2D.append([np.float64(x) for x in ins_list2D[i]])
+        portionIns_list2D = np.empty(comm.size, dtype=np.float64) 
+        comm.Scatter([ins_list2D, MPI.DOUBLE], [portionIns_list2D, MPI.DOUBLE])
+
 
         genes_list3D = gene_list3D.copy()
         ins_len = len(ins_list2D[0])
-        length = len(ins_list2D)
+        length = len(portionIns_list2D)
         errorsNumber_list = []
         for _ in range(len(outs_list2D[0])):
             errorsNumber_list.append([])
@@ -184,7 +193,8 @@ class Calculation:
         # print(str(ins_list2D))
         # print(str(outs_list2D))
         # print('ins_list2d: ' + str(ins_list2D))
-        for i in range(len(ins_list2D)):
+
+        for i in range(length):
             allRez_list = []
             
             for j in range(ins_len):
@@ -246,8 +256,8 @@ class Calculation:
                                 for z in errorsNumber_list:
                                     z.append(0)
 
-                        #     print('after' +str(elementSignals_list))
-                        # print(str(activeSignals_list))
+                            # print('after' +str(elementSignals_list))
+                        print(str(activeSignals_list))
 
             # print("allRez_list" + str(allRez_list))
             for j in range(len(outputs_list2D[i])):
@@ -257,16 +267,20 @@ class Calculation:
 
         for i in range(len(errorsNumber_list)):
             errorsNumber_list[i] = errorsNumber_list[i][:len(allRez_list)]
-        # for x in errorsNumber_list:
-        #     print(str(x))
+        
+        # Gathering and SUM the results
+        global_errorsNumber_list = []
+        comm.Allgather([errorsNumber_list, MPI.SUM], [global_errorsNumber_list, MPI.SUM])
+
+        # print(str(errorsNumber_list))
         errorsNumber = 0
-        for x in errorsNumber_list:
+        for x in global_errorsNumber_list:
             min = length
             for y in x:
                 if y < min:
                     min = y
             errorsNumber += min
-            errorsNumber_list.remove(x)
+            global_errorsNumber_list.remove(x)
 
         return errorsNumber
 
@@ -345,19 +359,14 @@ class Calculation:
         0.504
         >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR, 0)[1], 3)
         0.461
-
-        >>> round(c.getGenerationResuls([gene_test10], ins_test10, outs_test10, 0)[0], 3)
-        0.944
         """
-        list4D = generation_list4D.copy()
-        ins_list2D = input_signals_list2D.copy()
-        outs_list2D = output_signals_list2D.copy()
+        list4D = generation_list4D
         x_len = len(list4D)
         fitnessFunction_results = []
         for i in range(x_len):
-            errors = self.getErrors(list4D[i], ins_list2D, outs_list2D, emptyInputs_value)
+            errors = self.getErrors(list4D[i], input_signals_list2D, output_signals_list2D, emptyInputs_value)
             c = self.getQuantumCost(list4D[i], self.fredkin_quantum_cost)
-            g = self.getGarbageOutput(len(ins_list2D[0]), len(outs_list2D[0]))
+            g = self.getGarbageOutput(len(input_signals_list2D[0]), len(output_signals_list2D[0]))
             s = self.getDelay(list4D[i], self.fredkin_delay)
             fitnessFunction_value = self.fitnessFunctionValue(self.alpha, errors, self.betta, c, self.gamma, g, self.delta, s) 
             fitnessFunction_results.append(fitnessFunction_value)
@@ -378,29 +387,16 @@ if __name__ == '__main__':
                                 'gene_test7':   [[[1,0], [0,0]], [[1,2], [0,0]]],
                                 'gene_test8':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], \
                                                  [[2,1], [2,2], [0,0]], [[3,0], [3,1], [3,2]]],
-                                'gene_test9':   [[[1,0], [1,1], [1,2], [2,0], [2,1], [2,2]], \
-                                                 [[0, 0], [0, 0], [1,1], [1,0], [1,2], [0, 0]]],
-                                'gene_test10':  [[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
-                                                 [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]], \
-                                                 [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],\
-                                                 [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]],
                                 'ins2_1_test1': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
                                 'ins2_1_test2': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
                                 'insInv_test5': [[0, 1], [1, 1]],
                                 'insInv_test6': [[0], [1]],
                                 'insInv_test7': [[0, 1], [0, 0]],
-                                'ins_test9':    [[0,0,0,0,1,0], [0,0,0,1,1,0], [0,0,1,0,1,0], [0,0,1,1,1,0]],
-
-                                'ins_test10':   [[0,0,0,1,0,1], [0,0,1,1,0,1], [0,1,0,1,0,1], [0,1,1,1,0,1],\
-                                                 [1,0,0,1,0,1], [1,0,1,1,0,1], [1,1,0,1,0,1], [1,1,1,1,0,1]],
-
                                 'outsInv_test5':[[1, 1], [0, 1]],
                                 'outsInv_test6':[[1], [0]],
                                 'outs_OR':      [[0], [1], [1], [1]],
                                 'outs_AND':     [[0], [0], [0], [1]],
                                 'outs_NOR':     [[1], [0], [0], [0]],
                                 'outs_NAND':    [[1], [1], [1], [0]],
-                                'outs3s_test8': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
-                                'outs_test9':   [[0,0,1,0,0,0], [1,0,0,0,0,1], [0,1,1,0,0,0], [1,0,1,0,0,1]],
-                                'outs_test10':  [[0,0,0], [1,0,0], [1,0,1], [0,1,1], [1,0,1], [0,1,1], [0,1,0], [1,1,0]]
+                                'outs3s_test8': [[0,0,1],[0,1,1],[1,0,1],[1,1,1]]
                                 })

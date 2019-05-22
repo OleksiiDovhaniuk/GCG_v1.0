@@ -33,12 +33,13 @@ Builder.load_string('''
             size_hint: (1, None)
             pos_hint: {'top':1}
             background_image: 'res/images/bg_normal.png'
-            background_color: hex('#161b1e')
+            background_color: hex('#e3eaea')
             ActionView:
                 use_separator: True
                 ActionPrevious:
-                    title: 'GCG v1.0'
+                    title: 'GGC v1.0'
                     with_previous: True
+                    color: (0,0,0,1)
                     on_release:
                         root.cansel()
                         root.manager.transition.direction = 'right'
@@ -48,6 +49,7 @@ Builder.load_string('''
                     text: 'File' 
                     mode: 'spinner'
                     size_hint: (0.3, 1)
+                    color: (0,0,0,1)
                     
                     UbuntuActBtn:
                         id: btSetFunction
@@ -69,13 +71,13 @@ Builder.load_string('''
                         id: btnExit
                         text: "Exit"
                         background_color: hex('#b7e3ff')
-                        color: hex('#d14d70')
+                        color: hex('#0e7c7c')
                         on_release: app.stop() 
                 
                 UbuntuActBtn:
                     id: btRun
                     text: "Save Result"
-                    color: hex('#74f0f7')
+                    color: hex('#0e7c7c')
                     size_hint: (0.3, 1)
                     on_release:
                         root.manager.transition.direction = 'left'
@@ -85,7 +87,7 @@ Builder.load_string('''
                     id: btCancelRun
                     text: "Cancel"
                     # background_color: hex('#b7e3ff')
-                    color: hex('#f9ebac')
+                    color: hex('#b53b3b')
                     on_release: root.cansel()
                 
         BoxLayout:
@@ -102,12 +104,11 @@ Builder.load_string('''
                     id: lblMaxFF
                     size: (45, 0)
                     size_hint: (1, None)
-                    color: hex("#aab6b7")
-                    color: (1, 0, 0, 0.7)
+                    color: hex("#2d2d2d")
                 UbuntuLbl:
                     id: lblXaxLalble
                     text: "Fitness Function Values"
-                    color: hex("#aab6b7")
+                    color: hex("#2d2d2d")
                     size: (15, 100)
                     size_hint: (None, 1)
                     pos_hint: {'center_x': .5, 'center_y': .5}
@@ -122,20 +123,19 @@ Builder.load_string('''
                     id: lblMinFF
                     size: (45, 35)
                     size_hint: (1, None)
-                    color: (0, 1, 0, 0.7)
+                    color: hex('#2d2d2d')
             BoxLayout:
                 orientation: 'vertical'
                 spacing: 5
                 Graph:
                     id: grph
-                    xlable: "Generation"
-                    ylable: "Fitness function value"
                     y_ticks_major: 1000
                     x_grid_lable: True
                     y_grid_lable: True
                     padding: 1
                     x_grid_lable: True
                     y_grid_lable: True
+                    background_color: hex('#e3eaea')
                 BoxLayout:
                     size: (50, 15)
                     size_hint: (1, None)
@@ -146,16 +146,16 @@ Builder.load_string('''
                         size: (5, 15)
                         size_hint: (None, None)
                         text: "0"
-                        color: hex("#aab6b7")
+                        color: hex("#2d2d2d")
                     UbuntuLbl:
                         id: lblXaxLalble
                         text: "Iterations"
-                        color: hex("#aab6b7")
+                        color: hex("#2d2d2d")
                     UbuntuLbl:
                         id: lblCurrentIteration
                         size: (5, 15)
                         size_hint: (None, None)
-                        color: hex("#aab6b7")
+                        color: hex("#2d2d2d")
             FloatLayout:
                 size: (75, 100)
                 size_hint:(None, 1)
@@ -163,19 +163,19 @@ Builder.load_string('''
                     id: lblCurrentMax
                     size: (5, 15)
                     size_hint: (None, None)
-                    color: (1, 0, 0, 0.7)
+                    color: (0.8, 0, 0, 1)
                     pos_hint: {'x':0.3, 'y':0.8}
                 UbuntuLbl:
                     id: lblCurrentAverage
                     size: (5, 15)
                     size_hint: (None, None)
-                    color: (0.5, 0.5, 1, 1)
+                    color: (0, 0, 1, 1)
                     pos_hint: {'x':0.3, 'y':0.5}
                 UbuntuLbl:
                     id: lblCurrentMin
                     size: (5, 15)
                     size_hint: (None, None)
-                    color: (0, 1, 0, 0.7)
+                    color: (0, 0.7, 0, 1)
                     pos_hint: {'x':0.3, 'y':0.2}
         BoxLayout:
             orientation: 'horizontal'
@@ -192,7 +192,7 @@ Builder.load_string('''
                 UbuntuActBtn:
                     id: lblMaxPlot
                     text: "Max FF Values"
-                    color: (1, 0, 0, 0.7)
+                    color: (0.8, 0, 0, 1)
             BoxLayout:
                 orientation: 'horizontal'
                 CheckBox:
@@ -203,7 +203,7 @@ Builder.load_string('''
                 UbuntuActBtn:
                     id: lblAveragePlot
                     text: "Average FF Values"
-                    color: (0.5, 0.5, 1, 1)
+                    color: (0, 0, 1, 1)
             BoxLayout:
                 orientation: 'horizontal'
                 CheckBox:
@@ -214,7 +214,7 @@ Builder.load_string('''
                 UbuntuActBtn:
                     id: lblMinPlot
                     text: "Min FF Values"
-                    color: (0, 1, 0, 0.7)
+                    color: (0, 0.7, 0, 1)
         BoxLayout:
             size: (400, 150)
             size_hint: (1, None)
@@ -226,9 +226,10 @@ Builder.load_string('''
                     size_hint: (None, None)
                     width: scroller.width
                     height: max(self.minimum_height, scroller.height)
-                    font_size: '12sp'
+                    font_size: 14
+                    color: (0,0,0,1)
                     cursor_color: [255,255,255,1]
-                    background_color: (.17, .18, .17, 1)
+                    background_color: hex('#e3eaea')
                     foreground_color:[255,255,255,1]
                     selection_color: (1,1,1,0.125)
 
@@ -264,9 +265,9 @@ class RunScreen(Screen):
         super(RunScreen, self).__init__(**kwargs)
         self.refresh_process_trigger = Clock.create_trigger(self.refresh_process)
         # Min plot is GREEN
-        self.plotMin = MeshLinePlot(color=[0, 1, 0, 0.7])
+        self.plotMin = MeshLinePlot(color=[0, 0.7, 0, 1])
         # Max plot is RED
-        self.plotMax = MeshLinePlot(color=[1, 0, 0, 0.7])
+        self.plotMax = MeshLinePlot(color=[0.8, 0, 0, 1])
         # Average plot is BLUE
         self.plotAverage = MeshLinePlot(color=[0, 0, 1, 1])
 
@@ -377,7 +378,7 @@ class RunScreen(Screen):
         insNumber = len(ins_list[0])
         outsNumber = len(outs_list[0])
         # print('insNumber:' + str(insNumber) + ';outsNumber:' + str(outsNumber))
-        emptyInputs_value = 1
+        emptyInputs_value = 0
 
         generation_size = fileWork.get_generationSize()
         genes_number = fileWork.get_genesNumber()
@@ -395,11 +396,11 @@ class RunScreen(Screen):
     def clock_update(self, dt):
         clock_str = self.ids.lblClock.text
         clock_int = [int(s) for s in clock_str.split(':')]
-        if clock_int[2] < 60:
+        if clock_int[2] < 59:
             clock_int[2] +=1
         else:
             clock_int[2] = 0
-            if clock_int[1] < 60:
+            if clock_int[1] < 59:
                 clock_int[1] +=1
             else:
                 clock_int[1] = 0

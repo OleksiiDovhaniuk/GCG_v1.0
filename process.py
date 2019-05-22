@@ -38,6 +38,7 @@ class Process:
 
     def go(self):
         fitness_coefs = self.fitness_coefs.copy()
+        # print(str(fitness_coefs))
         cal = Calculation(fitness_coefs[0], fitness_coefs[1], fitness_coefs[2], fitness_coefs[3])
         GenAlg = GeneticAlgorithm()
         generation = self.generation
@@ -46,10 +47,23 @@ class Process:
         if generation is None: 
             generation = GenAlg.createGeneration(self.insNumber, self.outsNumber, self.generation_size, self.genes_number, self.noneNode_chance)
 
+            # correct_gene_list3D = [[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
+            #                     [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
+            #                     [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
+            #                     [[1,2], [0,0], [1,1], [0,0], [0,0], [0,0]]]
+
+            # generation[0] = correct_gene_list3D
+            # generation_test = [correct_gene_list3D]
+        # for x in self.ins_list:
+        #     print(str(x))
+        # print('----------------------')
+        # for x in self.outs_list:
+        #     print(str(x))
         results = cal.getGenerationResuls(generation, self.ins_list, self.outs_list, self.emptyInputs_value)
+        
         for i in range(len(results)):
             # save results that is sutable for current experiment
-            if results[i] > fitness_coefs[0]:
+            if results[i] >= fitness_coefs[0]:
                 self.winnerGenes_list.append(generation[i]) 
                 self.winnerResults_list.append(results[i])
         else:
@@ -92,8 +106,9 @@ class Process:
         # find the best result from suitable results list, if such exists
         if self.winnerResults_list:
             self.winnerResult = self.winnerResults_list[0]
-            for x in self.winnerResults_list:
+            self.winnerGene =  self.winnerGenes_list[0]
+            for i in range(len(self.winnerResults_list)):
+                x = self.winnerResults_list[i]
                 if x > self.winnerResult:
                     self.winnerResult = x 
-                    x_ind = self.winnerResults_list.index(x)
-                    self.winnerGene =  self.winnerGenes_list[x_ind]
+                    self.winnerGene =  self.winnerGenes_list[i]

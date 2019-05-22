@@ -16,41 +16,41 @@ Builder.load_string('''
         padding: 50
         spacing: 10
 
-        Label:
+        UbuntuLbl:
             id: lblInputSignals
             text: "Input Signals"
-        TextInput:
+        UbuntuTxtIn:
             id: tinInputSignals
             multiline: False
 
-        Label:
+        UbuntuLbl:
             id: lblOutputSignals
             text: "Output Signals"
-        TextInput:
+        UbuntuTxtIn:
             id: tinOutputSignals
             multiline: False
 
-        Label:
+        UbuntuLbl:
             id: lblInputValues
             text: "Input Values"
-        TextInput:
+        UbuntuTxtIn:
             id: tinInputValues
             multiline: True
 
-        Label:
+        UbuntuLbl:
             id: lblOutputValues
             text: "Output Values"
-        TextInput:
+        UbuntuTxtIn:
             id: tinOutputValues
             multiline: True
 
-        Button:
+        UbuntuBtn:
             id: btSaveToFile
             text: "Save"
             on_press:
                 root.save_truthTable()
         
-        Button:
+        UbuntuBtn:
             id: btRun
             text: "Run"
             on_press:
@@ -58,7 +58,7 @@ Builder.load_string('''
                 root.manager.transition.duration = .30
                 root.manager.current = 'RunScreen'
 
-        Button:
+        UbuntuBtn:
             id: btHome
             text: "Home"
             on_press:
