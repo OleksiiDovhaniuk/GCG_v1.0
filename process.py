@@ -2,12 +2,11 @@ from geneticAlgorithm import GeneticAlgorithm
 from calculation import Calculation
 
 class Process:
-    def __init__(self, generations_number, emptyInputs_value, generation_size, genes_number, noneNode_chance,
-        crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs):
+    def __init__(self, generations_number, generation_size, genes_number,
+                 crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs):
         self.generations_number = generations_number
         self.insNumber = len(ins_list[0])
         self.outsNumber = len(outs_list[0])
-        self.emptyInputs_value = emptyInputs_value
         self.generation_size = generation_size
         self.genes_number = genes_number
         self.fitness_coefs = fitness_coefs
@@ -18,7 +17,6 @@ class Process:
         self.winnerResults_list = []
         self.ins_list = ins_list
         self.outs_list = outs_list
-        self.noneNode_chance = noneNode_chance
         self.crossing_chance = crossing_chance
         self.mutation_chance = mutation_chance
         self.winnerGene = None
@@ -45,21 +43,9 @@ class Process:
 
         # If it is the first iteration of algorithm, than randeom create generation
         if generation is None: 
-            generation = GenAlg.createGeneration(self.insNumber, self.outsNumber, self.generation_size, self.genes_number, self.noneNode_chance)
+            generation = GenAlg.createGeneration(self.insNumber, self.outsNumber, self.generation_size, self.genes_number)
 
-            # correct_gene_list3D = [[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
-            #                     [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
-            #                     [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
-            #                     [[1,2], [0,0], [1,1], [0,0], [0,0], [0,0]]]
-
-            # generation[0] = correct_gene_list3D
-            # generation_test = [correct_gene_list3D]
-        # for x in self.ins_list:
-        #     print(str(x))
-        # print('----------------------')
-        # for x in self.outs_list:
-        #     print(str(x))
-        results = cal.getGenerationResuls(generation, self.ins_list, self.outs_list, self.emptyInputs_value)
+        results = cal.getGenerationResuls(generation, self.ins_list, self.outs_list)
         
         for i in range(len(results)):
             # save results that is sutable for current experiment
@@ -73,7 +59,7 @@ class Process:
             pair_list = GenAlg.pairParents(selection)
             generation = GenAlg.crossing(generation, pair_list, self.crossing_chance)
             # print(str(generation))
-            generation = GenAlg.mutation(generation, self.mutation_chance, self.noneNode_chance)
+            generation = GenAlg.mutation(generation, self.mutation_chance)
             
 
         # find average fitness function value of current generation

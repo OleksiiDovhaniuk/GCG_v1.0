@@ -177,44 +177,44 @@ Builder.load_string('''
                     size_hint: (None, None)
                     color: (0, 0.7, 0, 1)
                     pos_hint: {'x':0.3, 'y':0.2}
-        BoxLayout:
-            orientation: 'horizontal'
-            size: (100, 50)
-            size_hint:(1, None)
-            padding: 30
-            BoxLayout:
-                orientation: 'horizontal'
-                CheckBox:
-                    id: chbxMaxPlot
-                    active: True
-                    size: (20, 30)
-                    size_hint:(None, 1)
-                UbuntuActBtn:
-                    id: lblMaxPlot
-                    text: "Max FF Values"
-                    color: (0.8, 0, 0, 1)
-            BoxLayout:
-                orientation: 'horizontal'
-                CheckBox:
-                    id: chbxAveragePlot
-                    active: True
-                    size: (20, 30)
-                    size_hint:(None, 1)
-                UbuntuActBtn:
-                    id: lblAveragePlot
-                    text: "Average FF Values"
-                    color: (0, 0, 1, 1)
-            BoxLayout:
-                orientation: 'horizontal'
-                CheckBox:
-                    id: chbxMaxPlot
-                    active: True
-                    size: (20, 30)
-                    size_hint:(None, 1)
-                UbuntuActBtn:
-                    id: lblMinPlot
-                    text: "Min FF Values"
-                    color: (0, 0.7, 0, 1)
+        # BoxLayout:
+        #     orientation: 'horizontal'
+        #     size: (100, 50)
+        #     size_hint:(1, None)
+        #     padding: 30
+        #     BoxLayout:
+        #         orientation: 'horizontal'
+        #         CheckBox:
+        #             id: chbxMaxPlot
+        #             active: True
+        #             size: (20, 30)
+        #             size_hint:(None, 1)
+        #         UbuntuActBtn:
+        #             id: lblMaxPlot
+        #             text: "Max FF Values"
+        #             color: (0.8, 0, 0, 1)
+        #     BoxLayout:
+        #         orientation: 'horizontal'
+        #         CheckBox:
+        #             id: chbxAveragePlot
+        #             active: True
+        #             size: (20, 30)
+        #             size_hint:(None, 1)
+        #         UbuntuActBtn:
+        #             id: lblAveragePlot
+        #             text: "Average FF Values"
+        #             color: (0, 0, 1, 1)
+        #     BoxLayout:
+        #         orientation: 'horizontal'
+        #         CheckBox:
+        #             id: chbxMaxPlot
+        #             active: True
+        #             size: (20, 30)
+        #             size_hint:(None, 1)
+        #         UbuntuActBtn:
+        #             id: lblMinPlot
+        #             text: "Min FF Values"
+        #             color: (0, 0.7, 0, 1)
         BoxLayout:
             size: (400, 150)
             size_hint: (1, None)
@@ -227,11 +227,10 @@ Builder.load_string('''
                     width: scroller.width
                     height: max(self.minimum_height, scroller.height)
                     font_size: 14
-                    color: (0,0,0,1)
-                    cursor_color: [255,255,255,1]
+                    font_color: (1,1,1,1)
+                    cursor_color: [0,0,0,1]
                     background_color: hex('#e3eaea')
-                    foreground_color:[255,255,255,1]
-                    selection_color: (1,1,1,0.125)
+                    selection_color: (0,0,0,1)
 
         BoxLayout:
             size: (400, 30)
@@ -378,16 +377,14 @@ class RunScreen(Screen):
         insNumber = len(ins_list[0])
         outsNumber = len(outs_list[0])
         # print('insNumber:' + str(insNumber) + ';outsNumber:' + str(outsNumber))
-        emptyInputs_value = 0
 
         generation_size = fileWork.get_generationSize()
         genes_number = fileWork.get_genesNumber()
-        noneNode_chance = 0.28571
         crossing_chance = fileWork.get_crossingChance()
         mutation_chance = fileWork.get_mutationChance()
         fitness_coefs = fileWork.get_coefficients()
-        self.process = Process(generations_number, emptyInputs_value,generation_size, 
-            genes_number, noneNode_chance, crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs)
+        self.process = Process(generations_number,generation_size, 
+            genes_number, crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs)
         self.generations_number = self.process.generations_number
         self.step = 1 / generations_number
         

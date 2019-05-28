@@ -137,7 +137,7 @@ class Calculation:
         else:
             return signals_list
 
-    def getErrors(self, gene_list3D, ins_list2D, outs_list2D, emptyInputs_value):
+    def getErrors(self, gene_list3D, ins_list2D, outs_list2D):
         """ Return errors number of schemotechnical system.
    
         Examples of execution:
@@ -179,11 +179,6 @@ class Calculation:
             errorsNumber_list.append([])
         allRez_list = []
         outputs_list2D = outs_list2D.copy()
-        # print('-----------------------------------------')
-        # print(str(gene_list3D))
-        # print(str(ins_list2D))
-        # print(str(outs_list2D))
-        # print('ins_list2d: ' + str(ins_list2D))
         for i in range(len(ins_list2D)):
             allRez_list = []
             
@@ -205,7 +200,7 @@ class Calculation:
                     indChanges_list = []
                     elem_outs_ind_list = [0, 1, 2]
                     if x[j][0] not in check_list:
-                        elementSignals_list = [emptyInputs_value] * 3
+                        elementSignals_list = [0] * 3
                         currentCheck = x[j][0]
                         check_list.append(currentCheck)
                         elementSignals_list[x[j][1]] = activeSignals_list[j]
@@ -218,22 +213,16 @@ class Calculation:
                                 try:
                                     elem_outs_ind_list.remove(x[p][1])
                                 except:
-                                    # print(str(x[j][1]))
-                                    # for x in genes_list3D:
-                                    #     print(str(x))
                                     print('calculation.py in getErrors elem_outs_ind_list.remove(x[p][1]) ValueError: list.remove(x): x not in list')
                                 indChanges_list.append(p)
-                        # print('----------------------------------')
                         elementSignals_list = self.getFredkinElResolt(elementSignals_list)
                         for y in elem_outs_ind_list:
                             allRez_list.append(elementSignals_list[y])
                             for z in errorsNumber_list:
                                 z.append(0)
-                        # print('before: ' + str(elementSignals_list))
                         for k in range(len(indChanges_list)):
                             ind_k = indChanges_list[k]
                             ind_x = x[ind_k][1] 
-                            # print(str(ind_x))
                             elementSignal = elementSignals_list[ind_x]
                             activeSignals_list[ind_k] = elementSignal
                             is_using = False
@@ -246,10 +235,6 @@ class Calculation:
                                 for z in errorsNumber_list:
                                     z.append(0)
 
-                        #     print('after' +str(elementSignals_list))
-                        # print(str(activeSignals_list))
-
-            # print("allRez_list" + str(allRez_list))
             for j in range(len(outputs_list2D[i])):
                 for k in range(len(allRez_list)):
                     if outputs_list2D[i][j] != allRez_list[k]:
@@ -257,8 +242,6 @@ class Calculation:
 
         for i in range(len(errorsNumber_list)):
             errorsNumber_list[i] = errorsNumber_list[i][:len(allRez_list)]
-        # for x in errorsNumber_list:
-        #     print(str(x))
         errorsNumber = 0
         for x in errorsNumber_list:
             min = length
@@ -339,7 +322,7 @@ class Calculation:
         """
         return abs(insNumber - outsNumber)
 
-    def getGenerationResuls(self, generation_list4D, input_signals_list2D, output_signals_list2D, emptyInputs_value):
+    def getGenerationResuls(self, generation_list4D, input_signals_list2D, output_signals_list2D):
         """ Returns list of fitness function values for current generation.
         >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR, 0)[0], 3)
         0.504
@@ -355,7 +338,7 @@ class Calculation:
         x_len = len(list4D)
         fitnessFunction_results = []
         for i in range(x_len):
-            errors = self.getErrors(list4D[i], ins_list2D, outs_list2D, emptyInputs_value)
+            errors = self.getErrors(list4D[i], ins_list2D, outs_list2D)
             c = self.getQuantumCost(list4D[i], self.fredkin_quantum_cost)
             g = self.getGarbageOutput(len(ins_list2D[0]), len(outs_list2D[0]))
             s = self.getDelay(list4D[i], self.fredkin_delay)

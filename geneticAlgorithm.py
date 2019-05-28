@@ -1,73 +1,55 @@
 import numpy as np
-
+import random
 class GeneticAlgorithm():
     """
     Class that consists of all stages of genetic algorithm for 
     quantum structure circuit diagrams. 
     This class only compatible for current representation of genotype.
     """
-    def createGeneration(self, insNumber, outsNumber, generation_size, genes_number, noneNode_chance):
+    def createGeneration(self, insNumber, outsNumber, generation_size, genes_number):
         """ 
         Returns random generated gene generation. 
      
         Examples of execution:
-        >>> g.createGeneration(insNumber_test1, outsNumber_test1, generation_size_test1, genes_number_test1, noneNode_chance_test1)
+        >>> g.createGeneration(insNumber_test1, outsNumber_test1, generation_size_test1, genes_number_test1)
 
         """
-        alet_list = []
-        alet_list2D = []
-        gene_list3D = []
-        generation_list4D = []
-        self.noneNode_chance = noneNode_chance
-
-        x_len = max(insNumber, outsNumber)
+        z_len = max(insNumber, outsNumber)
         y_len = genes_number
-        z_len = generation_size
+        x_len = generation_size
 
         # how many elementary elements could be in one gene row. Here 3 is number of in/outputs of Fredkin element 
         element_inOuts = 3
-        elementsInLine_number = x_len
-        # population list for random numpy choice method
-        population_list = []
-        populationChance_list = []
-        populetion_len = elementsInLine_number * element_inOuts
-        node_chance = (1 - noneNode_chance) / populetion_len
-        sum = 0
-        for i in range(populetion_len):
-            population_list.append(i)
-            populationChance_list.append(node_chance)
-            sum += node_chance
-        population_list.append(populetion_len)
-        populationChance_list.append(1 - sum)
-        # relative list to population_list that is actual population list for gene, that is created
-        population_list2D = []
-        for i in range(elementsInLine_number):
-            for j in range(element_inOuts):
-                population_list2D.append([i+1, j])
-        population_list2D.append([0, 0])
+        elementsInRow_number = x_len
+        max_el_in_row = z_len // 3
 
-        # print(str(population_list))
-        for _ in range(z_len):
-            for _ in range(y_len):
-                alet_list = np.random.choice(population_list, p=populationChance_list, replace=True, size = x_len)
-                check_list = []
-                for i in range(x_len):
-                    if alet_list[i] != populetion_len:
-                        while alet_list[i] in check_list:
-                            alet_list[i] = np.random.randint(0, populetion_len)
-                        check_list.append(alet_list[i])
-                # print(str(alet_list))
-                for k in range(x_len):
-                    alet_list2D.append(population_list2D[alet_list[k]])
-                gene_list3D.append(alet_list2D)
-                alet_list2D = []
-            generation_list4D.append(gene_list3D)
+        # create and fill with [0,0] elements empty generation
+        generation_list4D = []
+        for _ in range(x_len):
             gene_list3D = []
+            for _ in range(y_len):
+                alet_list2D = []
+                for _ in range(z_len):
+                    alet_list2D.append([0, 0])
+                gene_list3D.append(alet_list2D)
+            generation_list4D.append(gene_list3D)
 
-        # print('First generation!')
-        # for x in generation_list4D:
-        #     print(str(x))
-        # print('-----------------')
+        # fill generation with properet random elements            
+        for x in generation_list4D:
+            for y in x:
+                el_in_row = random.randint(0, max_el_in_row)
+                check_list = []
+                for i in range(el_in_row):
+                    for j in range(3):
+                        index = random.randint(0, z_len - 1)
+                        while index in check_list:
+                            if index + 1 < z_len:
+                                index += 1
+                            else:
+                                index = 0
+                        y[index] = [i + 1, j]
+                        check_list.append(index)
+
         return generation_list4D
         
     def roulleteSelection(self, fitnessFunction_list, genes_number):
@@ -159,7 +141,7 @@ class GeneticAlgorithm():
             parents_j = pairedParents_list2D[1][i]
             x = generation_list4D[parents_i].copy()
             y = generation_list4D[parents_j].copy()
-            if crossingChance_list[i]<=crossing_chance:
+            if crossingChance_list[i] <= crossing_chance:
                 crop_len = gene_len - alet_list[i]
                 for j in range (crop_len):
                     z = x[j] 
@@ -188,84 +170,42 @@ class GeneticAlgorithm():
             x = generation_list4D[parents_i].copy()
             crossoveredGeneration_list4D.append(x)
 
-        # for x in crossoveredGeneration_list4D:
-        #     print(str(x))
-        # print('CrossoveredGeneration')
         return crossoveredGeneration_list4D
 
-    def mutation(self, generation_list4D, mutation_chance, noneNode_chance):
+    def mutation(self, generation_list4D, mutation_chance):
         """
         The function returns three dimensions generation list with mutated genotype.
         """
-        mutatedGeneration_list4D = []
-        length = len(generation_list4D)
-        gene_len = len(generation_list4D[0])
-        # create quasi random list of numbers,
-        # that should be above the given mutation chance to have mutation happening
-        mutationChance_list = np.random.random(length)
+        mutatedGeneration_list4D = generation_list4D.copy()
+        x_len = len(generation_list4D)
+        y_len = len(generation_list4D[0])
+        z_len = len(generation_list4D[0][0])
+        max_el_in_row = z_len // 3
+        # create quasi random list of numbers, ...
+        # ... that should be above the given mutation chance to have mutation happening
+        mutationChance_list = np.random.random(x_len)
         # create quasi random list of mutation points for each gene
-        alet_list = np.random.randint(gene_len, size=length)
+        alet_list = np.random.randint(y_len, size=x_len)
 
-        chromosom_len = len(generation_list4D[0][0])
-        element_inOuts = 3
-        elementsInLine_number = chromosom_len
-        # population list for random numpy choice method
-        population_list = []
-        populationChance_list = []
-        populetion_len = elementsInLine_number * element_inOuts
-        node_chance = (1 - noneNode_chance) / populetion_len
-        sum = 0
-        for i in range(populetion_len):
-            population_list.append(i)
-            populationChance_list.append(node_chance)
-            sum += node_chance
-        population_list.append(populetion_len)
-        populationChance_list.append(1 - sum)
-        # relative list to population_list that is actual population list for gene, that is created
-        population_list2D = []
-        for i in range(elementsInLine_number):
-            for j in range(element_inOuts):
-                population_list2D.append([i+1, j])
-        population_list2D.append([0, 0])
-
-        # print(str(alet_list))
-        # print(str(mutationChance_list))
-        for i in range(length):
-            x = generation_list4D[i].copy()
+        for i in range(x_len):
+            x = generation_list4D[i]
             if mutationChance_list[i] <= mutation_chance:
-                alet_part = []
-                alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
+                y = x[alet_list[i]]
+                for j in range(z_len):
+                    y[j] = [0,0]
+                el_in_row = random.randint(0, max_el_in_row)
                 check_list = []
-                for i in range(chromosom_len):
-                    if alet_part[i] != populetion_len:
-                        while alet_part[i] in check_list:
-                            alet_part[i] = np.random.randint(0, populetion_len)
-                        check_list.append(alet_part[i])
-                alet_part2D = []
-                for y in alet_part:
-                    alet_part2D.append(population_list2D[y])
-                
-                x[alet_list[i]] = alet_part2D
-                while x in mutatedGeneration_list4D: 
-                    alet_part = []
-                    alet_part = np.random.choice(population_list, p=populationChance_list, replace=True, size = chromosom_len)
-                    check_list = []
-                    for i in range(chromosom_len):
-                        if alet_part[i] != populetion_len:
-                            while alet_part[i] in check_list:
-                                alet_part[i] = np.random.randint(0, populetion_len)
-                            check_list.append(alet_part[i])
-                    alet_part2D = []
-                    for y in alet_part:
-                        alet_part2D.append(population_list2D[y])
-                    
-                    x[alet_list[i]] = alet_part2D
-
-            mutatedGeneration_list4D.append(x)
-
-        # for x in mutatedGeneration_list4D:
-        #     print(str(x))
-        # print('mutatedGeneration_list4D')
+                for p in range(el_in_row):
+                    for q in range(3):
+                        index = random.randint(0, z_len - 1)
+                        while index in check_list:
+                            if index + 1 < z_len:
+                                index += 1
+                            else:
+                                index = 0
+                        y[index] = [p + 1, q]
+                        check_list.append(index)
+        
         return mutatedGeneration_list4D
 
 if __name__ == '__main__':
@@ -282,7 +222,7 @@ if __name__ == '__main__':
 
                                 'insNumber_test1':          7, 
                                 'outsNumber_test1':         2, 
-                                'generation_size_test1':    100, 
+                                'generation_size_test1':    1, 
                                 'genes_number_test1':       10, 
                                 'noneNode_chance_test1':    .3,
                                 'crossing_chance':          .9,

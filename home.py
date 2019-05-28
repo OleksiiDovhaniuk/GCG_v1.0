@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.spinner import Spinner
 
 Builder.load_string('''
 #:import hex kivy.utils.get_color_from_hex
@@ -26,10 +27,10 @@ Builder.load_string('''
     font_size: 18
     markup: True
     color: (0,0,0,1)
-
 <UbuntuBtn@Button>:
     font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
     background_image: 'res/images/bg_normal.png'
+    background_normal: ''
     background_color: hex('#e3eaea')
     font_size: 18
     markup: True
@@ -58,7 +59,6 @@ Builder.load_string('''
                 ActionPrevious:
                     title: 'GGC v1.0'
                     with_previous: False
-                    font_size: 18
                     color: (0,0,0,1)
                 ActionGroup:
                     text: 'File' 
@@ -69,6 +69,7 @@ Builder.load_string('''
                     UbuntuActBtn:
                         id: btSetFunction
                         text: "Configurations"
+                        background_color: (1,1,1,1)
                         on_release:
                             root.manager.transition.direction = 'left'
                             root.manager.transition.duration = .30
