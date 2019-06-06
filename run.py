@@ -284,22 +284,24 @@ class RunScreen(Screen):
             self.refresh_process_trigger()
 
     def show_results(self):
-        self.process.set_winnerResult()
-        str_result = ''
-        if self.process.winnerGene is None:
-            self.ids.tinResult.text = str('The attempt has been failed')
-        else:
-            print_result = self.process.winnerGene
+        if self.process.is_new_best():
+            str_result = ''
+            if self.process.is_winner():
+                str_result = 'Best proper result:\n'
+            else:
+                str_result = 'Best result:\n'
+            print_result = self.process.bestOne.copy()
             for i in range (len(print_result[0])):
                 for j in range (len(print_result)):
                     str_result += str(print_result[j][i]) + ' '
                 if i < len(print_result[0]) - 1:
                     str_result += '\n'
+            str_result += '\nFitness function value equal: ' + str(round(self.process.maxResult, 12))
             self.ids.tinResult.text = str_result
-            self.ids.tinResult.text += '\nFitness function value equal: ' + str(round(self.process.winnerResult, 12))
         
     def refresh_process(self, dt):
         self.process.go()
+        self.show_results()
         if self.ids.pbProcess.value < 1:
             # Change progress bar value genetic algorithm progress
             self.ids.pbProcess.value += self.step  
@@ -394,11 +396,11 @@ class RunScreen(Screen):
         clock_str = self.ids.lblClock.text
         clock_int = [int(s) for s in clock_str.split(':')]
         if clock_int[2] < 59:
-            clock_int[2] +=1
+            clock_int[2] += 1
         else:
             clock_int[2] = 0
             if clock_int[1] < 59:
-                clock_int[1] +=1
+                clock_int[1] += 1
             else:
                 clock_int[1] = 0
                 clock_int[0] += 1

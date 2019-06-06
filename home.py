@@ -11,6 +11,7 @@ from kivy.uix.spinner import Spinner
 
 Builder.load_string('''
 #:import hex kivy.utils.get_color_from_hex
+#:import utils kivy.utils
 <HomeBtnAction@Button>:
     on_press:
         root.manager.transition.direction = 'left'
@@ -43,11 +44,57 @@ Builder.load_string('''
     font_size: 18
     markup: True
     color: (0,0,0,1)
+<MenuBarBoxLt@BoxLayout>
+    orientation: 'horizontal'
+    size: (30, 30)
+    size_hint: (1, None)
+    canvas.before:
+        Color:
+            rgb: utils.get_color_from_hex('#ceedec')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Spinner:
+        UbuntuBtn:
+            id: btSetFunction
+            text: "Configurations"
+            background_color: (1,1,1,1)
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = .30
+                root.manager.current = 'ConfigurationsScreen'
+            
+        UbuntuBtn:
+            id: btSetTruthTable
+            text: "Set Truth Table"
+            on_release:   
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = .30           
+                root.manager.current = 'TruthTableScreen'
+        UbuntuBtn:
+            id: btnExit
+            text: "Exit"
+            color: hex('#0e7c7c')
+            on_release: app.stop() 
+    UbuntuBtn:
+        id: btRun
+        text: "Run"
+        pos_hint: {'center':1}
+        color: hex('#0e7c7c')
+        size_hint: (.3, 1)
+        on_release:
+            root.manager.transition.direction = 'left'
+            root.manager.transition.duration = .30
+            root.manager.current = 'RunScreen'
+    UbuntuLbl:
+        size: (200, 30)
+        size_hint: (None, 1)
 
 <HomeScreen>:
     GridLayout:
         cols: 1
         rows: 3
+        # MenuBarBoxLt:
         ActionBar:
             size: (100, 40)
             size_hint: (1, None)

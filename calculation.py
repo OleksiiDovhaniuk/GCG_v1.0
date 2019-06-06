@@ -141,33 +141,37 @@ class Calculation:
         """ Return errors number of schemotechnical system.
    
         Examples of execution:
-        >>> c.getErrors(gene_test1, ins2_1_test1, outs_OR, 0)
-        1
-        >>> c.getErrors(gene_test2, ins2_1_test2, outs_OR, 0)
-        1
-        >>> c.getErrors(gene_test1, ins2_1_test1, outs_AND, 0)
+        # >>> c.getErrors(gene_test1, ins2_1_test1, outs_OR)
+        # 1
+        # >>> c.getErrors(gene_test2, ins2_1_test2, outs_OR)
+        # 1
+        # >>> c.getErrors(gene_test1, ins2_1_test1, outs_AND)
+        # 0
+        # >>> c.getErrors(gene_test2, ins2_1_test2, outs_AND)
+        # 1
+        # >>> c.getErrors(gene_test1, ins2_1_test1, outs_NOR)
+        # 2
+        # >>> c.getErrors(gene_test2, ins2_1_test2, outs_NOR)
+        # 1
+        # >>> c.getErrors(gene_test1, ins2_1_test1, outs_NAND)
+        # 2
+        # >>> c.getErrors(gene_test2, ins2_1_test2, outs_NAND)
+        # 2
+        # >>> c.getErrors(gene_test5, insInv_test5, outsInv_test5)
+        # 1
+        # >>> c.getErrors(gene_test6, insInv_test6, outsInv_test6)
+        # 1
+        # >>> c.getErrors(gene_test7, insInv_test7, outsInv_test6)
+        # 0
+        # >>> c.getErrors(gene_test8, ins2_1_test1, outs3s_test8)
+        # 0
+        # >>> c.getErrors(gene_test9, ins_test9, outs_test9)
+        # 0
+        >>> c.getErrors(gene_test10, ins_test10, outs_test10)
         0
-        >>> c.getErrors(gene_test2, ins2_1_test2, outs_AND, 0)
-        1
-        >>> c.getErrors(gene_test1, ins2_1_test1, outs_NOR, 0)
-        2
-        >>> c.getErrors(gene_test2, ins2_1_test2, outs_NOR, 0)
-        1
-        >>> c.getErrors(gene_test1, ins2_1_test1, outs_NAND, 0)
-        2
-        >>> c.getErrors(gene_test2, ins2_1_test2, outs_NAND, 0)
-        2
-        >>> c.getErrors(gene_test5, insInv_test5, outsInv_test5, 1)
-        1
-        >>> c.getErrors(gene_test6, insInv_test6, outsInv_test6, 1)
-        1
-        >>> c.getErrors(gene_test7, insInv_test7, outsInv_test6, 1)
+        >>> c.getErrors(gene_test11, ins_test10, outs_test10)
         0
-        >>> c.getErrors(gene_test8, ins2_1_test1, outs3s_test8, 1)
-        0
-        >>> c.getErrors(gene_test9, ins_test9, outs_test9, 0)
-        0
-        >>> c.getErrors(gene_test10, ins_test10, outs_test10, 0)
+        >>> c.getErrors(gene_test12, ins_test10, outs_test10)
         0
         """
 
@@ -324,12 +328,12 @@ class Calculation:
 
     def getGenerationResuls(self, generation_list4D, input_signals_list2D, output_signals_list2D):
         """ Returns list of fitness function values for current generation.
-        >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR, 0)[0], 3)
-        0.504
-        >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR, 0)[1], 3)
-        0.461
+        # >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR)[0], 3)
+        # 0.504
+        # >>> round(c.getGenerationResuls([gene_test2, gene_test3], ins2_1_test1, outs_OR)[1], 3)
+        # 0.461
 
-        >>> round(c.getGenerationResuls([gene_test10], ins_test10, outs_test10, 0)[0], 3)
+        >>> round(c.getGenerationResuls([gene_test10], ins_test10, outs_test10)[0], 3)
         0.944
         """
         list4D = generation_list4D.copy()
@@ -365,8 +369,19 @@ if __name__ == '__main__':
                                                  [[0, 0], [0, 0], [1,1], [1,0], [1,2], [0, 0]]],
                                 'gene_test10':  [[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
                                                  [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]], \
-                                                 [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],\
+                                                 [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]], \
                                                  [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]],
+                                'gene_test11':  [[[0,0], [1,0], [1,2], [1,1], [0,0], [0,0]], \
+                                                 [[1,2], [0,0], [0,0], [0,0], [1,0], [1,1]], \
+                                                 [[1,2], [2,0], [2,1], [2,2], [1,1], [1,0]], \
+                                                 [[1,0], [1,1], [1,2], [2,0], [2,1], [2,2]], \
+                                                 [[2,1], [1,2], [1,0], [2,2], [1,1], [2,0]]],
+                                'gene_test12':  [[[0,0], [1,0], [1,2], [0,0], [0,0], [1,1]], \
+                                                 [[1,0], [0,0], [1,2], [0,0], [0,0], [1,1]], \
+                                                 [[2,0], [1,2], [1,1], [2,1], [2,2], [1,0]], \
+                                                 [[1,2], [2,0], [2,1], [1,0], [2,2], [1,1]], \
+                                                 [[1,2], [2,0], [2,2], [2,1], [1,1], [1,0]], \
+                                                 [[1,1], [1,2], [0,0], [0,0], [0,0], [1,0]]],
                                 'ins2_1_test1': [[0,0,0], [0,1,0], [1,0,0], [1,1,0]],
                                 'ins2_1_test2': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
                                 'insInv_test5': [[0, 1], [1, 1]],
@@ -376,7 +391,6 @@ if __name__ == '__main__':
 
                                 'ins_test10':   [[0,0,0,1,0,1], [0,0,1,1,0,1], [0,1,0,1,0,1], [0,1,1,1,0,1],\
                                                  [1,0,0,1,0,1], [1,0,1,1,0,1], [1,1,0,1,0,1], [1,1,1,1,0,1]],
-
                                 'outsInv_test5':[[1, 1], [0, 1]],
                                 'outsInv_test6':[[1], [0]],
                                 'outs_OR':      [[0], [1], [1], [1]],
@@ -385,5 +399,5 @@ if __name__ == '__main__':
                                 'outs_NAND':    [[1], [1], [1], [0]],
                                 'outs3s_test8': [[0,0,1], [0,1,1], [1,0,1], [1,1,1]],
                                 'outs_test9':   [[0,0,1,0,0,0], [1,0,0,0,0,1], [0,1,1,0,0,0], [1,0,1,0,0,1]],
-                                'outs_test10':  [[0,0,0], [1,0,0], [1,0,1], [0,1,1], [1,0,1], [0,1,1], [0,1,0], [1,1,0]]
+                                'outs_test10':  [[0,0,0], [1,0,0], [1,0,1], [0,1,1], [1,0,1], [0,1,1], [0,1,0], [1,1,0]],
                                 })
