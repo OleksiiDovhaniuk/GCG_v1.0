@@ -1,4 +1,4 @@
-from geneticAlgorithm import GeneticAlgorithm
+from genetic_algorithm import GeneticAlgorithm
 from calculation import Calculation
 
 class Process:

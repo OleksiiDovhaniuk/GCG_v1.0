@@ -1,5 +1,8 @@
 import numpy as np
 import random
+
+from fitness_function import generation_result
+
 class GeneticAlgorithm():
     """
     Class that consists of all stages of genetic algorithm for 
@@ -10,9 +13,6 @@ class GeneticAlgorithm():
         """ 
         Returns random generated gene generation. 
      
-        Examples of execution:
-        >>> g.createGeneration(insNumber_test1, outsNumber_test1, generation_size_test1, genes_number_test1)
-
         """
         z_len = max(insNumber, outsNumber)
         y_len = genes_number
@@ -56,8 +56,6 @@ class GeneticAlgorithm():
         """
         The function returns list of patents inexes for crossover the mating pool.
 
-        Examples of execution:
-        >>> g.roulleteSelection(fitnessFunction_list_test1, genes_number_test1)
         """
         parent_list = []
         length = len(fitnessFunction_list)
@@ -102,8 +100,6 @@ class GeneticAlgorithm():
         The function returns two dimensions list with 2 colomns, 
         which consists of generation paired parents. 
 
-        Examples of execution:
-        >>> g.pairParents(g.roulleteSelection(fitnessFunction_list_test1, genes_number_test1))
         """
         pairedParents_list2D = [[], []]
         half = len(parent_list)//2
@@ -117,8 +113,6 @@ class GeneticAlgorithm():
         """
         The function returns crossovered three dimensions generation list.
 
-        Examples of execution:
-        >>> g.crossing([gene_test1, gene_test2, gene_test3, gene_test8], pairedParents_list2D, crossing_chance)
         """
         crossoveredGeneration_list4D = []
         length = len(pairedParents_list2D[0])
@@ -207,27 +201,3 @@ class GeneticAlgorithm():
                         check_list.append(index)
         
         return mutatedGeneration_list4D
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(extraglobs={'g': GeneticAlgorithm(),
-                                'gene_test1':   [[[1,0], [1,1], [1,2]], [[1,1], [1,0], [1,2]]],
-                                'gene_test2':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]]],
-                                'gene_test3':   [[[1,2], [2,1], [2,2]], [[1,0], [1,0], [1,2]]],
-                                'gene_test8':   [[[1,0], [2,1], [2,2]], [[1,0], [1,0], [1,2]]],
-                                'gene_test4':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
-                                'gene_test5':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
-                                'gene_test6':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
-                                'gene_test7':   [[[1,2], [2,0], [2,1]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]], [[1,1], [1,0], [1,2]]],
-
-                                'insNumber_test1':          7, 
-                                'outsNumber_test1':         2, 
-                                'generation_size_test1':    1, 
-                                'genes_number_test1':       10, 
-                                'noneNode_chance_test1':    .3,
-                                'crossing_chance':          .9,
-                                
-                                'pairedParents_list2D': [[0,0],[1,3]],
-
-                                'fitnessFunction_list_test1': [.9, .3, .0, .0, .2, .11]
-                                })
