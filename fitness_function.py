@@ -1,8 +1,5 @@
 import math
 
-fredkin_delay = 1
-fredkin_quantum_cost = 5
-
 def k_from_error(errors):
     """ Factor k based on number of errors in system.
 
@@ -154,7 +151,7 @@ def errors_number(chromosome, inputs, outputs):
 
     Note: 
         Size of inputs and outputs lists is equal. 
-        Number of genes is equal to number of rows in inputs/outputs list.
+        Number of alets is equal to number of rows in inputs/outputs list.
         Alet is look like [n (int), m (int)], 
         where n is logic element index (n >= 0),
         m index of input on that element (0 <= m < 3). 
@@ -388,7 +385,7 @@ def generation_result(generation, inputs, outputs, coefs):
 
     Note: 
         Size of inputs and outputs lists is equal. 
-        Number of genes is equal to number of rows in inputs/outputs list.
+        Number of alets is equal to number of rows in inputs/outputs list.
         Alet is look like [n (int), m (int)], 
         where n is logic element index (n >= 0),
         m index of input on that element (0 <= m < 3). 
@@ -402,6 +399,8 @@ def generation_result(generation, inputs, outputs, coefs):
         [0.944, 0.121, 0.167]
     """
     fitness_function_results = []
+    fredkin_delay = 1
+    fredkin_quantum_cost = 5
 
     for ind, chromosome in enumerate(generation):
         inputs_befor = inputs
@@ -417,55 +416,59 @@ def generation_result(generation, inputs, outputs, coefs):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod(extraglobs={'coefs':            (0.9, 0.034, 0.033, 0.033),
+    doctest.testmod(extraglobs=
+        {'coefs':            (0.9, 0.034, 0.033, 0.033),
 
-                                'ins_or':           [(0,0,1), (0,1,1), (1,0,1), (1,1,1)],
-                                'outs_or':          [(0, None, None), (1, None, None), (1, None, None), (1, None, None)],
-                                'chromosome_or1':   [((1,0), (1,1), (1,2))],
-                                'chromosome_or2':   [((1,1), (1,0), (1,2))],
-                                'chromosome_or3':   [((1,0), (1,2), (1,1))],
-                                'chromosome_or4':   [((1,2), (1,1), (1,0))],
-                                'chromosome_or5':   [((0,0), (0,0), (0,0)),
-                                                     ((1,1), (1,2), (1,0)),
-                                                     ((0,0), (0,0), (0,0)),
-                                                     ((0,0), (0,0), (0,0))],
-                                'chromosome_or6':   [((0,0), (0,0), (0,0)),
-                                                     ((1,1), (1,2), (1,0)),
-                                                     ((0,0), (0,0), (0,0)),
-                                                     ((1,0), (1,2), (1,1))],
+         'ins_or':           [(0,0,1), (0,1,1), (1,0,1), (1,1,1)],
+         'outs_or':          [(0, None, None), 
+                                (1, None, None), 
+                                (1, None, None), 
+                                (1, None, None)],
+         'chromosome_or1':   [((1,0), (1,1), (1,2))],
+         'chromosome_or2':   [((1,1), (1,0), (1,2))],
+         'chromosome_or3':   [((1,0), (1,2), (1,1))],
+         'chromosome_or4':   [((1,2), (1,1), (1,0))],
+         'chromosome_or5':   [((0,0), (0,0), (0,0)),
+                                ((1,1), (1,2), (1,0)),
+                                ((0,0), (0,0), (0,0)),
+                                ((0,0), (0,0), (0,0))],
+         'chromosome_or6':   [((0,0), (0,0), (0,0)),
+                                ((1,1), (1,2), (1,0)),
+                                ((0,0), (0,0), (0,0)),
+                                ((1,0), (1,2), (1,1))],
 
-                                'ins_sum':          [(0,0,0,1,0,1), 
-                                                     (0,0,1,1,0,1),
-                                                     (0,1,0,1,0,1),
-                                                     (0,1,1,1,0,1),
-                                                     (1,0,0,1,0,1),
-                                                     (1,0,1,1,0,1),
-                                                     (1,1,0,1,0,1),
-                                                     (1,1,1,1,0,1)],
-                                'outs_sum':         [(0,0,0,None,None,None),
-                                                     (1,0,0,None,None,None),
-                                                     (1,0,1,None,None,None),
-                                                     (0,1,1,None,None,None),
-                                                     (1,0,1,None,None,None),
-                                                     (0,1,1,None,None,None),
-                                                     (0,1,0,None,None,None),
-                                                     (1,1,0,None,None,None)],
-                                'chromosome_sum1':  [((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
-                                                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                                     ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),
-                                                     ((2,2), (1,0), (1,1), (2,1), (2,0), (1,2)),
-                                                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                                     ((1,2), (0,0), (1,1), (0,0), (0,0), (1,0))],
-                                'chromosome_sum2':  [((0,0), (1,0), (1,2), (1,1), (0,0), (0,0)),
-                                                     ((1,2), (0,0), (0,0), (0,0), (1,0), (1,1)),
-                                                     ((1,2), (2,0), (2,1), (2,2), (1,1), (1,0)),
-                                                     ((1,0), (1,1), (1,2), (2,0), (2,1), (2,2)),
-                                                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                                     ((2,1), (1,2), (1,0), (2,2), (1,1), (2,0))],
-                                'chromosome_sum3':  [((0,0), (1,0), (1,2), (0,0), (0,0), (1,1)),
-                                                     ((1,0), (0,0), (1,2), (0,0), (0,0), (1,1)),
-                                                     ((2,0), (1,2), (1,1), (2,1), (2,2), (1,0)),
-                                                     ((1,2), (2,0), (2,1), (1,0), (2,2), (1,1)),
-                                                     ((1,2), (2,0), (2,2), (2,1), (1,1), (1,0)),
-                                                     ((1,1), (1,2), (0,0), (0,0), (0,0), (1,0))]
-                                })
+         'ins_sum':          [(0,0,0,1,0,1), 
+                                 (0,0,1,1,0,1),
+                                 (0,1,0,1,0,1),
+                                 (0,1,1,1,0,1),
+                                 (1,0,0,1,0,1),
+                                 (1,0,1,1,0,1),
+                                 (1,1,0,1,0,1),
+                                 (1,1,1,1,0,1)],
+         'outs_sum':         [(0,0,0,None,None,None),
+                                (1,0,0,None,None,None),
+                                (1,0,1,None,None,None),
+                                (0,1,1,None,None,None),
+                                (1,0,1,None,None,None),
+                                (0,1,1,None,None,None),
+                                (0,1,0,None,None,None),
+                                (1,1,0,None,None,None)],
+         'chromosome_sum1':  [((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),
+                                 ((2,2), (1,0), (1,1), (2,1), (2,0), (1,2)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((1,2), (0,0), (1,1), (0,0), (0,0), (1,0))],
+         'chromosome_sum2':  [((0,0), (1,0), (1,2), (1,1), (0,0), (0,0)),
+                                 ((1,2), (0,0), (0,0), (0,0), (1,0), (1,1)),
+                                 ((1,2), (2,0), (2,1), (2,2), (1,1), (1,0)),
+                                 ((1,0), (1,1), (1,2), (2,0), (2,1), (2,2)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((2,1), (1,2), (1,0), (2,2), (1,1), (2,0))],
+         'chromosome_sum3':  [((0,0), (1,0), (1,2), (0,0), (0,0), (1,1)),
+                                 ((1,0), (0,0), (1,2), (0,0), (0,0), (1,1)),
+                                 ((2,0), (1,2), (1,1), (2,1), (2,2), (1,0)),
+                                 ((1,2), (2,0), (2,1), (1,0), (2,2), (1,1)),
+                                 ((1,2), (2,0), (2,2), (2,1), (1,1), (1,0)),
+                                 ((1,1), (1,2), (0,0), (0,0), (0,0), (1,0))]
+         })
