@@ -7,7 +7,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 
-from fileWork import FileWork
+from file_work import FileWork
 
 Builder.load_string('''
 <ConfigurationsScreen>:

@@ -15,8 +15,7 @@ from kivy.clock import Clock
 from kivy.garden.graph import MeshLinePlot
 
 # own classes imports
-from fileWork import FileWork
-from process import Process
+import process
 
 # UI of Run Screen
 Builder.load_string('''
@@ -280,56 +279,49 @@ class RunScreen(Screen):
         
         self.update_Configurations()
         self.clock_event = Clock.schedule_interval(self.clock_update, 1)
-        for _ in range (self.generations_number):
+        for _ in range (process.generations_number):
             self.refresh_process_trigger()
 
     def show_results(self):
-        if self.process.is_new_best():
-            str_result = ''
-            if self.process.is_winner():
-                str_result = 'Best proper result:\n'
-            else:
-                str_result = 'Best result:\n'
-            print_result = self.process.bestOne.copy()
-            for i in range (len(print_result[0])):
-                for j in range (len(print_result)):
-                    str_result += str(print_result[j][i]) + ' '
-                if i < len(print_result[0]) - 1:
-                    str_result += '\n'
-            str_result += '\nFitness function value equal: ' + str(round(self.process.maxResult, 12))
-            self.ids.tinResult.text = str_result
+        str_result = 'Best result:\n'
+        for i in range(len(process.best_chromosome[0])):
+            for j in range(len(process.best_chromosome)):
+                str_result += str(process.best_chromosome[j][i]) + ' '
+            if i < len(process.best_chromosome) - 1:
+                str_result += '\n'
+        # str_result += str(process.best_chromosome)
+        str_result += 'Fitness function value equal: ' + str(round(process.absolute_max_ff, 12))    
+
+        self.ids.tinResult.text = str_result
         
     def refresh_process(self, dt):
-        self.process.go()
+        process.go()
         self.show_results()
         if self.ids.pbProcess.value < 1:
             # Change progress bar value genetic algorithm progress
-            self.ids.pbProcess.value += self.step  
+            self.ids.pbProcess.value += process.progress_step
             # Change digit text, that shows percentage of the algorithm completing 
             self.ids.lblProgress.text = str(round(self.ids.pbProcess.value * 100)) + '%'
             # Change fitness function progress bar value 
-            self.plotMin.points = [(x, y * 10000) for x, y in enumerate(self.process.minResult_list)] 
-            self.plotMax.points = [(x, y * 10000) for x, y in enumerate(self.process.maxResult_list)] 
-            self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(self.process.averageResult_list)] 
+            self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
+            self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
+            self.plotMin.points = [(x, y * 10000) for x, y in enumerate(process.min_ffs)] 
             
             # Change digit of fitness function on the process
             
-            self.ids.lblCurrentMin.text = str(round(self.process.current_minResult, 6))
-            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_minResult 
-            self.ids.lblCurrentAverage.text = str(round(self.process.current_averageResult, 6))
-            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_averageResult
-            self.ids.lblCurrentMax.text = str(round(self.process.current_maxResult, 6))
-            self.ids.lblCurrentMin.pos_hint[1] = self.process.current_maxResult
+            self.ids.lblCurrentMax.text = str(round(process.max_ff, 6))
+            self.ids.lblCurrentAverage.text = str(round(process.average_ff, 6))
+            self.ids.lblCurrentMin.text = str(round(process.min_ff, 6))
             # dinamic graph scope changing 
             self.ids.grph.xmax += 1
-            self.ids.grph.ymax = self.process.maxResult * 10000
-            if self.process.maxResult == self.process.minResult:
-                self.ids.grph.ymin = self.process.minResult * 10000 - 1
+            self.ids.grph.ymax = process.absolute_max_ff * 10000
+            if process.absolute_max_ff == process.absolute_min_ff:
+                self.ids.grph.ymin = process.absolute_min_ff * 10000 - 1
             else:
-                self.ids.grph.ymin = self.process.minResult * 10000
+                self.ids.grph.ymin = process.absolute_min_ff * 10000
             # graph min/max numbers update
-            self.ids.lblMinFF.text = str(round(self.process.minResult, 4))
-            self.ids.lblMaxFF.text = str(round(self.process.maxResult, 4))
+            self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 4))
+            self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 4))
             #count iteration
             self.iteration += 1
             self.ids.lblCurrentIteration.text = str(self.iteration)
@@ -356,7 +348,6 @@ class RunScreen(Screen):
         self.ids.lblProgress.text = '0%'
         self.ids.lblClock.text = '00:00:00'
         self.ids.pbProcess.value = 0
-        self.process = None
 
         # remove all plots
         self.ids.grph.remove_plot(self.plotMin)
@@ -366,31 +357,8 @@ class RunScreen(Screen):
         self.iteration = -1
 
     def update_Configurations(self):
-        fileWork = FileWork() 
-
-        generations_number = fileWork.get_generationNumber()
-        ins_list = fileWork.get_insValues()
-        outs_list = fileWork.get_outsValues()
-        # for x in ins_list:
-        #     print(str(x))
-        # for x in outs_list:
-        #     print(str(x))
-        print('-------------')
-        insNumber = len(ins_list[0])
-        outsNumber = len(outs_list[0])
-        # print('insNumber:' + str(insNumber) + ';outsNumber:' + str(outsNumber))
-
-        generation_size = fileWork.get_generationSize()
-        genes_number = fileWork.get_genesNumber()
-        crossing_chance = fileWork.get_crossingChance()
-        mutation_chance = fileWork.get_mutationChance()
-        fitness_coefs = fileWork.get_coefficients()
-        self.process = Process(generations_number,generation_size, 
-            genes_number, crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs)
-        self.generations_number = self.process.generations_number
-        self.step = 1 / generations_number
-        
-        self.ids.grph.x_ticks_major = self.generations_number // 10
+        import process
+        self.ids.grph.x_ticks_major = process.generations_number // 10
 
     def clock_update(self, dt):
         clock_str = self.ids.lblClock.text

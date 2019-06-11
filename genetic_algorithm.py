@@ -1,3 +1,15 @@
+""" Contain all ginetic algorithm stages
+
+Each function of the modul represent stage 
+if genetic algorithm.
+
+Functions: 
+    create_generation(size, genes_number, in_out_number),
+    roullete_selection(fitness_function_values),
+    crossover(generation, paired_parents, crossover_chance),
+    mutation(generation, mutation_chance)
+
+"""
 import random
 
 def create_generation(size, genes_number, in_out_number):

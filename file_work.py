@@ -1,4 +1,5 @@
 import os
+
 class FileWork:
 
     def __init__(self, **kwargs):
@@ -10,14 +11,14 @@ class FileWork:
 
         self.default_inputNames = ['A_default', 'B_default']
         self.default_outputNames = ['C_default']
-        self.default_inputValues = [[0, 0], [0, 1], [1, 0], [1, 1]]
+        self.default_inputValues = [[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]]
         self.default_outputValues = [[0], [1], [1], [1]]
         
-        self.default_generationNumber = 1000
-        self.default_generationSize = 400
+        self.default_generationNumber = 100
+        self.default_generationSize = 1000
         self.default_genesNumber = 7
-        self.default_crossingChance = 0.95
-        self.default_mutationChance = 0.05
+        self.default_crossingChance = 0.4
+        self.default_mutationChance = 0.02
         self.default_fitnessFunctionCoefficients = [0.9 , 0.033, 0.033, 0.34]
 
 # ------------------------------- SAVES ------------------------------------- #  

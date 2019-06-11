@@ -1,3 +1,21 @@
+""" Calculate fitness function value
+
+This module contains functions for work and 
+calculation the fitness function of current 
+genetic algorithm.
+
+Functions: 
+    generation_result(generation, inputs, outputs, coefs),
+    garbage_outs_number(inputs, outputs),
+    quantum_cost(chromosome, el_quantum_cost),
+    delay(chromosome, element_delay),
+    elements_number(chromosome),
+    errors_number(chromosome, inputs, outputs), 
+    fredkin_result(signals), 
+    fitness_function(errors, c, g, s, coefs), 
+    k_from_error(errors), g_from_c(c), h_from_g(g), i_from_s(s).
+
+"""
 import math
 
 def k_from_error(errors):
@@ -70,7 +88,7 @@ def i_from_s(s):
         i = math.exp(x)
         return i
 
-def fitness_function_result(errors, c, g, s, coefs):
+def fitness_function(errors, c, g, s, coefs):
     """ Calculates fitness function value. 
 
     Args: 
@@ -83,19 +101,19 @@ def fitness_function_result(errors, c, g, s, coefs):
     Returns: F = αK(errors) + ßG(c) + yH(g) + δI(s).
 
     Examples of execution:
-        >>> round(fitness_function_result(0, 5, 0, 1, [0.7, 0.1, 0.1, 0.1]), 3)
+        >>> round(fitness_function(0, 5, 0, 1, [0.7, 0.1, 0.1, 0.1]), 3)
         1.0
-        >>> round(fitness_function_result(0, 5, 0, 1, [0.5, 0.1, 0.15, 0.25]), 3)
+        >>> round(fitness_function(0, 5, 0, 1, [0.5, 0.1, 0.15, 0.25]), 3)
         1.0
-        >>> round(fitness_function_result(24, 125, 99, 25, [0.7, 0.1, 0.1, 0.1]), 3)
+        >>> round(fitness_function(24, 125, 99, 25, [0.7, 0.1, 0.1, 0.1]), 3)
         0.109
 
     """
-    f = (coefs[0] * k_from_error(errors) + 
+    fitness_function_value = (coefs[0] * k_from_error(errors) + 
     coefs[1] * g_from_c(c) + 
     coefs[2] * h_from_g(g) + 
     coefs[3] * i_from_s(s))
-    return f
+    return fitness_function_value
 
 def fredkin_result(signals):
     """ Simulates Fredkin element action.
@@ -157,24 +175,15 @@ def errors_number(chromosome, inputs, outputs):
         m index of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> errors_number(chromosome_or1, ins_or, outs_or)
-        0
-        >>> errors_number(chromosome_or2, ins_or, outs_or)
-        0
-        >>> errors_number(chromosome_or3, ins_or, outs_or)
-        0
-        >>> errors_number(chromosome_or4, ins_or, outs_or)
-        1
-        >>> errors_number(chromosome_or5, ins_or, outs_or)
-        1
-        >>> errors_number(chromosome_or6, ins_or, outs_or)
-        0
-        >>> errors_number(chromosome_sum1, ins_sum, outs_sum)
-        0
-        >>> errors_number(chromosome_sum2, ins_sum, outs_sum)
-        10
-        >>> errors_number(chromosome_sum3, ins_sum, outs_sum)
-        6
+        >>> [errors_number(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or1]
+        [0, 0, 0, 1]
+        >>> [errors_number(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or2]
+        [1, 0]
+        >>> [errors_number(chromosome, ins_sum, outs_sum) \
+            for chromosome in generation_sum]
+        [0, 10, 6, 0]
 
     """
     # create list of active signals path
@@ -243,24 +252,12 @@ def elements_number(chromosome):
     Returns: elements_number (int): number of logic elements in current chromosome.
 
     Examples of execution:
-        >>> elements_number(chromosome_or1)
-        1
-        >>> elements_number(chromosome_or2)
-        1
-        >>> elements_number(chromosome_or3)
-        1
-        >>> elements_number(chromosome_or4)
-        1
-        >>> elements_number(chromosome_or5)
-        1
-        >>> elements_number(chromosome_or6)
-        2
-        >>> elements_number(chromosome_sum1)
-        5
-        >>> elements_number(chromosome_sum2)
-        8
-        >>> elements_number(chromosome_sum3)
-        9
+        >>> [elements_number(chromosome) for chromosome in generation_or1]
+        [1, 1, 1, 1]
+        >>> [elements_number(chromosome) for chromosome in generation_or2]
+        [1, 2]
+        >>> [elements_number(chromosome) for chromosome in generation_sum]
+        [5, 8, 9, 7]
 
     """
     elements_number = 0
@@ -284,24 +281,12 @@ def delay(chromosome, element_delay):
     Returns: delay (float): delay of current chromosome.
 
     Examples of execution:
-        >>> delay(chromosome_or1, 5)
-        5
-        >>> delay(chromosome_or2, 5)
-        5
-        >>> delay(chromosome_or3, 2)
-        2
-        >>> delay(chromosome_or4, 10)
-        10
-        >>> delay(chromosome_or5, 3)
-        3
-        >>> delay(chromosome_or6, 2)
-        4
-        >>> delay(chromosome_sum1, 1)
-        5
-        >>> delay(chromosome_sum2, 2)
-        16
-        >>> delay(chromosome_sum3, 3)
-        27
+        >>> [delay(chromosome, 1) for chromosome in generation_or1]
+        [1, 1, 1, 1]
+        >>> [delay(chromosome, 2) for chromosome in generation_or2]
+        [2, 4]
+        >>> [delay(chromosome, 3) for chromosome in generation_sum]
+        [15, 24, 27, 21]
 
     """
     return elements_number(chromosome) * element_delay
@@ -316,24 +301,12 @@ def quantum_cost(chromosome, el_quantum_cost):
     Returns: quantum_cost (float): quantum cost of current chromosome.
 
     Examples of execution:
-        >>> quantum_cost(chromosome_or1, 5)
-        5
-        >>> quantum_cost(chromosome_or2, 5)
-        5
-        >>> quantum_cost(chromosome_or3, 2)
-        2
-        >>> quantum_cost(chromosome_or4, 10)
-        10
-        >>> quantum_cost(chromosome_or5, 3)
-        3
-        >>> quantum_cost(chromosome_or6, 2)
-        4
-        >>> quantum_cost(chromosome_sum1, 1)
-        5
-        >>> quantum_cost(chromosome_sum2, 2)
-        16
-        >>> quantum_cost(chromosome_sum3, 3)
-        27
+        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or1]
+        [5, 5, 5, 5]
+        >>> [quantum_cost(chromosome, 4) for chromosome in generation_or2]
+        [4, 8]
+        >>> [quantum_cost(chromosome, 3) for chromosome in generation_sum]
+        [15, 24, 27, 21]
 
     """
     return elements_number(chromosome) * el_quantum_cost
@@ -391,12 +364,15 @@ def generation_result(generation, inputs, outputs, coefs):
         m index of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> [round(result, 3) for result in generation_result([chromosome_or1, \
-            chromosome_or2, chromosome_or3, chromosome_or4], ins_or, outs_or, coefs)]
+        >>> [round(result, 3) for result in generation_result(generation_or1, \
+            ins_or, outs_or, coefs)]
         [0.978, 0.978, 0.978, 0.528]
-        >>> [round(result, 3) for result in generation_result([chromosome_sum1, \
-            chromosome_sum2, chromosome_sum3], ins_sum, outs_sum, coefs)]
-        [0.944, 0.121, 0.167]
+        >>> [round(result, 3) for result in generation_result(generation_or2, \
+            ins_or, outs_or, coefs)]
+        [0.528, 0.963]
+        >>> [round(result, 3) for result in generation_result(generation_sum, \
+            ins_sum, outs_sum, coefs)]
+        [0.944, 0.121, 0.167, 0.94]
     """
     fitness_function_results = []
     fredkin_delay = 1
@@ -409,7 +385,7 @@ def generation_result(generation, inputs, outputs, coefs):
         c = quantum_cost(chromosome, fredkin_quantum_cost)
         g = garbage_outs_number(inputs[0], outputs[0])
         s = delay(chromosome, fredkin_delay)
-        fitness_function_value = fitness_function_result(errors, c, g, s, coefs) 
+        fitness_function_value = fitness_function(errors, c, g, s, coefs) 
         fitness_function_results.append(fitness_function_value)
 
     return fitness_function_results
@@ -424,18 +400,18 @@ if __name__ == '__main__':
                                 (1, None, None), 
                                 (1, None, None), 
                                 (1, None, None)],
-         'chromosome_or1':   [((1,0), (1,1), (1,2))],
-         'chromosome_or2':   [((1,1), (1,0), (1,2))],
-         'chromosome_or3':   [((1,0), (1,2), (1,1))],
-         'chromosome_or4':   [((1,2), (1,1), (1,0))],
-         'chromosome_or5':   [((0,0), (0,0), (0,0)),
+         'generation_or1':    [[((1,0), (1,1), (1,2))],
+                               [((1,1), (1,0), (1,2))],
+                               [((1,0), (1,2), (1,1))],
+                               [((1,2), (1,1), (1,0))]],
+         'generation_or2':    [[((0,0), (0,0), (0,0)),
                                 ((1,1), (1,2), (1,0)),
                                 ((0,0), (0,0), (0,0)),
                                 ((0,0), (0,0), (0,0))],
-         'chromosome_or6':   [((0,0), (0,0), (0,0)),
+                               [((0,0), (0,0), (0,0)),
                                 ((1,1), (1,2), (1,0)),
                                 ((0,0), (0,0), (0,0)),
-                                ((1,0), (1,2), (1,1))],
+                                ((1,0), (1,2), (1,1))]],
 
          'ins_sum':          [(0,0,0,1,0,1), 
                                  (0,0,1,1,0,1),
@@ -453,22 +429,29 @@ if __name__ == '__main__':
                                 (0,1,1,None,None,None),
                                 (0,1,0,None,None,None),
                                 (1,1,0,None,None,None)],
-         'chromosome_sum1':  [((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
+         'generation_sum':   [[((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),
                                  ((2,2), (1,0), (1,1), (2,1), (2,0), (1,2)),
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((1,2), (0,0), (1,1), (0,0), (0,0), (1,0))],
-         'chromosome_sum2':  [((0,0), (1,0), (1,2), (1,1), (0,0), (0,0)),
+                              [((0,0), (1,0), (1,2), (1,1), (0,0), (0,0)),
                                  ((1,2), (0,0), (0,0), (0,0), (1,0), (1,1)),
                                  ((1,2), (2,0), (2,1), (2,2), (1,1), (1,0)),
                                  ((1,0), (1,1), (1,2), (2,0), (2,1), (2,2)),
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((2,1), (1,2), (1,0), (2,2), (1,1), (2,0))],
-         'chromosome_sum3':  [((0,0), (1,0), (1,2), (0,0), (0,0), (1,1)),
+                              [((0,0), (1,0), (1,2), (0,0), (0,0), (1,1)),
                                  ((1,0), (0,0), (1,2), (0,0), (0,0), (1,1)),
                                  ((2,0), (1,2), (1,1), (2,1), (2,2), (1,0)),
                                  ((1,2), (2,0), (2,1), (1,0), (2,2), (1,1)),
                                  ((1,2), (2,0), (2,2), (2,1), (1,1), (1,0)),
-                                 ((1,1), (1,2), (0,0), (0,0), (0,0), (1,0))]
+                                 ((1,1), (1,2), (0,0), (0,0), (0,0), (1,0))],
+                             [((1,0), (2,1), (2,2), (2,0), (1,2), (1,1)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((0,0), (0,0), (1,0), (0,0), (1,1), (1,2)),
+                                 ((1,0), (2,1), (1,2), (1,1), (2,0), (2,2)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+                                 ((1,2), (2,1), (2,2), (1,0), (1,1), (2,0))]]
          })

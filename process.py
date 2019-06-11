@@ -1,101 +1,140 @@
-from genetic_algorithm import GeneticAlgorithm
-from calculation import Calculation
+from fitness_function import generation_result
+import genetic_algorithm as gntc
+from file_work import FileWork
 
-class Process:
-    def __init__(self, generations_number, generation_size, genes_number,
-                 crossing_chance, mutation_chance, ins_list, outs_list, fitness_coefs):
-        self.generations_number = generations_number
-        self.insNumber = len(ins_list[0])
-        self.outsNumber = len(outs_list[0])
-        self.generation_size = generation_size
-        self.genes_number = genes_number
-        self.fitness_coefs = fitness_coefs
-        self.generation = None
-        self.fitnessFunction = 0
-        self.ins_list = ins_list
-        self.outs_list = outs_list
-        self.crossing_chance = crossing_chance
-        self.mutation_chance = mutation_chance
-        self.averageResult_list = []
-        self.maxResult_list = []
-        self.minResult_list = []
-        self.maxResult = 0
-        self.minResult = 1
-        self.current_averageResult = 0
-        self.current_maxResult = 0
-        self.current_minResult = 1
-        self.bestOne = []
+file_work = FileWork()
 
-        if generations_number <= 100:
-            self.step = 1
-        else:
-            self.step = generations_number // 100
+# genetic algorithm configurations (immutable)
+generations_number = file_work.get_generationNumber()
+generation_size = file_work.get_generationSize()
+chromosome_size = file_work.get_genesNumber()
+crossover_chance = file_work.get_crossingChance()
+mutation_chance = file_work.get_mutationChance()
+inputs = file_work.get_insValues()
+outputs = file_work.get_outsValues()
+for row in outputs:
+    for _ in range(len(inputs) - len(outputs)):
+        row.append(None)
+coefs = file_work.get_coefficients()
+progress_step = 1 / generations_number
 
-    def go(self):
-        fitness_coefs = self.fitness_coefs.copy()
-        # print(str(fitness_coefs))
-        cal = Calculation(fitness_coefs[0], fitness_coefs[1], fitness_coefs[2], fitness_coefs[3])
-        GenAlg = GeneticAlgorithm()
-        generation = self.generation
+# genetic algorithm objects (mutable)
+generation = gntc.create_generation(generation_size, 
+    chromosome_size, len(inputs[0]))
 
-        # If it is the first iteration of algorithm, than randeom create generation
-        if generation is None: 
-            generation = GenAlg.createGeneration(self.insNumber, self.outsNumber, self.generation_size, self.genes_number)
+# chromosome_sum1 =  [((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
+#                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+#                     ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),
+#                     ((2,2), (1,0), (1,1), (2,1), (2,0), (1,2)),
+#                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+#                     ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
+#                     ((1,2), (1,2), (1,1), (0,0), (0,0), (1,0))]
+# generation[0] = chromosome_sum1
 
-        results = cal.getGenerationResuls(generation, self.ins_list, self.outs_list)
-        
-         # correct_gene_list3D = [[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
-            #                     [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
-            #                     [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
-            #                     [[1,2], [0,0], [1,1], [0,0], [0,0], [0,0]]]
+# ff: fitness function
+ff_results = generation_result(generation, inputs, outputs, coefs)
+max_ff =  max(ff_results)
+average_ff =  sum(ff_results) / len(ff_results)
+min_ff =  min(ff_results)
+# ffs: list of fitness function values
+max_ffs =  [max_ff]
+average_ffs =  [average_ff]
+min_ffs =  [min_ff]
+# absolute values
+absolute_max_ff = max_ff
+absolute_min_ff = min_ff
+# best but not necessarily satisfactory
+best_chromosome =  generation[ff_results.index(max_ff)] 
+# list of satisfactory chromosomes
+result_chromosomes = []
+for index, value in enumerate(ff_results):
+    if value >= coefs[0]:
+        result_chromosomes.append(generation[index])
 
-            # generation[0] = correct_gene_list3D
-            # generation_test = [correct_gene_list3D]
+def go():
+    """ Make full iteration of genetic algorithm not included 
+    generation creation and first genectic algorithm objects 
+    setting up
 
-        # body of genetic algorithm process
-        selection = GenAlg.roulleteSelection(results, self.genes_number)
-        # pair_list = GenAlg.pairParents_byDifference(selection, generation)
-        pair_list = GenAlg.pairParents(selection)
-        generation = GenAlg.crossing(generation, pair_list, self.crossing_chance).copy()
-        # print(str(generation))
-        generation = GenAlg.mutation(generation, self.mutation_chance).copy()
-            
-        # find average fitness function value of current generation
-        sum = 0
-        max = 0
-        min = 1
-        max_ind = 0
-        for i in range(len(results)):
-            sum += results[i]
-            if results[i] > max:
-                max = results[i]
-                max_ind = i
-            if results[i] < min:
-                min = results[i]
-        average_result = sum / len(results)
-        self.current_averageResult = average_result
-        self.averageResult_list.append(average_result)
-        self.current_maxResult = max
-        if max > self.maxResult:
-            self.bestOne = generation[max_ind].copy()
-            print(str(self.maxResult))
-        self.maxResult_list.append(max)
-        self.current_minResult = min
-        if min < self.minResult:
-            self.minResult = min
-        self.minResult_list.append(min)
-        
-        # global generation changes to next step generation
-        self.generation = generation.copy()
-        # print(str(pair_list))
+    Works with global variables of process module:
+        configurations (immutable):
+            generations_number (int).
+            generation_size (int).
+            chromosome_size (int).
+            crossover_chance (float): in range [0, 1].
+            mutation_chance (float): in range [0,1].
+            inputs (2D list): truth table input signals.
+            outputs (2D list): truth table output signals.
+            coefs (list): fitness function coeficients [α, ß, y, δ].
+            progress_step (float): portion of one iteration for 
+                overal progress (0, 1].
+        objects (mutable):
+            generation (4D list).
+            ff_results (list): fitness function results.
+            max_ff (float): absolute maximum of fitness 
+                function values in range [0, 1].
+            average_ff (float):  current average of fitness 
+                function values in range [0, 1].
+            min_ff (float): absolute minimum of fitness 
+                function values in range [0, 1].
+            max_ffs (list): maximum values of fitness function
+                for all iterations.
+            average_ffs (list): average values of fitness function
+                for all iterations.
+            min_ffs (list): minimum values of fitness function
+                for all iterations.
+            best_chromosome (3D list).
+            result_chromosomes (4d list): list of all suitable 
+                chromosom.
+    """
+    global ff_results, generation, max_ff, average_ff, min_ff, \
+        absolute_max_ff, absolute_min_ff, max_ffs, average_ffs, min_ffs, \
+        best_chromosome, result_chromosomes
 
-    def is_winner(self):
-        return self.maxResult >= self.fitness_coefs[0]
+     # body of genetic algorithm process
+    paired_parents = gntc.roullete_selection(ff_results)
+    generation = gntc.crossover(generation, paired_parents, crossover_chance)
+    generation = gntc.mutation(generation, mutation_chance)
+    ff_results = generation_result(generation, inputs, outputs, coefs)
+    # set absolute fitness function values
+    max_ff =  max(ff_results)
+    if max_ff > absolute_max_ff: 
+        absolute_max_ff =  max_ff
+        best_chromosome =  generation[ff_results.index(max_ff)]
+    average_ff =  sum(ff_results) / len(ff_results)
+    min_ff =  min(ff_results)
+    if min_ff < absolute_min_ff:
+        absolute_min_ff =  min_ff
+    # set average fitness function values
+    max_ffs.append(max(ff_results))
+    average_ffs.append(average_ff)
+    min_ffs.append(min(ff_results))
+     
+    # list of satisfactory chromosomes
+    for index, value in enumerate(ff_results):
+        if value >= coefs[0]:
+            result_chromosomes.append(generation[index])
 
-    def is_new_best(self):
-        is_newBest = False
-        if self.current_maxResult > self.maxResult:
-            self.maxResult = self.current_maxResult
-            is_newBest = True
 
-        return is_newBest
+print(generations_number)
+print(generation_size)
+print(chromosome_size)
+print(crossover_chance)
+print(mutation_chance)
+for row in inputs:
+    print(row)
+for row in outputs:
+    print(row)
+print(coefs)
+print(progress_step)
+
+
+print(max_ff)
+print(average_ff)
+print(min_ff)
+print(max_ffs)
+print(average_ffs)
+print(min_ffs)
+for gene in best_chromosome:
+    print(gene)
+print() 
