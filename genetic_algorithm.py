@@ -53,11 +53,9 @@ def create_generation(size, genes_number, in_out_number):
                             index = 0
                     gene[index] = [element_index + 1, input_index]
                     check_list.append(index)
-        #     print(gene)
-        # print()
     return generation
 
-def roullete_selection(fitness_function_values):
+def roulette_selection(fitness_function_values):
     """ Chooses and pair parents for creating future generation.
 
     Args: fitness_function_values (list of float).
@@ -75,15 +73,12 @@ def roullete_selection(fitness_function_values):
     length =  len(fitness_function_values)
     # create list for random selection on roullete wheel
     random_shots = [random.uniform(0, 1) for _ in range(length)]  
-    # print(random_shots)      
     # create roullete wheel (list)
     roullete_wheel = [value/sum(fitness_function_values) \
         for value in fitness_function_values]
     for sector_ind in range(1, length):
         roullete_wheel[sector_ind] += roullete_wheel[sector_ind - 1]
     roullete_wheel[length-1] = 1
-    # print(fitness_function_values)      
-    # print(roullete_wheel)      
     # create parents list
     parents = [-1 for _ in range(length)]
     for shot_ind, shot in enumerate(random_shots):
@@ -94,7 +89,6 @@ def roullete_selection(fitness_function_values):
     # pair parents
     half_len = length // 2
     parents.sort()
-    # print(parents)      
     paired_parents = [[parents[index], parents[-(index+1)]] \
         for index in range(half_len)]
     return paired_parents
@@ -122,25 +116,13 @@ def crossover(generation, paired_parents, crossover_chance):
     max_crossovers =  len(paired_parents)
     # define max value of crossover point
     max_crossover_point = len(generation[0]) - 1
-    # for chromosome in generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('the end of chromosome')
-    # print()
     # copy chromosomes for integrity of global variables  
     crossovered_generation = [chromosome for chromosome in generation]
-    # for chromosome in crossovered_generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('the end of chromosome')
-    # print()
     # create list of crossover chances for each pair of parents
     random_shots = [random.uniform(0, 1) for _ in range(max_crossovers)] 
-    # print(random_shots)
     # create list of crossover points for each pair of parents
     crossover_points = [(index % max_crossover_point) + 1 \
         for index in range(0, max_crossovers)]
-    # print(crossover_points)
     # crossover the generation
     for pair_ind, pair in enumerate(paired_parents):
         if (random_shots[pair_ind] <= crossover_chance
@@ -153,32 +135,14 @@ def crossover(generation, paired_parents, crossover_chance):
             parent1_r = [gene for gene in generation[pair[1]][point:]]
             # marge parents into new child chromosome
             child0.extend(parent1_r)
-            # for gene in child0:
-            #     print(gene)
-            # print('the end of child0')
             
             child1.extend(parent0_r)
-            # for gene in child1:
-            #     print(gene)
-            # print('the end of child1')
             # if chromosomes are new, set tham to new generation
             if child0 not in crossovered_generation:
                 crossovered_generation[pair[0]] = [gene for gene in child0]
-                # print('I am here 0!')
             if child1 not in crossovered_generation:
-                # print('I am here 1!')
                 crossovered_generation[pair[1]] = [gene for gene in child1]
 
-    # for chromosome in crossovered_generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('the end of chromosome')
-    # print()
-    # for chromosome in generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('the end of chromosome')
-    # print()
     return crossovered_generation
 
 def mutation(generation, mutation_chance):
@@ -209,18 +173,11 @@ def mutation(generation, mutation_chance):
     max_elements_in_row = gene_size // 3
     # copy chromosomes for integrity of global variables 
     mutated_generation = [chromosome for chromosome in generation]
-    # for chromosome in mutated_generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('end of chromosome!')
-    # print()
     # create list of mutation chances 
     random_shots = [random.uniform(0, 1) for _ in generation] 
-    # print(random_shots)
     # create list of mutation points
     mutation_points = [random.randint(0, max_mutation_point) \
         for _ in generation]
-    # print(mutation_points)
     # mumtate generation
     for chromosome_ind, chromosome in enumerate(generation):
         if random_shots[chromosome_ind] <= mutation_chance:
@@ -242,24 +199,10 @@ def mutation(generation, mutation_chance):
                     mutated_chromosome[point][index] = \
                         [element_index + 1, input_index]
                     check_list.append(index)
-            # for gene in mutated_chromosome:
-            #     print(gene)
-            # print('end of mutated chromosome')
-            # if mutated_cromosome is new, insert new generation
+            # if mutated cromosome is new, insert new generation
             if mutated_chromosome not in mutated_generation:
-                # print('I am here')
                 mutated_generation[chromosome_ind] = \
                     [gene for gene in mutated_chromosome]
-    # for chromosome in mutated_generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('end of chromosome!')
-    # print()
-    # for chromosome in generation:
-    #     for gene in chromosome:
-    #         print(gene)
-    #     print('end of chromosome!')
-    # print()
     return mutated_generation
 
 if __name__ == '__main__':

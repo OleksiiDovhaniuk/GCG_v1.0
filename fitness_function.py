@@ -210,7 +210,7 @@ def errors_number(chromosome, inputs, outputs):
 
     # create empty errors number list  (size = outputs number * inputs number)
     errors_number = [[0 for _ in inputs[0]] for _ in outputs[0]]
-    #copy inputs for local variable for safetiness of global
+    # copy inputs for local variable for safetiness of global
     ins = [[value for value in row] for row in inputs]
     # fill up the list
     for row_ind, active_signals in enumerate(ins):
@@ -451,7 +451,6 @@ if __name__ == '__main__':
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((0,0), (0,0), (1,0), (0,0), (1,1), (1,2)),
                                  ((1,0), (2,1), (1,2), (1,1), (2,0), (2,2)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((1,2), (2,1), (2,2), (1,0), (1,1), (2,0))]]
          })

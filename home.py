@@ -55,6 +55,7 @@ Builder.load_string('''
             pos: self.pos
             size: self.size
     Spinner:
+        text: "File"
         UbuntuBtn:
             id: btSetFunction
             text: "Configurations"
@@ -94,7 +95,7 @@ Builder.load_string('''
     GridLayout:
         cols: 1
         rows: 3
-        # MenuBarBoxLt:
+        MenuBarBoxLt:
         ActionBar:
             size: (100, 40)
             size_hint: (1, None)
@@ -144,7 +145,8 @@ Builder.load_string('''
                         root.manager.transition.direction = 'left'
                         root.manager.transition.duration = .30
                         root.manager.current = 'RunScreen'
-                
+
+        # MenuBarBoxLt:   
         BoxLayout:
             orientation: 'vertical'
             UbuntuLbl:

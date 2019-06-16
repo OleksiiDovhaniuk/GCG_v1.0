@@ -217,19 +217,14 @@ Builder.load_string('''
         BoxLayout:
             size: (400, 150)
             size_hint: (1, None)
-            ScrollView:
-                id:scroller
-                TextInput:
-                    id: tinResult
-                    multiline: True
-                    size_hint: (None, None)
-                    width: scroller.width
-                    height: max(self.minimum_height, scroller.height)
-                    font_size: 14
-                    font_color: (1,1,1,1)
-                    cursor_color: [0,0,0,1]
-                    background_color: hex('#e3eaea')
-                    selection_color: (0,0,0,1)
+            UbuntuTxtIn:
+                id: tinResult
+                multiline: True
+                halign: 'center'
+                font_size: 14
+                font_color: (1,1,1,1)
+                cursor_color: [0,0,0,1]
+                background_color: hex('#e3eaea')
 
         BoxLayout:
             size: (400, 30)
@@ -269,8 +264,6 @@ class RunScreen(Screen):
         # Average plot is BLUE
         self.plotAverage = MeshLinePlot(color=[0, 0, 1, 1])
 
-        self.iteration = 0
-
     def go(self):
         self.ids.grph.add_plot(self.plotMin)
         self.ids.grph.add_plot(self.plotMax)
@@ -278,26 +271,68 @@ class RunScreen(Screen):
         self.ids.grph.xmax = 1
         
         self.update_Configurations()
-        self.clock_event = Clock.schedule_interval(self.clock_update, 1)
+        # self.clock_event = Clock.schedule_interval(self.clock_update, 1)
         for _ in range (process.generations_number):
             self.refresh_process_trigger()
 
     def show_results(self):
         str_result = 'Best result:\n'
-        for i in range(len(process.best_chromosome[0])):
-            for j in range(len(process.best_chromosome)):
-                str_result += str(process.best_chromosome[j][i]) + ' '
-            if i < len(process.best_chromosome) - 1:
-                str_result += '\n'
-        # str_result += str(process.best_chromosome)
-        str_result += 'Fitness function value equal: ' + str(round(process.absolute_max_ff, 12))    
-
+        str_result += self.result_to_str(process.best_chromosome, \
+            process.absolute_max_ff, process.time_to_find) + '\n\n'
+        if process.iteration == process.generations_number:
+            if process.results['chromosome']:
+                str_result += 'Other results:\n'
+            for index in range (len(process.results['chromosome'])):
+                str_result += f'Result #{str(index + 1)}\n'
+                str_result += self.result_to_str(
+                    process.results['chromosome'][index],
+                    process.results['fitness_function'][index],
+                    process.results['time'][index])
+                
+                if index < len(process.results['time']) - 1:
+                    str_result += '\n\n'
         self.ids.tinResult.text = str_result
-        
+
+    def result_to_str(self, chromosome, fitness_function_value, time):
+        """ Convert result of complex type (3D list, float, str) to string.
+        """
+        str_result = ''
+        for i in range(len(chromosome[0])):
+            for j in range(len(chromosome)):
+                str_result += str(chromosome[j][i]) + ' '
+            str_result += '\n'
+        str_result += 'Fitness function value equal:' + \
+            f' {str(round(fitness_function_value, 8))}, that took '
+        if time[:2] != '00':
+            if time[0] == '0':
+                str_result += f'{time[1]} hour'
+            else:
+                str_result += f'{time[:2]} hour'
+            if time[:2] != '01':
+                str_result += 's'
+            str_result += ' '
+        if time[3:5] != '00':
+            if time[3] == '0':
+                str_result += f'{time[4]} minute'
+            else:
+                str_result += f'{time[3:5]} minute'
+            if time[3:5] != '01':
+                str_result += 's'
+            str_result += ' '
+        if time[6] == '0':
+            str_result += f'{time[7]} second'
+        else:
+            str_result += f'{time[6:8]} second'
+        if time[6:8] != '01':
+            str_result += 's'
+        str_result += '.'
+
+        return str_result
+
     def refresh_process(self, dt):
         process.go()
         self.show_results()
-        if self.ids.pbProcess.value < 1:
+        if process.iteration < process.generations_number:
             # Change progress bar value genetic algorithm progress
             self.ids.pbProcess.value += process.progress_step
             # Change digit text, that shows percentage of the algorithm completing 
@@ -313,7 +348,7 @@ class RunScreen(Screen):
             self.ids.lblCurrentAverage.text = str(round(process.average_ff, 6))
             self.ids.lblCurrentMin.text = str(round(process.min_ff, 6))
             # dinamic graph scope changing 
-            self.ids.grph.xmax += 1
+            self.ids.grph.xmax = process.iteration
             self.ids.grph.ymax = process.absolute_max_ff * 10000
             if process.absolute_max_ff == process.absolute_min_ff:
                 self.ids.grph.ymin = process.absolute_min_ff * 10000 - 1
@@ -322,15 +357,15 @@ class RunScreen(Screen):
             # graph min/max numbers update
             self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 4))
             self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 4))
-            #count iteration
-            self.iteration += 1
-            self.ids.lblCurrentIteration.text = str(self.iteration)
-            
-            # Call trigger for refreshing run screen 
+            # count iteration
+            self.ids.lblCurrentIteration.text = str(process.iteration + 1)
+            # show progress time
+            self.ids.lblClock.text = process.time
             self.refresh_process_trigger()
         else:
-            self.show_results()
-            Clock.unschedule(self.clock_event)
+            # set progress bar as full
+            self.ids.pbProcess.value = 1
+            self.ids.lblProgress.text = '100%'
 
     def cansel_to_run(self):
         self.ids.btCancelRun.text = "Run"
@@ -342,7 +377,7 @@ class RunScreen(Screen):
 
     def cansel(self):
         Clock.unschedule(self.refresh_process_trigger)
-        Clock.unschedule(self.clock_event)
+        # Clock.unschedule(self.clock_event)
 
         self.ids.tinResult.text = ''
         self.ids.lblProgress.text = '0%'
@@ -353,32 +388,7 @@ class RunScreen(Screen):
         self.ids.grph.remove_plot(self.plotMin)
         self.ids.grph.remove_plot(self.plotMax)
         self.ids.grph.remove_plot(self.plotAverage)
-        # restart graph atributes 
-        self.iteration = -1
 
     def update_Configurations(self):
         import process
         self.ids.grph.x_ticks_major = process.generations_number // 10
-
-    def clock_update(self, dt):
-        clock_str = self.ids.lblClock.text
-        clock_int = [int(s) for s in clock_str.split(':')]
-        if clock_int[2] < 59:
-            clock_int[2] += 1
-        else:
-            clock_int[2] = 0
-            if clock_int[1] < 59:
-                clock_int[1] += 1
-            else:
-                clock_int[1] = 0
-                clock_int[0] += 1
-
-        clock_str = ''
-        for i in range(3):
-            if clock_int[i] < 10:
-                clock_str += '0' + str(clock_int[i])
-            else:
-                clock_str += str(clock_int[i])
-            clock_str += ':'
-        clock_str = clock_str[:8]
-        self.ids.lblClock.text = clock_str
