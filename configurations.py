@@ -8,6 +8,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 
 from file_work import FileWork
+import process
 
 Builder.load_string('''
 <ConfigurationsScreen>:
@@ -65,20 +66,34 @@ Builder.load_string('''
                 root.save_configurations()
         
         UbuntuBtn:
-            id: btRun
-            text: "Run"
-            on_press:
-                root.manager.transition.direction = 'left'
-                root.manager.transition.duration = .30
-                root.manager.current = 'RunScreen'
-
-        UbuntuBtn:
             id: btHome
-            text: "Home"
+            text: "Back"
             on_press:
                 root.manager.transition.direction = 'right'
                 root.manager.transition.duration = .30
-                root.manager.current = 'HomeScreen'
+                root.manager.current = 'ActionScreen'
+        
+        BoxLayout:
+            size: (400, 30)
+            size_hint: (1, None)
+            spacing: 0
+            padding: 10
+            UbuntuLbl:
+                id:lblProgress
+                size:(50, 15)
+                size_hint: (None, None)
+                text: "0%"
+
+            ProgressBar:
+                id: pbProcess
+                padding: 100
+                max: 1
+            
+            UbuntuLbl:
+                size:(100, 15)
+                size_hint: (None, None)
+                id:lblClock
+                text: "00:00:00"
  
 ''')
 

@@ -10,7 +10,6 @@ class mainApp(App):
     def build(self):
         Window.toggle_fullscreen()
         Window.fullscreen = False
-        # Window.fullscreen = True
         # self.icon = 'ICOs/Graphicloads-Flat-Finance-Global.ico'
         self.title = 'GGC v1.0'
         Window.clearcolor = (1, 1, 1, 1)

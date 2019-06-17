@@ -3,7 +3,7 @@ from kivy.uix.screenmanager import ScreenManager
 from home import HomeScreen
 from truthTable import TruthTableScreen
 from configurations import ConfigurationsScreen
-from run import RunScreen
+from action import ActionScreen
 
 
 class SetUp:
@@ -18,5 +18,5 @@ class SetUp:
         screen_manager.add_widget(HomeScreen(name = "HomeScreen"))
         screen_manager.add_widget(TruthTableScreen(name = "TruthTableScreen"))
         screen_manager.add_widget(ConfigurationsScreen(name = "ConfigurationsScreen"))
-        screen_manager.add_widget(RunScreen(name = "RunScreen"))
+        screen_manager.add_widget(ActionScreen(name = "ActionScreen"))
        
