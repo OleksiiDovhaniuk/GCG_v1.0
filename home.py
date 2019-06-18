@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.uix.dropdown import DropDown
 from kivy.uix.boxlayout import BoxLayout
 
@@ -21,19 +22,19 @@ Builder.load_string('''
         root.manager.transition.direction = 'left'
         root.manager.transition.duration = .30
 <UbuntuLbl@Label>:
-    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     font_size: 16
     markup: True
     color: (0,0,0,1)
 <UbuntuActBtn@ActionButton>:
-    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     background_image: 'res/images/bg_normal.png'
     background_color: hex('#707070')
     font_size: 18
     markup: True
     color: (0,0,0,1)
 <UbuntuBtn@Button>:
-    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     background_normal: 'res/images/bg_normal.png'
     background_color: hex('#edf9ff')
     size_hint: (None, None)
@@ -42,7 +43,7 @@ Builder.load_string('''
     markup: True
     color: (0,0,0,1)
 <ClearBtn@BoxLayout>:
-    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     background_normal: 'res/images/bg_clear.png'
     background_down: 'res/images/bg_clear_on_press.png'
     size_hint: (None, None)
@@ -51,7 +52,7 @@ Builder.load_string('''
     markup: True
     color: (0,0,0,1)
 <UbuntuTxtIn@TextInput>:
-    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-M.ttf'
+    font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     background_image: 'res/images/bg_normal.png'
     background_disabled_down: hex('#707070')
     font_size: 16
@@ -68,7 +69,7 @@ Builder.load_string('''
         spasing: 5
         BoxLayout:
             orientation: 'horizontal'
-            size: (30, 30)
+            size: (30, 35)
             size_hint: (1, None)
             canvas.before:
                 Color:
@@ -87,7 +88,7 @@ Builder.load_string('''
                         text: 'Configurations'
                         on_release: root.manage_file(self.text)
                     UbuntuBtn:
-                        text: 'Set truth table'
+                        text: 'Truth table'
                         on_release: root.manage_file(self.text)
                     UbuntuBtn:
                         text: 'Save job'
@@ -131,11 +132,14 @@ Builder.load_string('''
 class UbuntuBtn(Button):
     pass
 
+class UbuntuLbl(Label):
+    pass
+
 class HomeScreen(Screen):
     def manage_file(self, file_value):
         self.ids.dropdown_file.dismiss()
         if file_value == 'Exit':
-            self.stop()
+            quit()
         else:
             self.manager.transition.direction = 'left'
             self.manager.transition.duration = .30

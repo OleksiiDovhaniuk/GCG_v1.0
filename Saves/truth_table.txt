@@ -1,0 +1,1 @@
+{'generation size': 'a', 'chromosome size': 'b', 'crossover chance': 'c', 'mutation chance': 'd', 'iterations limit': '1', 'garbage outputs': '2', 'delay': '3', 'quantum cost': <WeakProxy to <kivy.factory.ConfTextInput object at 0x000001860AE66320>>}

@@ -6,63 +6,121 @@ import string
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
+from kivy.core.window import Window
+from kivy.clock import Clock
 
 from file_work import FileWork
 import process
+from pynput import keyboard
+
 
 Builder.load_string('''
+<SetBtn@UbuntuBtn>:
+    background_normal: 'res/images/set_btn_normal.png'
+    background_down: 'res/images/set_btn_on_press.png'
+    size_hint: (None, None)
+    size: (130, 30)
 <TruthTableScreen>:
-    # on_enter: root.show_progress()
-    GridLayout:
-        cols: 2
-        padding: 50
-        spacing: 10
 
-        UbuntuLbl:
-            id: lblInputSignals
-            text: "Input Signals"
-        UbuntuTxtIn:
-            id: tinInputSignals
-            multiline: False
-
-        UbuntuLbl:
-            id: lblOutputSignals
-            text: "Output Signals"
-        UbuntuTxtIn:
-            id: tinOutputSignals
-            multiline: False
-
-        UbuntuLbl:
-            id: lblInputValues
-            text: "Input Values"
-        UbuntuTxtIn:
-            id: tinInputValues
-            multiline: True
-
-        UbuntuLbl:
-            id: lblOutputValues
-            text: "Output Values"
-        UbuntuTxtIn:
-            id: tinOutputValues
-            multiline: True
-
-        UbuntuBtn:
-            id: btSaveToFile
-            text: "Save"
-            on_press:
-                root.save_truthTable()
-        
-        UbuntuBtn:
-            id: btHome
-            text: "Back"
-            on_press:
-                root.manager.transition.direction = 'right'
-                root.manager.transition.duration = .30
-                root.manager.current = 'ActionScreen'
- 
+    on_enter: 
+        root.event()
+    BoxLayout:
+        orientation: 'vertical'
         BoxLayout:
-            size: (400, 30)
+            orientation: 'vertical'
             size_hint: (1, None)
+            size: (100, 90)
+            spacing: 10
+            
+            UbuntuBtn:
+                id: btn_configurations
+                size_hint: (1, None)
+                size: (100, 30)
+                text: 'go to algorithm configurations'
+                on_press:
+                    root.events_cencel()
+                    root.manager.transition.direction = 'right'
+                    root.manager.transition.duration = .30
+                    root.manager.current = 'ConfigurationsScreen'
+
+            UbuntuLbl:
+                text: 'TRUTH TABLE SETTINGS'
+                font_size: 24
+                size_hint: (1, None)
+                size: (100, 50)
+        
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: (1, None)
+            size: (100, 130)
+            spacing: 20
+            padding: 30
+            BoxLayout:
+                spacing: 15
+                orientation: 'horizontal'
+                UbuntuTxtIn:
+                    size_hint: (1, None)
+                    size: (100, 30)
+                    id: tin_input_signals
+                    multiline: False
+                SetBtn:
+                    id: btn_set_inputs
+                    text: 'set inputs'
+                    on_release: root.set_inputs()
+            BoxLayout:
+                spacing: 15
+                orientation: 'horizontal'
+                UbuntuTxtIn:
+                    size_hint: (1, None)
+                    size: (100, 30)
+                    id: tin_output_signals
+                    multiline: False
+                SetBtn:
+                    id: btn_set_outputs
+                    text: 'set outputs'
+                    on_release: root.set_outputs()
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1, .8)
+            BoxLayout:
+                id: entered_inputs
+            BoxLayout:
+                id: entered_outputs
+
+            
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1, None)
+            size: (100, 60)
+            padding: 20
+            spacing: 30
+            BoxLayout:
+                size_hint:(.5, None)
+            SetBtn:
+                id: btn_cancel
+                text: "cancel"
+                on_press:
+                    root.events_cencel()
+                    root.manager.transition.direction = 'right'
+                    root.manager.transition.duration = .30
+                    root.manager.current = 'ActionScreen'
+            SetBtn:
+                id: btn_apply
+                text: "apply"
+                on_press:
+                    root.save_truthTable()
+            SetBtn:
+                id: btn_ok
+                text: "ok"
+                on_press:
+                    root.save_truthTable()
+                    root.events_cencel()
+                    root.manager.transition.direction = 'right'
+                    root.manager.transition.duration = .30
+                    root.manager.current = 'ActionScreen'
+        BoxLayout:
+            size_hint: (1, None)
+            size: (400, 30)
             spacing: 0
             padding: 10
             UbuntuLbl:
@@ -87,20 +145,17 @@ class TruthTableScreen(Screen):
     
     def __init__(self, **kwargs):
         super(TruthTableScreen, self).__init__(**kwargs)
-        self.fileWork = FileWork() 
-        self.ids.tinInputSignals.text = self.fileWork.str_insNames()
-        self.ids.tinOutputSignals.text = self.fileWork.str_outsNames()
-        self.ids.tinInputValues.text = self.fileWork.str_insValues()
-        self.ids.tinOutputValues.text = self.fileWork.str_outsValues()
 
+    def set_inputs(self):
+        pass
+
+    def set_outputs(self):
+        pass
+        
     def save_truthTable(self):
-        inputNames = self.ids.tinInputSignals.text
-        outputNames = self.ids.tinOutputSignals.text
-        inputValues = self.ids.tinInputValues.text
-        outputValues = self.ids.tinOutputValues.text
-        self.fileWork.save_truthTable(inputNames, outputNames, inputValues, outputValues)
+        pass
 
-    def show_progress(self):
+    def show_progress(self, *args):
         if not process.is_process:
             self.ids.lblProgress.text = "0%"
             self.ids.pbProcess.value = 0
@@ -114,3 +169,21 @@ class TruthTableScreen(Screen):
             self.ids.lblProgress.text = str(round(portion_is_ready * 100)) + "%"
             self.ids.pbProcess.value = portion_is_ready
             self.ids.lblClock.text = process.time
+
+    def on_press(key, *args):
+        keys=[]
+        try: k = key.char # single-char keys
+        except: k = key.name # other keys
+        #if key == keyboard.Key.esc: return False # stop listener
+        if k in ['down', 'left', 'right',"up"]: # keys interested
+            # self.keys.append(k) # store it in global-like variable
+            #print('Key pressed: ' + k)
+            keys.append(k)
+
+        
+
+    def event(self, *args):
+        self.event = Clock.schedule_interval(self.show_progress, 0.025)
+    
+    def events_cencel(self, *args):
+        self.event.cancel()

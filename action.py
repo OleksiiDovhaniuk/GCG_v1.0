@@ -13,7 +13,7 @@ from kivy.uix.button import Button
 from kivy.uix.checkbox import CheckBox
 from kivy.clock import Clock
 from kivy.garden.graph import MeshLinePlot
-from functools import partial
+from kivy.uix.dropdown import DropDown
 
 # own classes imports
 from home import UbuntuBtn
@@ -34,9 +34,10 @@ Builder.load_string('''
     GridLayout:
         cols: 1
         BoxLayout:
+            id: bxlt_menu_bar
             orientation: 'horizontal'
-            size: (30, 30)
             size_hint: (1, None)
+            size: (30, 35)
             canvas.before:
                 Color:
                     rgb: utils.get_color_from_hex('#b2b2b2')
@@ -49,18 +50,6 @@ Builder.load_string('''
                 on_release: dropdown_file.open(self)
                 DropDown:
                     id: dropdown_file
-                    UbuntuBtn:
-                        text: 'Configurations'
-                        on_release: root.manage_file(self.text)
-                    UbuntuBtn:
-                        text: 'Set truth table'
-                        on_release: root.manage_file(self.text)
-                    UbuntuBtn:
-                        text: 'Save job'
-                        on_release:
-                    UbuntuBtn:
-                        text: 'Exit'
-                        on_release: root.manage_file(self.text)
             UbuntuBtn:
                 id: btn_action
                 text: 'Action'
@@ -73,27 +62,17 @@ Builder.load_string('''
                 on_release: dropdown_info.open(self)
                 DropDown:
                     id: dropdown_info
-                    UbuntuBtn:
-                        text: 'Tutorial'
-                        on_release:
-                    UbuntuBtn:
-                        text: 'About GGC'
-                        on_release:
         BoxLayout:
             orientation: 'horizontal'
             spacing: 15
             padding: 15
+
             BoxLayout:
-                size: (40, 100)
                 size_hint:(None, 1)
+                size: (20, 100)
                 orientation: 'vertical'
                 spacing: 5
                 padding: 0
-                UbuntuLbl:
-                    id: lblMaxFF
-                    size: (45, 0)
-                    size_hint: (1, None)
-                    color: hex("#2d2d2d")
                 UbuntuLbl:
                     id: lblXaxLalble
                     text: "Fitness Function Values"
@@ -108,10 +87,34 @@ Builder.load_string('''
                             origin: self.center
                     canvas.after:
                         PopMatrix
+            BoxLayout:
+                size_hint:(None, 1)
+                size: (20, 100)
+                orientation: 'vertical'
+                UbuntuLbl:
+                    id: lblMaxFF
+                    size_hint: (1, None)
+                    size: (45, 0)
+                    color: hex("#2d2d2d")
+                BoxLayout:
+                    size_hint: (1, 1)
+                    UbuntuLbl:
+                        id: lblAbsoluteMaxFF
+                        pos_hint:{"top":0.5}
+                        size: (45, 0)
+                        color: hex("#2d2d2d")
+                    UbuntuLbl:
+                        size_hint: (1, 1)
+                        color: hex("#2d2d2d")
+                    UbuntuLbl:
+                        id: lblAbsoluteMinFF
+                        pos_hint:{"bottom":0.5}
+                        size: (45, 0)
+                        color: hex("#2d2d2d")
                 UbuntuLbl:
                     id: lblMinFF
-                    size: (45, 35)
                     size_hint: (1, None)
+                    size: (45, 35)
                     color: hex('#2d2d2d')
             BoxLayout:
                 orientation: 'vertical'
@@ -277,6 +280,19 @@ class ActionScreen(Screen):
         # Average plot is BLUE
         self.plotAverage = MeshLinePlot(color=[0, 0, 1, 1])
         # dropdown_file
+        self.btn_configurations = UbuntuBtn(id="btn_configurations", text="Configurations", \
+            on_release=self.manage_to_configurations)
+        self.btn_truth_table = UbuntuBtn(id="btn_truth_table", text="Truth table", \
+            on_release=self.manage_to_truth_table)
+        self.btn_save = UbuntuBtn(id="btn_save", text="Save job")
+        self.btn_load = UbuntuBtn(id="btn_load", text="Load job")
+        self.btn_exit = UbuntuBtn(id="btn_exit", text="Exit", \
+            on_release=quit)
+        self.ids.dropdown_file.add_widget(self.btn_configurations)
+        self.ids.dropdown_file.add_widget(self.btn_truth_table)
+        self.ids.dropdown_file.add_widget(self.btn_save)
+        self.ids.dropdown_file.add_widget(self.btn_load)
+        self.ids.dropdown_file.add_widget(self.btn_exit)
         # dropdown_action
         self.btn_new_start = UbuntuBtn(id="btn_new_start", text="New Start", \
             on_release=self.manage_new_start)
@@ -288,20 +304,26 @@ class ActionScreen(Screen):
         self.ids.dropdown_action.add_widget(self.btn_pause_continue)
         self.ids.dropdown_action.add_widget(self.btn_cancel)
         # dropdown_info
-
-    def go(self):
-        self.ids.grph.add_plot(self.plotMax)
-        self.ids.grph.add_plot(self.plotAverage)
-        self.ids.grph.add_plot(self.plotMin)
-        self.ids.grph.xmax = 1
-        self.ids.chbxDynamic.disabled = False
-        self.ids.chbxMaxPlot.disabled = False
-        self.ids.chbxAveragePlot.disabled = False
-        self.ids.chbxMinPlot.disabled = False
+        self.btn_tutorial = UbuntuBtn(id="btn_tutorial", text="Tutorial")
+        self.btn_about = UbuntuBtn(id="btn_about", text="About GGC")
+        self.ids.dropdown_info.add_widget(self.btn_tutorial)
+        self.ids.dropdown_info.add_widget(self.btn_about)
         
-        # self.clock_event = Clock.schedule_interval(self.clock_update, 1)
-        for _ in range (process.generations_number):
-            self.refresh_process_trigger()
+    def go(self):
+        if not process.is_paused and process.is_process:
+            self.ids.grph.add_plot(self.plotMax)
+            self.ids.grph.add_plot(self.plotAverage)
+            self.ids.grph.add_plot(self.plotMin)
+            self.ids.grph.xmax = 1
+            self.ids.chbxDynamic.active = True
+            self.ids.chbxDynamic.disabled = False
+            self.ids.chbxMaxPlot.disabled = False
+            self.ids.chbxAveragePlot.disabled = False
+            self.ids.chbxMinPlot.disabled = False
+            
+            # self.clock_event = Clock.schedule_interval(self.clock_update, 1)
+            for _ in range (process.generations_number):
+                self.refresh_process_trigger()
 
 
     def refresh_process(self, dt):
@@ -321,12 +343,14 @@ class ActionScreen(Screen):
                 # count iteration
                 self.ids.lblCurrentIteration.text = str(process.iteration + 1)
                 # graph min/max numbers update
-                self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 4))
-                self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 4))
+                self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 2))
+                self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 2))
                 if process.absolute_max_ff == process.absolute_min_ff:
                     self.ids.grph.ymin = process.absolute_min_ff * 10000 - 1
                 else:
                     self.ids.grph.ymin = process.absolute_min_ff * 10000
+                # self.ids.lblAbsoluteMaxFF.text = ''
+                # self.ids.lblAbsoluteMinFF.text = ''
             else:
                 self.ids.grph.xmax = process.generations_number
                 self.ids.grph.ymax = 10000
@@ -336,6 +360,9 @@ class ActionScreen(Screen):
                 # graph min/max numbers update
                 self.ids.lblMaxFF.text = str(1)
                 self.ids.lblMinFF.text = str(0)
+
+                # self.ids.lblAbsoluteMaxFF.text = str(round(process.absolute_max_ff, 2))
+                # self.ids.lblAbsoluteMinFF.text = str(round(process.absolute_min_ff, 2))
             # show max plot values
             if self.ids.chbxMaxPlot.active:
                 self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
@@ -348,6 +375,15 @@ class ActionScreen(Screen):
             if self.ids.chbxAveragePlot.active:
                 self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
                 self.ids.lblCurrentAverage.text = str(round(process.average_ff, 6))
+
+                if self.ids.chbxDynamic.active:
+                    if self.ids.chbxMaxPlot.active and not self.ids.chbxMinPlot.active:
+                        self.ids.grph.ymin = min(process.average_ffs) * 10000
+                        self.ids.lblMinFF.text = str(round(min(process.average_ffs), 2))
+                    elif not self.ids.chbxMaxPlot.active and self.ids.chbxMinPlot.active:
+                        self.ids.grph.ymax = max(process.average_ffs) * 10000
+                        self.ids.lblMaxFF.text = str(round(max(process.average_ffs), 2))
+
             else:
                 self.plotAverage.points = [] 
                 self.ids.lblCurrentAverage.text = ""
@@ -367,21 +403,21 @@ class ActionScreen(Screen):
                 self.ids.chbxMinPlot.active = True
                 self.ids.chbxMinPlot.disabled = True
                 if self.ids.chbxDynamic.active:
-                    self.ids.lblMaxFF.text = str(round(max(process.min_ffs), 4))
+                    self.ids.lblMaxFF.text = str(round(max(process.min_ffs), 2))
                     self.ids.grph.ymax = max(process.min_ffs) * 10000
             elif not self.ids.chbxMaxPlot.active and not self.ids.chbxMinPlot.active:
                 self.ids.chbxAveragePlot.active = True
                 self.ids.chbxAveragePlot.disabled = True
                 if self.ids.chbxDynamic.active:
-                    self.ids.lblMaxFF.text = str(round(max(process.average_ffs), 4))
-                    self.ids.lblMinFF.text = str(round(min(process.average_ffs), 4))
+                    self.ids.lblMaxFF.text = str(round(max(process.average_ffs), 2))
+                    self.ids.lblMinFF.text = str(round(min(process.average_ffs), 2))
                     self.ids.grph.ymax = max(process.average_ffs) * 10000
                     self.ids.grph.ymin = min(process.average_ffs) * 10000
             elif not self.ids.chbxAveragePlot.active and not self.ids.chbxMinPlot.active:
                 self.ids.chbxMaxPlot.active = True
                 self.ids.chbxMaxPlot.disabled = True
                 if self.ids.chbxDynamic.active:
-                    self.ids.lblMinFF.text = str(round(min(process.max_ffs), 4))
+                    self.ids.lblMinFF.text = str(round(min(process.max_ffs), 2))
                     self.ids.grph.ymin = min(process.max_ffs) * 10000
             else:
                 self.ids.chbxMaxPlot.disabled = False
@@ -401,8 +437,9 @@ class ActionScreen(Screen):
 
             self.ids.grph.xmax = process.generations_number
             self.ids.grph.ymax = 10000
-            self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 4))
-            self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 4))
+            self.ids.grph.ymin = 0
+            self.ids.lblMaxFF.text = str(round(process.absolute_max_ff, 2))
+            self.ids.lblMinFF.text = str(round(process.absolute_min_ff, 2))
             # count iteration
             self.ids.lblCurrentIteration.text = str(process.generations_number)
             # graph min/max numbers update
@@ -421,12 +458,12 @@ class ActionScreen(Screen):
             # set progress bar as full
             self.ids.pbProcess.value = 1
             self.ids.lblProgress.text = '100%'
-
+        if self.ids.grph.ymax == self.ids.grph.ymin:
+            self.ids.grph.ymax +=1 
+        
             
     def new_start(self):
-        self.cansel()
         process.new_start()
-        self.go()
 
     def cansel(self):
         Clock.unschedule(self.refresh_process_trigger)
@@ -441,24 +478,23 @@ class ActionScreen(Screen):
         self.ids.grph.remove_plot(self.plotMax)
         self.ids.grph.remove_plot(self.plotAverage)
 
+        process.is_process = False
+
     def update_Configurations(self):
         
         self.ids.grph.x_ticks_major = process.generations_number // 10
 
-    def manage_file(self, file_value):
+    def manage_to_configurations(self, *args):
         self.ids.dropdown_file.dismiss()
-        if file_value == 'Exit':
-            self.stop()
-        else:
-            self.manager.transition.direction = 'left'
-            self.manager.transition.duration = .30
-            if file_value == 'Configurations':
-                self.manager.current = 'ConfigurationsScreen'
-            else: 
-                self.manager.current = 'TruthTableScreen'
-        process.is_paused = True
-        self.btn_pause_continue.text = 'Continue'
-        Clock.unschedule(self.refresh_process_trigger)
+        self.manager.transition.direction = 'left'
+        self.manager.transition.duration = .30
+        self.manager.current = 'ConfigurationsScreen'
+
+    def manage_to_truth_table(self, *args):
+        self.ids.dropdown_file.dismiss()
+        self.manager.transition.direction = 'left'
+        self.manager.transition.duration = .30
+        self.manager.current = 'TruthTableScreen'
 
     def manage_new_start(self, *args):
         self.ids.dropdown_action.dismiss()
@@ -466,6 +502,8 @@ class ActionScreen(Screen):
             self.ids.dropdown_action.add_widget(self.btn_pause_continue)
             self.ids.dropdown_action.add_widget(self.btn_cancel)
         self.new_start()
+        process.is_paused = True
+        self.manage_pause_continue()
 
     def manage_pause_continue(self, *args):
         self.ids.dropdown_action.dismiss()

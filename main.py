@@ -1,5 +1,12 @@
+from kivy.config import Config
+# deny to resize wondows
+Config.set('graphics', 'resizable', False)
+# save configurations
+Config.write()
+# import kivy lib
 from kivy.app import App
 from kivy.core.window import Window
+# import GGC project modules
 from setUp import SetUp
 
 set_up = SetUp()

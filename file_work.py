@@ -1,5 +1,81 @@
 import os
 
+relative_path_configurations = "Saves/configurations.txt"
+relative_path_truth_table = "Saves/truth_table.txt"
+
+def default_configurations():
+    configurations = {
+        'generation size':  400,
+        'chromosome size':  7,
+        'crossover chance': .2,
+        'mutation chance':  .02,
+        'iterations limit': 1000,
+        'garbage outputs':  3,
+        'delay':            4,
+        'quantum cost':     25
+    }
+    return configurations
+
+def default_truth_table():
+    truth_table = {
+        'X':    (0, 0, 0, 0, 1, 1, 1, 1),
+        'Y':    (0, 0, 1, 1, 0, 0, 1, 1),
+        'Ci-1': (0, 1, 0, 1, 0, 1, 0, 1),
+        'A1':   (1, 1, 1, 1, 1, 1, 1, 1),
+        'A2':   (0, 0, 0, 0, 0, 0, 0, 0),
+        'A3':   (1, 1, 1, 1, 1, 1, 1, 1),
+        
+        'S':    (0, 1, 1, 0, 1, 0, 0, 1),
+        'Ci':   (0, 0, 0, 1, 0, 1, 1, 1),
+        'G1':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
+        'G2':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
+        'G3':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
+        'G4':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
+
+    }
+    return truth_table
+
+def save_configurations(configurations):
+    f = open(relative_path_configurations, 'w')
+    configurations_str = ''
+    for key in configurations:
+        configurations_str += f'\n{key}: {configurations[key]}'
+    f.write(configurations_str[1:])
+    f.close
+
+def save_truth_table(truth_table):
+    f = open(relative_path_truth_table, 'w')
+    truth_table_str = ''
+    for key in truth_table:
+        configurations_str += f'\n{key}: {truth_table[key]}'
+
+    f.write(truth_table_str[1:])
+    f.close
+
+def read_configurations():
+    try:
+        f = open (relative_path_configurations, 'r')
+        if f.mode == 'r':
+            configurations = f.read()
+        configurations_str = configurations.split('\n')  
+        if len(configurations_str) != 8:
+            print('An error occured trying to create dictionary from the file (configurations.txt).')
+            return default_configurations()
+        else:
+            configurations = {}
+            for index, row in enumerate(configurations_str):
+                row = row.split(':')
+                if index == 2 or index == 3:
+                    configurations[row[0]] = float(row[1].strip())
+                else:
+                    configurations[row[0]] = int(row[1].strip())
+            return configurations
+    except IOError:
+        print('An error occured trying to read the file (configurations.txt).')
+        return default_configurations()
+
+
+
 class FileWork:
 
     def __init__(self, **kwargs):

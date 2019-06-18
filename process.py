@@ -95,7 +95,7 @@ def new_start():
         max_ff, average_ff, min_ff, absolute_max_ff, absolute_min_ff, max_ffs, \
         average_ffs, min_ffs, best_chromosome, results, time, time_to_find, iteration
     # bool value shows wether algorithm is in process or not
-    in_process = True
+    is_process = True
     # bool value shows wether algorithm is in paused or not
     is_paused = False
     # bool value shows wether algorithm is finished or not
