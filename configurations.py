@@ -53,7 +53,7 @@ Builder.load_string('''
                     root.manager.current = 'TruthTableScreen'
 
             UbuntuLbl:
-                text: 'ALGORITHM CONFIGURATIONS'
+                text: 'ALGORITHM  CONFIGURATIONS'
                 font_size: 24
                 size_hint: (1, None)
                 size: (100, 50)
@@ -232,7 +232,7 @@ class ConfigurationsScreen(Screen):
         self.ids.tinGarbageOutputs.foreground_color = foreground_color
         self.ids.tinDelay.foreground_color = foreground_color
         self.ids.tinQuantumCost.foreground_color = foreground_color
-        
+
         self.ids.tinGenerationSize.text = str(configurations['generation size'])
         self.ids.tinChromosomeSize.text = str(configurations['chromosome size'])
         self.ids.tinCrossover.text = str(configurations['crossover chance'])
