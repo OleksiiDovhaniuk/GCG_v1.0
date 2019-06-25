@@ -25,7 +25,7 @@ Builder.load_string('''
         if self.collide_point(*args[1].pos): self.text = ""
 <ConfLbl@UbuntuLbl>:
     size_hint: (None, None)
-    size: (160, 30)
+    size: (250, 30)
     text_size: self.size
     halign: 'left'
     valign: 'middle'
@@ -53,7 +53,7 @@ Builder.load_string('''
                     root.manager.current = 'TruthTableScreen'
 
             UbuntuLbl:
-                text: 'ALGORITHM  CONFIGURATIONS'
+                text: 'INPUT ALGORITHM  CONFIGURATIONS'
                 font_size: 24
                 size_hint: (1, None)
                 size: (100, 50)
@@ -84,14 +84,14 @@ Builder.load_string('''
                 BoxLayout:
                     ConfLbl:
                         id: lblCrossover
-                        text: "Crossover Chance"
+                        text: "Crossover Prob."
                     ConfTextInput:
                         id: tinCrossover
                         multiline: False
                 BoxLayout:
                     ConfLbl:
                         id: lblMutation
-                        text: "Mutation Chance"
+                        text: "Mutation Prob."
                     ConfTextInput:
                         id: tinMutation
                         multiline: False
@@ -118,30 +118,30 @@ Builder.load_string('''
                         multiline: False
 
             BoxLayout:
-                orientation: 'vertical'
-                size_hint:(1, None)
-                size: (100, 126)
-                BoxLayout:
-                    ConfLbl:
-                        id: lblGarbageOutputs
-                        text: "Garbage Outputs"
-                    ConfTextInput:
-                        id: tinGarbageOutputs
-                        multiline: False
-                BoxLayout:
-                    ConfLbl:
-                        id: lblDelay
-                        text: "Delay (ns)"
-                    ConfTextInput:
-                        id: tinDelay
-                        multiline: False
-                BoxLayout:
-                    ConfLbl:
-                        id: lblQuantumCost
-                        text: "Quantum Cost"
-                    ConfTextInput:
-                        id: tinQuantumCost
-                        multiline: False
+            #     orientation: 'vertical'
+            #     size_hint:(1, None)
+            #     size: (100, 126)
+            #     BoxLayout:
+            #         ConfLbl:
+            #             id: lblGarbageOutputs
+            #             text: "Garbage Outputs"
+            #         ConfTextInput:
+            #             id: tinGarbageOutputs
+            #             multiline: False
+            #     BoxLayout:
+            #         ConfLbl:
+            #             id: lblDelay
+            #             text: "Delay (ns)"
+            #         ConfTextInput:
+            #             id: tinDelay
+            #             multiline: False
+            #     BoxLayout:
+            #         ConfLbl:
+            #             id: lblQuantumCost
+            #             text: "Quantum Cost"
+            #         ConfTextInput:
+            #             id: tinQuantumCost
+            #             multiline: False
         BoxLayout:
             # Make some empty space 
         BoxLayout:
@@ -229,9 +229,9 @@ class ConfigurationsScreen(Screen):
         self.ids.tinCrossover.foreground_color = foreground_color
         self.ids.tinMutation.foreground_color = foreground_color
         self.ids.tinFinishValue.foreground_color = foreground_color
-        self.ids.tinGarbageOutputs.foreground_color = foreground_color
-        self.ids.tinDelay.foreground_color = foreground_color
-        self.ids.tinQuantumCost.foreground_color = foreground_color
+        # self.ids.tinGarbageOutputs.foreground_color = foreground_color
+        # self.ids.tinDelay.foreground_color = foreground_color
+        # self.ids.tinQuantumCost.foreground_color = foreground_color
 
         self.ids.tinGenerationSize.text = str(configurations['generation size'])
         self.ids.tinChromosomeSize.text = str(configurations['chromosome size'])
@@ -245,9 +245,9 @@ class ConfigurationsScreen(Screen):
             self.switch_check_box(self.chx_box_time)
             self.ids.tinFinishValue.text = str(configurations['time limit'])
             self.ids.lblFinishValue.text = 'Time Limit (min)'
-        self.ids.tinGarbageOutputs.text = str(configurations['garbage outputs'])
-        self.ids.tinDelay.text = str(configurations['delay'])
-        self.ids.tinQuantumCost.text = str(configurations['quantum cost'])
+        # self.ids.tinGarbageOutputs.text = str(configurations['garbage outputs'])
+        # self.ids.tinDelay.text = str(configurations['delay'])
+        # self.ids.tinQuantumCost.text = str(configurations['quantum cost'])
 
     
     def save_configurations(self):
@@ -263,9 +263,9 @@ class ConfigurationsScreen(Screen):
                 'crossover chance': self.ids.tinCrossover.text,
                 'mutation chance':  self.ids.tinMutation.text,
                 f'{limits_type}':   self.ids.tinFinishValue.text,
-                'garbage outputs':  self.ids.tinGarbageOutputs.text,
-                'delay':            self.ids.tinDelay.text,
-                'quantum cost':     self.ids.tinQuantumCost.text
+                # 'garbage outputs':  self.ids.tinGarbageOutputs.text,
+                # 'delay':            self.ids.tinDelay.text,
+                # 'quantum cost':     self.ids.tinQuantumCost.text
                 }
             save_configurations(configurations)
 

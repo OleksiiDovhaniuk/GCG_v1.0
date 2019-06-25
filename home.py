@@ -30,7 +30,7 @@ Builder.load_string('''
     font_name: 'res/fonts/ubuntu-font-family-0.80/Ubuntu-L.ttf'
     background_image: 'res/images/bg_normal.png'
     background_color: hex('#707070')
-    font_size: 18
+    font_size: 16
     markup: True
     color: (0,0,0,1)
 <UbuntuBtn@Button>:

@@ -1,0 +1,2 @@
+[INFO   ] Logger: Record log in C:\Users\wd333\.kivy\logs\kivy_19-06-20_13.txt
+[ERROR  ] Core: option -l not recognized

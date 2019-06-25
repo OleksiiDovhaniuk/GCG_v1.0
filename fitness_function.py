@@ -195,7 +195,7 @@ def errors_number(chromosome, inputs, outputs):
             if alet[0] not in check_list:
                 check_list.append(alet[0])
                 # create negative number of inputs for path point default values
-                negative_inputs_number = -len(inputs)
+                negative_inputs_number = -len(inputs[0])
                 # empty path point list, size = 3
                 path_point = [negative_inputs_number for _ in range(3)]
                 # set first signals index in path_point
@@ -209,10 +209,12 @@ def errors_number(chromosome, inputs, outputs):
                 signals_path.append(path_point)
 
     # create empty errors number list  (size = outputs number * inputs number)
-    errors_number = [[0 for _ in inputs[0]] for _ in outputs[0]]
-    # copy inputs for local variable for safetiness of global
-    ins = [[value for value in row] for row in inputs]
-    # fill up the list
+    errors_number = [[0 for _ in inputs] for _ in outputs]
+    # copy inputs for local variable for safetiness of global and rows <-> colums
+    ins = list(map(list, zip(*inputs)))
+    # copy outputs for local variable for safetiness of global and rows <-> colums
+    outs = list(map(list, zip(*outputs)))
+    # fill up the list 
     for row_ind, active_signals in enumerate(ins):
         # find result signals for current truth table line
         for point in signals_path:
@@ -221,7 +223,7 @@ def errors_number(chromosome, inputs, outputs):
             for index, value in enumerate(point):
                 active_signals[value] = element_signals[index]
         # calculate errors 
-        for check_result_ind, check_result in enumerate(outputs[row_ind]):
+        for check_result_ind, check_result in enumerate(outs[row_ind]):
             if check_result != None:
                 for result_ind, result in enumerate(active_signals):
                     if result != check_result:
@@ -231,7 +233,7 @@ def errors_number(chromosome, inputs, outputs):
     errors = 0
     while errors_number:
         # find min value of errors
-        min = len(outputs[0])
+        min = len(outs[0])
         min_ind = -1
         for row_ind, row in enumerate(errors_number):
             for value in row:
@@ -244,20 +246,51 @@ def errors_number(chromosome, inputs, outputs):
         errors_number.pop(min_ind)
     return errors
 
-def elements_number(chromosome):
-    """ Returns number of elements of schemotechnical system. 
+def delay(chromosome, element_delay, max_delay):
+    """ Returns delay value of system in ns.
 
-    Args: chromosome (3D list): individual one from generation.
+    Args: 
+        chromosome (3D list): individual of generation.
+        element_delay (float): logic gate delay in nano secunds.
     
-    Returns: elements_number (int): number of logic elements in current chromosome.
+    Returns: delay (float): delay of current chromosome.
 
     Examples of execution:
-        >>> [elements_number(chromosome) for chromosome in generation_or1]
+        >>> [delay(chromosome, 1, 0) for chromosome in generation_or1]
         [1, 1, 1, 1]
-        >>> [elements_number(chromosome) for chromosome in generation_or2]
-        [1, 2]
-        >>> [elements_number(chromosome) for chromosome in generation_sum]
-        [5, 8, 9, 7]
+        >>> [delay(chromosome, 2, 0) for chromosome in generation_or2]
+        [2, 4]
+        >>> [delay(chromosome, 3, 0) for chromosome in generation_sum]
+        [12, 15, 18, 12]
+
+    """
+    active_colums_number = 0
+    for gene in chromosome:
+        for alel in gene:
+            if alel != (0, 0):
+                active_colums_number += 1
+                break
+    delay = active_colums_number * element_delay - max_delay
+    if delay < 1:
+        delay = 1
+    return delay
+        
+def quantum_cost(chromosome, el_quantum_cost, max_quantum_cost):
+    """ Returns quantum value of schemotechnical system.
+    
+    Args: 
+        chromosome (3D list): individual of generation.
+        el_quantum_cost (float): logic gate quantum cost.
+    
+    Returns: quantum_cost (float): quantum cost of current chromosome.
+
+    Examples of execution:
+        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_or1]
+        [5, 5, 5, 5]
+        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_or2]
+        [5, 10]
+        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_sum]
+        [25, 40, 45, 35]
 
     """
     elements_number = 0
@@ -269,50 +302,12 @@ def elements_number(chromosome):
                 check_list.append(alet[0])
                 elements_number += 1
 
-    return elements_number
+    quantum_cost = elements_number * el_quantum_cost - max_quantum_cost
+    if quantum_cost < 5:
+        quantum_cost = 5
+    return quantum_cost
 
-def delay(chromosome, element_delay):
-    """ Returns delay value of system in ns.
-
-    Args: 
-        chromosome (3D list): individual of generation.
-        element_delay (float): logic gate delay in nano secunds.
-    
-    Returns: delay (float): delay of current chromosome.
-
-    Examples of execution:
-        >>> [delay(chromosome, 1) for chromosome in generation_or1]
-        [1, 1, 1, 1]
-        >>> [delay(chromosome, 2) for chromosome in generation_or2]
-        [2, 4]
-        >>> [delay(chromosome, 3) for chromosome in generation_sum]
-        [15, 24, 27, 21]
-
-    """
-    return elements_number(chromosome) * element_delay
-        
-def quantum_cost(chromosome, el_quantum_cost):
-    """ Returns quantum value of schemotechnical system.
-    
-    Args: 
-        chromosome (3D list): individual of generation.
-        el_quantum_cost (float): logic gate quantum cost.
-    
-    Returns: quantum_cost (float): quantum cost of current chromosome.
-
-    Examples of execution:
-        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or1]
-        [5, 5, 5, 5]
-        >>> [quantum_cost(chromosome, 4) for chromosome in generation_or2]
-        [4, 8]
-        >>> [quantum_cost(chromosome, 3) for chromosome in generation_sum]
-        [15, 24, 27, 21]
-
-    """
-    return elements_number(chromosome) * el_quantum_cost
-
-
-def garbage_outs_number(inputs, outputs):
+def garbage_outs_number(inputs, outputs, max_garbage_outs_number):
     """ Returns number of garbage outputs/ extra inputs
 
     Args: 
@@ -324,28 +319,39 @@ def garbage_outs_number(inputs, outputs):
     Note: Size of inputs and outputs lists is equal. 
 
     Examples of execution:
-        >>> garbage_outs_number(ins_or[0], outs_or[0])
+        >>> garbage_outs_number(ins_or, outs_or, 0)
         2
-        >>> garbage_outs_number(ins_sum[0], outs_sum[0])
+        >>> garbage_outs_number(ins_sum, outs_sum, 0)
         3
     """
 
     ind = 0
-    for signal_value in inputs:
-        if signal_value == None:
-            break
-        ind += 1
-    inputs_number = ind    
+    for row in inputs:
+        is_constant = True
+        value = row[0]
+        for signal in row[1:]:
+            if signal != value:
+                is_constant = False
+                break
+        if is_constant: ind += 1
+    inputs_number = ind   
 
     ind = 0
-    for signal_value in outputs:
-        if signal_value == None:
-            break
-        ind += 1
+    for row in outputs:
+        is_constant = True
+        value = row[0]
+        for signal in row[1:]:
+            if signal != value:
+                is_constant = False
+                break
+        if is_constant: ind += 1
     outputs_number = ind    
-    return abs(inputs_number - outputs_number)
+    garbage_outs_number = max(inputs_number,outputs_number) - max_garbage_outs_number
+    if garbage_outs_number < 0:
+        garbage_outs_number = 0
+    return garbage_outs_number
 
-def generation_result(generation, inputs, outputs, coefs):
+def generation_result(generation, inputs, outputs, coefs, max_delay, max_garbage_outs_number, max_quantum_cost):
     """ Returns one dimensional list of fitness function values for current generation.
 
     Args: 
@@ -365,14 +371,14 @@ def generation_result(generation, inputs, outputs, coefs):
 
     Examples of execution:
         >>> [round(result, 3) for result in generation_result(generation_or1, \
-            ins_or, outs_or, coefs)]
+            ins_or, outs_or, coefs, 0, 0, 0)]
         [0.978, 0.978, 0.978, 0.528]
         >>> [round(result, 3) for result in generation_result(generation_or2, \
-            ins_or, outs_or, coefs)]
+            ins_or, outs_or, coefs, 0, 0, 0)]
         [0.528, 0.963]
         >>> [round(result, 3) for result in generation_result(generation_sum, \
-            ins_sum, outs_sum, coefs)]
-        [0.944, 0.121, 0.167, 0.94]
+            ins_sum, outs_sum, coefs, 0, 0, 0)]
+        [0.945, 0.123, 0.169, 0.943]
     """
     fitness_function_results = []
     fredkin_delay = 1
@@ -382,9 +388,9 @@ def generation_result(generation, inputs, outputs, coefs):
         inputs_befor = inputs
         errors = errors_number(chromosome, inputs, outputs)
         inputs_after = inputs
-        c = quantum_cost(chromosome, fredkin_quantum_cost)
-        g = garbage_outs_number(inputs[0], outputs[0])
-        s = delay(chromosome, fredkin_delay)
+        c = quantum_cost(chromosome, fredkin_quantum_cost, max_quantum_cost)
+        g = garbage_outs_number(inputs, outputs, max_garbage_outs_number)
+        s = delay(chromosome, fredkin_delay, max_delay)
         fitness_function_value = fitness_function(errors, c, g, s, coefs) 
         fitness_function_results.append(fitness_function_value)
 
@@ -395,11 +401,8 @@ if __name__ == '__main__':
     doctest.testmod(extraglobs=
         {'coefs':            (0.9, 0.034, 0.033, 0.033),
 
-         'ins_or':           [(0,0,1), (0,1,1), (1,0,1), (1,1,1)],
-         'outs_or':          [(0, None, None), 
-                                (1, None, None), 
-                                (1, None, None), 
-                                (1, None, None)],
+         'ins_or':           [(0,0,1,1), (0,1,0,1), (1,1,1,1)],
+         'outs_or':          [(0,1,1,1), (None,None,None,None), (None,None,None,None)],
          'generation_or1':    [[((1,0), (1,1), (1,2))],
                                [((1,1), (1,0), (1,2))],
                                [((1,0), (1,2), (1,1))],
@@ -413,22 +416,18 @@ if __name__ == '__main__':
                                 ((0,0), (0,0), (0,0)),
                                 ((1,0), (1,2), (1,1))]],
 
-         'ins_sum':          [(0,0,0,1,0,1), 
-                                 (0,0,1,1,0,1),
-                                 (0,1,0,1,0,1),
-                                 (0,1,1,1,0,1),
-                                 (1,0,0,1,0,1),
-                                 (1,0,1,1,0,1),
-                                 (1,1,0,1,0,1),
-                                 (1,1,1,1,0,1)],
-         'outs_sum':         [(0,0,0,None,None,None),
-                                (1,0,0,None,None,None),
-                                (1,0,1,None,None,None),
-                                (0,1,1,None,None,None),
-                                (1,0,1,None,None,None),
-                                (0,1,1,None,None,None),
-                                (0,1,0,None,None,None),
-                                (1,1,0,None,None,None)],
+         'ins_sum':          [(0,0,0,0,1,1,1,1), 
+                                 (0,0,1,1,0,0,1,1),
+                                 (0,1,0,1,0,1,0,1),
+                                 (1,1,1,1,1,1,1,1),
+                                 (0,0,0,0,0,0,0,0),
+                                 (1,1,1,1,1,1,1,1)],
+         'outs_sum':          [(0,1,1,0,1,0,0,1), 
+                                 (0,0,0,1,0,1,1,1),
+                                 (0,0,1,1,1,1,0,0),
+                                 (None,None,None,None,None,None,None,None),
+                                 (None,None,None,None,None,None,None,None),
+                                 (None,None,None,None,None,None,None,None),],
          'generation_sum':   [[((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
                                  ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
                                  ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),

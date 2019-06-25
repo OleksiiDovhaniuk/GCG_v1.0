@@ -148,27 +148,19 @@ Builder.load_string('''
                         size: (5, 15)
                         size_hint: (None, None)
                         color: hex("#2d2d2d")
-            FloatLayout:
-                size: (75, 100)
+            BoxLayout:
+                orientation: 'vertical'
                 size_hint:(None, 1)
+                size: (75, 100)
                 UbuntuLbl:
                     id: lblCurrentMax
-                    size: (5, 15)
-                    size_hint: (None, None)
                     color: (0.8, 0, 0, 1)
-                    pos_hint: {'x':0.3, 'y':0.8}
                 UbuntuLbl:
                     id: lblCurrentAverage
-                    size: (5, 15)
-                    size_hint: (None, None)
                     color: (0, 0, 1, 1)
-                    pos_hint: {'x':0.3, 'y':0.5}
                 UbuntuLbl:
                     id: lblCurrentMin
-                    size: (5, 15)
-                    size_hint: (None, None)
                     color: (0, 0.7, 0, 1)
-                    pos_hint: {'x':0.3, 'y':0.2}
         BoxLayout:
             orientation: 'horizontal'
             size_hint:(1, .2)
@@ -366,7 +358,7 @@ class ActionScreen(Screen):
             # show max plot values
             if self.ids.chbxMaxPlot.active:
                 self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
-                self.ids.lblCurrentMax.text = str(round(process.max_ff, 6))
+                self.ids.lblCurrentMax.text = f'max:\n{str(round(process.max_ff, 5))}'
             else:
                 self.plotMax.points = []
                 self.ids.lblCurrentMax.text = ""
@@ -374,7 +366,7 @@ class ActionScreen(Screen):
             # show average plot values
             if self.ids.chbxAveragePlot.active:
                 self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
-                self.ids.lblCurrentAverage.text = str(round(process.average_ff, 6))
+                self.ids.lblCurrentAverage.text = f'average:\n{str(round(process.average_ff, 5))}'
 
                 if self.ids.chbxDynamic.active:
                     if self.ids.chbxMaxPlot.active and not self.ids.chbxMinPlot.active:
@@ -390,7 +382,7 @@ class ActionScreen(Screen):
             # show min plot values
             if self.ids.chbxMinPlot.active:
                 self.plotMin.points = [(x, y * 10000) for x, y in enumerate(process.min_ffs)] 
-                self.ids.lblCurrentMin.text = str(round(process.min_ff, 6))
+                self.ids.lblCurrentMin.text = f'min:\n{str(round(process.min_ff, 5))}'
             else:
                 self.plotMin.points = [] 
                 self.ids.lblCurrentMin.text = ""
@@ -447,13 +439,13 @@ class ActionScreen(Screen):
             self.ids.lblMinFF.text = str(0)
 
             self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
-            self.ids.lblCurrentMax.text = str(round(process.max_ff, 6))
+            self.ids.lblCurrentMax.text = f'max:\n{str(round(process.max_ff, 5))}'
 
             self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
-            self.ids.lblCurrentAverage.text = str(round(process.average_ff, 6))
+            self.ids.lblCurrentAverage.text = f'average:\n{str(round(process.average_ff, 5))}'
 
             self.plotMin.points = [(x, y * 10000) for x, y in enumerate(process.min_ffs)] 
-            self.ids.lblCurrentMin.text = str(round(process.min_ff, 6))
+            self.ids.lblCurrentMin.text = f'min:\n{str(round(process.min_ff, 5))}'
 
             # set progress bar as full
             self.ids.pbProcess.value = 1
@@ -463,9 +455,11 @@ class ActionScreen(Screen):
         
             
     def new_start(self):
+        self.cancel()
         process.new_start()
+        self.go()
 
-    def cansel(self):
+    def cancel(self):
         Clock.unschedule(self.refresh_process_trigger)
 
         self.ids.tinResult.text = ''
@@ -519,7 +513,7 @@ class ActionScreen(Screen):
             Clock.unschedule(self.refresh_process_trigger)
     def manage_cancel(self, *args):
         self.ids.dropdown_action.dismiss()
-        self.cansel()
+        self.cancel()
         self.ids.dropdown_action.remove_widget(self.btn_pause_continue)
         self.ids.dropdown_action.remove_widget(self.btn_cancel)
 

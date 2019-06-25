@@ -1,0 +1,24 @@
+[INFO   ] Logger: Record log in C:\Users\wd333\.kivy\logs\kivy_19-06-20_16.txt
+[INFO   ] Kivy: v1.10.1
+[INFO   ] Python: v3.7.2 (tags/v3.7.2:9a3ffc0492, Dec 23 2018, 23:09:28) [MSC v.1916 64 bit (AMD64)]
+[INFO   ] Factory: 194 symbols loaded
+[INFO   ] Image: Providers: img_tex, img_dds, img_sdl2, img_pil, img_gif (img_ffpyplayer ignored)
+[INFO   ] Window: Provider: sdl2
+[INFO   ] GL: Using the "OpenGL" graphics system
+[INFO   ] GL: GLEW initialization succeeded
+[INFO   ] GL: Backend used <glew>
+[INFO   ] GL: OpenGL version <b'4.5.0 - Build 24.20.100.6293'>
+[INFO   ] GL: OpenGL vendor <b'Intel'>
+[INFO   ] GL: OpenGL renderer <b'Intel(R) HD Graphics 520'>
+[INFO   ] GL: OpenGL parsed version: 4, 5
+[INFO   ] GL: Shading version <b'4.50 - Build 24.20.100.6293'>
+[INFO   ] GL: Texture max size <16384>
+[INFO   ] GL: Texture max units <32>
+[INFO   ] Window: auto add sdl2 input provider
+[INFO   ] Window: virtual keyboard not allowed, single mode, not docked
+[INFO   ] Text: Provider: sdl2
+[INFO   ] GL: NPOT texture support is available
+[WARNING] Call to deprecated function toggle_fullscreen in C:\Users\wd333\AppData\Local\Programs\Python\Python37\lib\site-packages\kivy\core\window\window_sdl2.py line 364.Called from main.py line 18 by build().
+[INFO   ] Base: Start application main loop
+[INFO   ] Base: Leaving application in progress...
+[WARNING] stderr: <home.UbuntuBtn object at 0x000001FC28996798>

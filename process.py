@@ -1,10 +1,12 @@
+""" Body of the program process.
+
+Module contains mutual and immutuable atributes of genetic algorithm.
+"""
 import datetime
 
 from fitness_function import generation_result
 import genetic_algorithm as gntc
-from file_work import FileWork
-
-file_work = FileWork()
+from file_work import read_configurations, read_truth_table
 
 generations_number = None
 generation_size = None
@@ -16,6 +18,9 @@ outputs = None
 coefs = None
 progress_step = None
 start_time = None
+garbage_outputs = None
+delay = None
+quantum_cost = None
 
 
 # genetic algorithm objects (mutable)
@@ -75,19 +80,23 @@ def new_start():
 
     """
     global generations_number, generation_size, chromosome_size, crossover_chance, \
-        mutation_chance, inputs, outputs, coefs, progress_step, start_time
+        mutation_chance, inputs, outputs, coefs, progress_step, start_time, \
+        delay, garbage_outputs, quantum_cost
+    # read
+    configurations = read_configurations()
+    truth_table = read_truth_table()
     # genetic algorithm configurations (immutable)
-    generations_number = file_work.get_generationNumber()
-    generation_size = file_work.get_generationSize()
-    chromosome_size = file_work.get_genesNumber()
-    crossover_chance = file_work.get_crossingChance()
-    mutation_chance = file_work.get_mutationChance()
-    inputs = file_work.get_insValues()
-    outputs = file_work.get_outsValues()
-    for row in outputs:
-        for _ in range(len(inputs) - len(outputs)):
-            row.append(None)
-    coefs = file_work.get_coefficients()
+    generations_number = configurations['iterations limit']
+    generation_size = configurations['generation size']
+    chromosome_size = configurations['chromosome size']
+    crossover_chance = configurations['crossover chance']
+    mutation_chance = configurations['mutation chance']
+    garbage_outputs = configurations['garbage outputs']
+    delay = configurations['delay']
+    quantum_cost = configurations['quantum cost']
+    inputs = tuple(truth_table['inputs'].values())
+    outputs = tuple(truth_table['outputs'].values())
+    coefs = [0.7, 0.1, 0.1, 0.1]
     progress_step = 1 / generations_number
     start_time = datetime.datetime.now()
 
@@ -102,9 +111,9 @@ def new_start():
     is_finished = False
     # genetic algorithm objects (mutable)
     generation = gntc.create_generation(generation_size, 
-        chromosome_size, len(inputs[0]))
+        chromosome_size, len(inputs))
     # ff: fitness function
-    ff_results = generation_result(generation, inputs, outputs, coefs)
+    ff_results = generation_result(generation, inputs, outputs, coefs, delay, garbage_outputs, quantum_cost)
     max_ff =  max(ff_results)
     average_ff =  sum(ff_results) / len(ff_results)
     min_ff =  min(ff_results)
@@ -144,7 +153,8 @@ def go():
     """
     global ff_results, generation, max_ff, average_ff, min_ff, \
         absolute_max_ff, absolute_min_ff, max_ffs, average_ffs, min_ffs, \
-        best_chromosome, results, time, time_to_find, iteration
+        best_chromosome, results, time, time_to_find, iteration, \
+        delay, garbage_outputs, quantum_cost
 
     # increase iteration
     iteration += 1
@@ -152,7 +162,7 @@ def go():
     paired_parents = gntc.roulette_selection(ff_results)
     generation = gntc.crossover(generation, paired_parents, crossover_chance)
     generation = gntc.mutation(generation, mutation_chance)
-    ff_results = generation_result(generation, inputs, outputs, coefs)
+    ff_results = generation_result(generation, inputs, outputs, coefs, delay, garbage_outputs, quantum_cost)
     # set process_time
     time = '0' + str(datetime.datetime.now() - start_time)[:7]
     # set absolute fitness function values
@@ -182,5 +192,8 @@ def go():
             results['time'].append(time)
 
 def resume_time():
+    """ Function restarts time count
+
+    """
     global start_time
     start_time = datetime.datetime.now()

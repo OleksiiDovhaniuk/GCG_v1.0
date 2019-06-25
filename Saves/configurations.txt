@@ -1,8 +1,5 @@
-generation size: 400
+generation size: 1000
 chromosome size: 7
-crossover chance: 0.3
+crossover chance: 0.2
 mutation chance: 0.02
-iterations limit: 2000
-garbage outputs: 3
-delay: 4
-quantum cost: 25
+iterations limit: 1000
