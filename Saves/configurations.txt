@@ -1,4 +1,4 @@
-generation size: 1000
+generation size: 400
 chromosome size: 7
 crossover chance: 0.2
 mutation chance: 0.02

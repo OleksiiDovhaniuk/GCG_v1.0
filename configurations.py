@@ -118,30 +118,6 @@ Builder.load_string('''
                         multiline: False
 
             BoxLayout:
-            #     orientation: 'vertical'
-            #     size_hint:(1, None)
-            #     size: (100, 126)
-            #     BoxLayout:
-            #         ConfLbl:
-            #             id: lblGarbageOutputs
-            #             text: "Garbage Outputs"
-            #         ConfTextInput:
-            #             id: tinGarbageOutputs
-            #             multiline: False
-            #     BoxLayout:
-            #         ConfLbl:
-            #             id: lblDelay
-            #             text: "Delay (ns)"
-            #         ConfTextInput:
-            #             id: tinDelay
-            #             multiline: False
-            #     BoxLayout:
-            #         ConfLbl:
-            #             id: lblQuantumCost
-            #             text: "Quantum Cost"
-            #         ConfTextInput:
-            #             id: tinQuantumCost
-            #             multiline: False
         BoxLayout:
             # Make some empty space 
         BoxLayout:
@@ -159,7 +135,7 @@ Builder.load_string('''
                     root.events_cencel()
                     root.show_configurations()
                     root.manager.transition.direction = 'right'
-                    root.manager.transition.duration = .30
+                    root.manager.transition.duration = .3
                     root.manager.current = 'ActionScreen'
             SetBtn:
                 id: btn_apply
@@ -229,9 +205,6 @@ class ConfigurationsScreen(Screen):
         self.ids.tinCrossover.foreground_color = foreground_color
         self.ids.tinMutation.foreground_color = foreground_color
         self.ids.tinFinishValue.foreground_color = foreground_color
-        # self.ids.tinGarbageOutputs.foreground_color = foreground_color
-        # self.ids.tinDelay.foreground_color = foreground_color
-        # self.ids.tinQuantumCost.foreground_color = foreground_color
 
         self.ids.tinGenerationSize.text = str(configurations['generation size'])
         self.ids.tinChromosomeSize.text = str(configurations['chromosome size'])
@@ -245,9 +218,6 @@ class ConfigurationsScreen(Screen):
             self.switch_check_box(self.chx_box_time)
             self.ids.tinFinishValue.text = str(configurations['time limit'])
             self.ids.lblFinishValue.text = 'Time Limit (min)'
-        # self.ids.tinGarbageOutputs.text = str(configurations['garbage outputs'])
-        # self.ids.tinDelay.text = str(configurations['delay'])
-        # self.ids.tinQuantumCost.text = str(configurations['quantum cost'])
 
     
     def save_configurations(self):
@@ -263,9 +233,6 @@ class ConfigurationsScreen(Screen):
                 'crossover chance': self.ids.tinCrossover.text,
                 'mutation chance':  self.ids.tinMutation.text,
                 f'{limits_type}':   self.ids.tinFinishValue.text,
-                # 'garbage outputs':  self.ids.tinGarbageOutputs.text,
-                # 'delay':            self.ids.tinDelay.text,
-                # 'quantum cost':     self.ids.tinQuantumCost.text
                 }
             save_configurations(configurations)
 
@@ -276,9 +243,6 @@ class ConfigurationsScreen(Screen):
         are_valid.append(self.try_read_float_text_input(self.ids.tinCrossover))
         are_valid.append(self.try_read_float_text_input(self.ids.tinMutation))
         are_valid.append(self.try_read_int_text_input(self.ids.tinFinishValue))
-        are_valid.append(self.try_read_int_text_input(self.ids.tinGarbageOutputs))
-        are_valid.append(self.try_read_int_text_input(self.ids.tinDelay))
-        are_valid.append(self.try_read_int_text_input(self.ids.tinQuantumCost))
         return not False in are_valid
 
     def try_read_int_text_input(self, text_input):

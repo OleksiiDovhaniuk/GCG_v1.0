@@ -70,8 +70,8 @@ def read_configurations():
         if f.mode == 'r':
             configurations_str = f.read()
         configurations_str = configurations_str.split('\n')  
-        if len(configurations_str) != 8:
-            print('An error occured trying to create dictionary from the file (configurations.txt).')
+        if len(configurations_str) != len(default_configurations()):
+            print(f'An error occured trying to create dictionary from the file (configurations.txt).\n{configurations_str}')
             return default_configurations()
         else:
             configurations = {}

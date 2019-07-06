@@ -246,7 +246,7 @@ def errors_number(chromosome, inputs, outputs):
         errors_number.pop(min_ind)
     return errors
 
-def delay(chromosome, element_delay, max_delay):
+def delay_time(chromosome, element_delay):
     """ Returns delay value of system in ns.
 
     Args: 
@@ -256,11 +256,11 @@ def delay(chromosome, element_delay, max_delay):
     Returns: delay (float): delay of current chromosome.
 
     Examples of execution:
-        >>> [delay(chromosome, 1, 0) for chromosome in generation_or1]
+        >>> [delay_time(chromosome, 1) for chromosome in generation_or1]
         [1, 1, 1, 1]
-        >>> [delay(chromosome, 2, 0) for chromosome in generation_or2]
+        >>> [delay_time(chromosome, 2) for chromosome in generation_or2]
         [2, 4]
-        >>> [delay(chromosome, 3, 0) for chromosome in generation_sum]
+        >>> [delay_time(chromosome, 3) for chromosome in generation_sum]
         [12, 15, 18, 12]
 
     """
@@ -270,12 +270,10 @@ def delay(chromosome, element_delay, max_delay):
             if alel != (0, 0):
                 active_colums_number += 1
                 break
-    delay = active_colums_number * element_delay - max_delay
-    if delay < 1:
-        delay = 1
-    return delay
+    delay_time = active_colums_number * element_delay
+    return delay_time
         
-def quantum_cost(chromosome, el_quantum_cost, max_quantum_cost):
+def quantum_cost(chromosome, el_quantum_cost):
     """ Returns quantum value of schemotechnical system.
     
     Args: 
@@ -285,11 +283,11 @@ def quantum_cost(chromosome, el_quantum_cost, max_quantum_cost):
     Returns: quantum_cost (float): quantum cost of current chromosome.
 
     Examples of execution:
-        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_or1]
+        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or1]
         [5, 5, 5, 5]
-        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_or2]
+        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or2]
         [5, 10]
-        >>> [quantum_cost(chromosome, 5, 0) for chromosome in generation_sum]
+        >>> [quantum_cost(chromosome, 5) for chromosome in generation_sum]
         [25, 40, 45, 35]
 
     """
@@ -302,12 +300,10 @@ def quantum_cost(chromosome, el_quantum_cost, max_quantum_cost):
                 check_list.append(alet[0])
                 elements_number += 1
 
-    quantum_cost = elements_number * el_quantum_cost - max_quantum_cost
-    if quantum_cost < 5:
-        quantum_cost = 5
+    quantum_cost = elements_number * el_quantum_cost
     return quantum_cost
 
-def garbage_outs_number(inputs, outputs, max_garbage_outs_number):
+def garbage_outs_number(inputs, outputs):
     """ Returns number of garbage outputs/ extra inputs
 
     Args: 
@@ -319,9 +315,9 @@ def garbage_outs_number(inputs, outputs, max_garbage_outs_number):
     Note: Size of inputs and outputs lists is equal. 
 
     Examples of execution:
-        >>> garbage_outs_number(ins_or, outs_or, 0)
+        >>> garbage_outs_number(ins_or, outs_or)
         2
-        >>> garbage_outs_number(ins_sum, outs_sum, 0)
+        >>> garbage_outs_number(ins_sum, outs_sum)
         3
     """
 
@@ -346,12 +342,12 @@ def garbage_outs_number(inputs, outputs, max_garbage_outs_number):
                 break
         if is_constant: ind += 1
     outputs_number = ind    
-    garbage_outs_number = max(inputs_number,outputs_number) - max_garbage_outs_number
+    garbage_outs_number = max(inputs_number,outputs_number)
     if garbage_outs_number < 0:
         garbage_outs_number = 0
     return garbage_outs_number
 
-def generation_result(generation, inputs, outputs, coefs, max_delay, max_garbage_outs_number, max_quantum_cost):
+def generation_result(generation, inputs, outputs, coefs):
     """ Returns one dimensional list of fitness function values for current generation.
 
     Args: 
@@ -371,13 +367,13 @@ def generation_result(generation, inputs, outputs, coefs, max_delay, max_garbage
 
     Examples of execution:
         >>> [round(result, 3) for result in generation_result(generation_or1, \
-            ins_or, outs_or, coefs, 0, 0, 0)]
+            ins_or, outs_or, coefs)]
         [0.978, 0.978, 0.978, 0.528]
         >>> [round(result, 3) for result in generation_result(generation_or2, \
-            ins_or, outs_or, coefs, 0, 0, 0)]
+            ins_or, outs_or, coefs)]
         [0.528, 0.963]
         >>> [round(result, 3) for result in generation_result(generation_sum, \
-            ins_sum, outs_sum, coefs, 0, 0, 0)]
+            ins_sum, outs_sum, coefs)]
         [0.945, 0.123, 0.169, 0.943]
     """
     fitness_function_results = []
@@ -388,9 +384,9 @@ def generation_result(generation, inputs, outputs, coefs, max_delay, max_garbage
         inputs_befor = inputs
         errors = errors_number(chromosome, inputs, outputs)
         inputs_after = inputs
-        c = quantum_cost(chromosome, fredkin_quantum_cost, max_quantum_cost)
-        g = garbage_outs_number(inputs, outputs, max_garbage_outs_number)
-        s = delay(chromosome, fredkin_delay, max_delay)
+        c = quantum_cost(chromosome, fredkin_quantum_cost)
+        g = garbage_outs_number(inputs, outputs)
+        s = delay_time(chromosome, fredkin_delay)
         fitness_function_value = fitness_function(errors, c, g, s, coefs) 
         fitness_function_results.append(fitness_function_value)
 

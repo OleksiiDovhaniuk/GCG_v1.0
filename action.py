@@ -261,7 +261,6 @@ class ActionScreen(Screen):
     The class works with run screen window. 
     """
 
-
     def __init__(self, **kwargs):
         super(ActionScreen, self).__init__(**kwargs)
         self.refresh_process_trigger = Clock.create_trigger(self.refresh_process)
@@ -511,6 +510,7 @@ class ActionScreen(Screen):
             process.is_paused = True
             self.btn_pause_continue.text = 'Continue'
             Clock.unschedule(self.refresh_process_trigger)
+            
     def manage_cancel(self, *args):
         self.ids.dropdown_action.dismiss()
         self.cancel()

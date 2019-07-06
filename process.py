@@ -80,8 +80,7 @@ def new_start():
 
     """
     global generations_number, generation_size, chromosome_size, crossover_chance, \
-        mutation_chance, inputs, outputs, coefs, progress_step, start_time, \
-        delay, garbage_outputs, quantum_cost
+        mutation_chance, inputs, outputs, coefs, progress_step, start_time
     # read
     configurations = read_configurations()
     truth_table = read_truth_table()
@@ -91,11 +90,10 @@ def new_start():
     chromosome_size = configurations['chromosome size']
     crossover_chance = configurations['crossover chance']
     mutation_chance = configurations['mutation chance']
-    garbage_outputs = configurations['garbage outputs']
-    delay = configurations['delay']
-    quantum_cost = configurations['quantum cost']
     inputs = tuple(truth_table['inputs'].values())
     outputs = tuple(truth_table['outputs'].values())
+    print(truth_table['inputs'])
+    print(outputs)
     coefs = [0.7, 0.1, 0.1, 0.1]
     progress_step = 1 / generations_number
     start_time = datetime.datetime.now()
@@ -113,7 +111,7 @@ def new_start():
     generation = gntc.create_generation(generation_size, 
         chromosome_size, len(inputs))
     # ff: fitness function
-    ff_results = generation_result(generation, inputs, outputs, coefs, delay, garbage_outputs, quantum_cost)
+    ff_results = generation_result(generation, inputs, outputs, coefs)
     max_ff =  max(ff_results)
     average_ff =  sum(ff_results) / len(ff_results)
     min_ff =  min(ff_results)
@@ -153,8 +151,7 @@ def go():
     """
     global ff_results, generation, max_ff, average_ff, min_ff, \
         absolute_max_ff, absolute_min_ff, max_ffs, average_ffs, min_ffs, \
-        best_chromosome, results, time, time_to_find, iteration, \
-        delay, garbage_outputs, quantum_cost
+        best_chromosome, results, time, time_to_find, iteration
 
     # increase iteration
     iteration += 1
@@ -162,7 +159,7 @@ def go():
     paired_parents = gntc.roulette_selection(ff_results)
     generation = gntc.crossover(generation, paired_parents, crossover_chance)
     generation = gntc.mutation(generation, mutation_chance)
-    ff_results = generation_result(generation, inputs, outputs, coefs, delay, garbage_outputs, quantum_cost)
+    ff_results = generation_result(generation, inputs, outputs, coefs)
     # set process_time
     time = '0' + str(datetime.datetime.now() - start_time)[:7]
     # set absolute fitness function values
