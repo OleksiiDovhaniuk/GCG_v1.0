@@ -1,17 +1,18 @@
-<MenuBarBtn@DropDownBtn>:
+<MenuBarBtn@HoverButton>:
     canvas.before:
         Clear
-    # size_hint: None, None
-    # height: 30
+    size_hint: None, None
+    height: 28
     background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
     background_down: "res/images/bg_hover_button.png"
-    # font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
-    # font_size: '18sp'
-    # color: 0, 0, 0, 1
+    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
+    font_size: '18sp'
+    color: 0, 0, 0, 1
     halign: 'center'
-    # valign: 'middle'
-    # text_size: self.size
-
+    valign: 'middle'
+    text_size: self.size
+<DropDownBtn@Button>:
+    background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
 <HorizontalBoxLayout@BoxLayout>:
     orientation: 'horizontal'
 <HorisontalMenuBar@HorizontalBoxLayout>:

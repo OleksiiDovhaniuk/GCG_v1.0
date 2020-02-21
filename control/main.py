@@ -4,7 +4,9 @@ from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
+from kivy.uix.label import Label 
 from kivy.uix.boxlayout import BoxLayout
+from kivy.graphics import Color, Rectangle
 
 """Hoverable Behaviour (changing when the mouse is on the widget by O. Poyen.
 License: LGPL
@@ -80,24 +82,19 @@ class HoverButton(Button, HoverBehavior):
 class DropDownBtn(HoverButton):
     def __init__(self, **kwargs):
         super(DropDownBtn, self).__init__(**kwargs)
-        self.size_hint = (None, None)
-        self.size = (80, 28)
-        if self.hovered: self.background_normal = "res/images/bg_hover_button.png"
-        else: self.background_normal = "res/images/bg_normal.png"
+        self.size_hint = (1, None)
+        self.height = 28
         self.font_name = 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
         self.font_size = '18sp'
         self.color = (0, 0, 0, 1)
         self.halign = 'left'
         self.valign = 'middle'
-        self.pos_hint = {'center_x': .5, 'center_y': 0.5}
-        self.text_size = self.size
 
-
-file_dropdown = DropDown()
-file_BoxLayout = BoxLayout(orientation='vertical', id='file_box', size=(100,150))
+file_dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200)
+file_dropdown.size_hint_y=None
 file_options = ['New', 'Open', 'Save', 'Exit']
 for option in file_options:
-    btn = DropDownBtn(text='    ' + option, size_hint=(None,None), size=(200,30), color=(0,0,0,1))
+    btn = DropDownBtn(text=option)
     btn.bind(on_release=lambda btn: file_dropdown.select(btn.text))
     file_dropdown.add_widget(btn)
 
