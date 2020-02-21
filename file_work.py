@@ -38,7 +38,7 @@ def save_configurations(configurations):
     f = open(relative_path_configurations, 'w')
     configurations_str = ''
     for key in configurations:
-        configurations_str += f'\n{key}: {configurations[key]}'
+        configurations_str += "\n{}: {}".format(key, configurations[key])
     f.write(configurations_str[1:])
     f.close
 
@@ -48,8 +48,8 @@ def save_truth_table(truth_table):
     for key in truth_table['inputs']:
         row = ''
         for value in truth_table['inputs'][key]:
-            row += f' {value}'
-        truth_table_str += f"\n{key}:{row}"
+            row += ' {}'.fornat(value)
+        truth_table_str += "\n{}:{}".format(key, row)
     truth_table_str = '\noutputs:'
     for key in truth_table['outputs']:
         row = ''
@@ -57,8 +57,8 @@ def save_truth_table(truth_table):
             if value == None:
                 row += ' X'
             else:
-                row += f' {value}'
-        truth_table_str += f"\n{key}:{row}"
+                row += ' {}'.format(value)
+        truth_table_str += "\n{}:{}".format(key, row)
 
     f.write(truth_table_str[1:])
     f.close
@@ -71,7 +71,7 @@ def read_configurations():
             configurations_str = f.read()
         configurations_str = configurations_str.split('\n')  
         if len(configurations_str) != len(default_configurations()):
-            print(f'An error occured trying to create dictionary from the file (configurations.txt).\n{configurations_str}')
+            print('An error occured trying to create dictionary from the file (configurations.txt).\n{}').format(configurations_str)
             return default_configurations()
         else:
             configurations = {}

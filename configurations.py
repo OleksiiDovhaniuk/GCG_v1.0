@@ -232,7 +232,7 @@ class ConfigurationsScreen(Screen):
                 'chromosome size':  self.ids.tinChromosomeSize.text,
                 'crossover chance': self.ids.tinCrossover.text,
                 'mutation chance':  self.ids.tinMutation.text,
-                f'{limits_type}':   self.ids.tinFinishValue.text,
+                '{}'.format(limits_type):   self.ids.tinFinishValue.text,
                 }
             save_configurations(configurations)
 

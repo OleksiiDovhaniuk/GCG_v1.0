@@ -1,5 +1,5 @@
 generation size: 400
 chromosome size: 7
-crossover chance: 0.2
+crossover chance: 0.6
 mutation chance: 0.02
 iterations limit: 1000

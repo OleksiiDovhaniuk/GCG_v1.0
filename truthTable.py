@@ -12,7 +12,7 @@ from kivy.clock import Clock
 
 from file_work import save_truth_table, read_truth_table
 import process
-from pynput import keyboard
+# from pynput import keyboard
 from home import UbuntuLbl
 
 
@@ -176,7 +176,7 @@ class TruthTableScreen(Screen):
             if str_inputs[0] in self.output_signals:
                 self.ids.tin_input_signals.foreground_color = (1,.2,.2,1)
                 self.ids.tin_input_signals.text = \
-                    f'invalid input: list with name {str_inputs[0]} is already used!'
+                    'invalid input: list with name {} is already used!'.format(str_inputs[0])
                 return
             self.input_signals[str_inputs[0]] = []
             for element in str_inputs[1:]:
@@ -229,20 +229,20 @@ class TruthTableScreen(Screen):
             str_set = ''
             str_set += key
             for value in self.input_signals[key]:
-                str_set += f'\n{str(value)}'
+                str_set += '\n{}'.format(str(value))
             self.signals_row = \
-                UbuntuLbl(id=f'lblSignalsRow{key}', text=str_set)
+                UbuntuLbl(id='lblSignalsRow{}'.format(key), text=str_set)
             self.ids.entered_input_signals.add_widget(self.signals_row)
         for key in self.output_signals:
             str_set = ''
             str_set += key
             for value in self.output_signals[key]:
                 if value != None:
-                    str_set += f'\n{str(value)}'
+                    str_set += "\n{}".format(str(value))
                 else:
                     str_set += '\nX'
             self.signals_row = \
-                UbuntuLbl(id=f'lblSignalsRow{key}', text=str_set)
+                UbuntuLbl(id='lblSignalsRow{}'.format(key), text=str_set)
             self.ids.entered_output_signals.add_widget(self.signals_row)
 
     def set_outputs(self):
@@ -255,7 +255,7 @@ class TruthTableScreen(Screen):
             if str_inputs[0] in self.input_signals:
                 self.ids.tin_output_signals.foreground_color = (1,.2,.2,1)
                 self.ids.tin_output_signals.text = \
-                    f'invalid input: list with name {str_inputs[0]} is already used!'
+                    "invalid input: list with name {} is already used!".format(str_inputs[0])
                 return
             self.output_signals[str_inputs[0]] = []
             for element in str_inputs[1:]:
@@ -289,11 +289,11 @@ class TruthTableScreen(Screen):
             str_set += key
             for value in self.output_signals[key]:
                 if value != None:
-                    str_set += f'\n{str(value)}'
+                    str_set += '\n{str(value)}'
                 else:
                     str_set += '\nX'
             self.signals_row = \
-                UbuntuLbl(id=f'lblSignalsRow{key}', text=str_set)
+                UbuntuLbl(id='lblSignalsRow{}'.format(key), text=str_set)
             self.ids.entered_output_signals.add_widget(self.signals_row)
 
     def save_truth_table(self):
@@ -314,20 +314,20 @@ class TruthTableScreen(Screen):
             str_set = ''
             str_set += key
             for value in self.input_signals[key]:
-                str_set += f'\n{str(value)}'
+                str_set += '\n{}'.format(str(value))
             self.signals_row = \
-                UbuntuLbl(id=f'lblSignalsRow{key}', text=str_set)
+                UbuntuLbl(id='lblSignalsRow{}'.format(key), text=str_set)
             self.ids.entered_input_signals.add_widget(self.signals_row)
         for key in self.output_signals:
             str_set = ''
             str_set += key
             for value in self.output_signals[key]:
                 if value != None:
-                    str_set += f'\n{str(value)}'
+                    str_set += '\n{str(value)}'
                 else:
                     str_set += '\nX'
             self.signals_row = \
-                UbuntuLbl(id=f'lblSignalsRow{key}', text=str_set)
+                UbuntuLbl(id='lblSignalsRow{}'.format(key), text=str_set)
             self.ids.entered_output_signals.add_widget(self.signals_row)
 
     def show_progress(self, *args):

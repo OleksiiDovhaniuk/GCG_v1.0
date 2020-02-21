@@ -1,23 +1,26 @@
 # general imports
-import kivy
-kivy.require('1.10.1')
 import string
 
-# kivy lib imports
-from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.progressbar import ProgressBar
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.button import Button
-from kivy.uix.checkbox import CheckBox
+import kivy
 from kivy.clock import Clock
 from kivy.garden.graph import MeshLinePlot
+# kivy lib imports
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.dropdown import DropDown
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.progressbar import ProgressBar
+from kivy.uix.screenmanager import Screen
 
+import process
 # own classes imports
 from home import UbuntuBtn
-import process
+
+kivy.require('1.10.1')
+
+
 
 # UI of Run Screen
 Builder.load_string('''
@@ -357,7 +360,7 @@ class ActionScreen(Screen):
             # show max plot values
             if self.ids.chbxMaxPlot.active:
                 self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
-                self.ids.lblCurrentMax.text = f'max:\n{str(round(process.max_ff, 5))}'
+                self.ids.lblCurrentMax.text = 'max:\n{}'.format(str(round(process.max_ff, 5)))
             else:
                 self.plotMax.points = []
                 self.ids.lblCurrentMax.text = ""
@@ -365,7 +368,7 @@ class ActionScreen(Screen):
             # show average plot values
             if self.ids.chbxAveragePlot.active:
                 self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
-                self.ids.lblCurrentAverage.text = f'average:\n{str(round(process.average_ff, 5))}'
+                self.ids.lblCurrentAverage.text = 'average:\n{}'.format(str(round(process.average_ff, 5)))
 
                 if self.ids.chbxDynamic.active:
                     if self.ids.chbxMaxPlot.active and not self.ids.chbxMinPlot.active:
@@ -381,7 +384,7 @@ class ActionScreen(Screen):
             # show min plot values
             if self.ids.chbxMinPlot.active:
                 self.plotMin.points = [(x, y * 10000) for x, y in enumerate(process.min_ffs)] 
-                self.ids.lblCurrentMin.text = f'min:\n{str(round(process.min_ff, 5))}'
+                self.ids.lblCurrentMin.text = 'min:\n{}'.format(str(round(process.min_ff, 5)))
             else:
                 self.plotMin.points = [] 
                 self.ids.lblCurrentMin.text = ""
@@ -438,13 +441,13 @@ class ActionScreen(Screen):
             self.ids.lblMinFF.text = str(0)
 
             self.plotMax.points = [(x, y * 10000) for x, y in enumerate(process.max_ffs)] 
-            self.ids.lblCurrentMax.text = f'max:\n{str(round(process.max_ff, 5))}'
+            self.ids.lblCurrentMax.text = 'max:\n{}'.format(str(round(process.max_ff, 5)))
 
             self.plotAverage.points = [(x, y * 10000) for x, y in enumerate(process.average_ffs)] 
-            self.ids.lblCurrentAverage.text = f'average:\n{str(round(process.average_ff, 5))}'
+            self.ids.lblCurrentAverage.text = 'average:\n{}'.format(str(round(process.average_ff, 5)))
 
             self.plotMin.points = [(x, y * 10000) for x, y in enumerate(process.min_ffs)] 
-            self.ids.lblCurrentMin.text = f'min:\n{str(round(process.min_ff, 5))}'
+            self.ids.lblCurrentMin.text = 'min:\n{}'.format(str(round(process.min_ff, 5)))
 
             # set progress bar as full
             self.ids.pbProcess.value = 1
@@ -526,7 +529,7 @@ class ActionScreen(Screen):
             if process.results['chromosome']:
                 str_result += '\n\nOther results:\n'
             for index in range (len(process.results['chromosome'])):
-                str_result += f'Result #{str(index + 1)}\n'
+                str_result += 'Result #{}\n'.format(str(index + 1))
                 str_result += self.result_to_str(
                     process.results['chromosome'][index],
                     process.results['fitness_function'][index],
@@ -543,27 +546,27 @@ class ActionScreen(Screen):
                 str_result += str(chromosome[j][i]) + ' '
             str_result += '\n'
         str_result += 'Fitness function value equal:' + \
-            f' {str(round(fitness_function_value, 8))}, that took '
+            ' {}, that took '.format(str(round(fitness_function_value, 8)))
         if time[:2] != '00':
             if time[0] == '0':
-                str_result += f'{time[1]} hour'
+                str_result += '{} hour'.format(time[1])
             else:
-                str_result += f'{time[:2]} hour'
+                str_result += '{} hour'.format(time[:2])
             if time[:2] != '01':
                 str_result += 's'
             str_result += ' '
         if time[3:5] != '00':
             if time[3] == '0':
-                str_result += f'{time[4]} minute'
+                str_result += '{} minute'.format(time[4])
             else:
-                str_result += f'{time[3:5]} minute'
+                str_result += '{} minute'.format(time[3:5])
             if time[3:5] != '01':
                 str_result += 's'
             str_result += ' '
         if time[6] == '0':
-            str_result += f'{time[7]} second'
+            str_result += '{} second'.format(time[7])
         else:
-            str_result += f'{time[6:8]} second'
+            str_result += '{} second'.format(time[6:8])
         if time[6:8] != '01':
             str_result += 's'
         str_result += '.'

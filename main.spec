@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['D:\\Workspace\\Oleksii Dovhaniuk\\Python\\CHNU\\GGC_v1.0'],
+             pathex=['D:\\Workspace\\OleksiiDovhaniuk\\Python\\CHNU\\GGC_v1.0'],
              binaries=[],
              datas=[],
              hiddenimports=[],
