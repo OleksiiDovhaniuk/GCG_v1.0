@@ -73,8 +73,18 @@ kivy.require('1.10.1')
 
 Builder.load_file('view/main.kv')
 
-class CustomDropDown(DropDown):
-    pass
+class MenuDropDown(DropDown):
+    def __init__(self, options_list, **kwargs):
+        self.dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200, pos_hint={'center_y':.855})
+        self.options = options_list
+        for option in self.options:
+            btn = DropDownBtn(text=option)
+            btn.bind(on_release=lambda btn: self.dropdown.select(btn.text))
+            self.dropdown.add_widget(btn)
+        super(MenuDropDown, self).__init__(**kwargs)
+
+    def option_list(self):
+        pass
 
 class HoverButton(Button, HoverBehavior):
     pass
@@ -82,26 +92,32 @@ class HoverButton(Button, HoverBehavior):
 class DropDownBtn(HoverButton):
     def __init__(self, **kwargs):
         super(DropDownBtn, self).__init__(**kwargs)
-        self.size_hint = (1, None)
+        self.size_hint_y = None
         self.height = 28
         self.font_name = 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
         self.font_size = '18sp'
         self.color = (0, 0, 0, 1)
         self.halign = 'left'
         self.valign = 'middle'
+        self.text_size = self.size
 
-file_dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200)
-file_dropdown.size_hint_y=None
-file_options = ['New', 'Open', 'Save', 'Exit']
-for option in file_options:
-    btn = DropDownBtn(text=option)
-    btn.bind(on_release=lambda btn: file_dropdown.select(btn.text))
-    file_dropdown.add_widget(btn)
+options_file = ['New', 'Open', 'Save', 'Exit']
+options_edit = ['Undo', 'Redo', 'Cut', 'Copy', 'Paste']
+options_run = ['Run', 'Pause', 'Stop']
+options_help = ['Welcome', 'Documentation', 'About']
+dropdown_file = MenuDropDown(options_file)
+dropdown_edit = MenuDropDown(options_edit)
+dropdown_run = MenuDropDown(options_run)
+dropdown_help = MenuDropDown(options_help)
+
 
 class Main(Screen):
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
-        self.ids.btn_file.bind(on_release=file_dropdown.open)
+        self.ids.btn_file.bind(on_release=dropdown_file.open)
+        self.ids.btn_edit.bind(on_release=dropdown_edit.open)
+        self.ids.btn_run.bind(on_release=dropdown_run.open)
+        self.ids.btn_help.bind(on_release=dropdown_help.open)
 
     
 

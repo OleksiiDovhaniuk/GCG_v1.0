@@ -2,7 +2,7 @@
     canvas.before:
         Clear
     size_hint: None, None
-    height: 28
+    size: 100, 28
     background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
     background_down: "res/images/bg_hover_button.png"
     font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
@@ -12,7 +12,7 @@
     valign: 'middle'
     text_size: self.size
 <DropDownBtn@Button>:
-    background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
+    background_normal: "res/images/bg_h_dropdown.png" if self.hovered else "res/images/bg_normal.png"
 <HorizontalBoxLayout@BoxLayout>:
     orientation: 'horizontal'
 <HorisontalMenuBar@HorizontalBoxLayout>:
@@ -48,13 +48,14 @@
                 id: btn_file
             MenuBarBtn:
                 text: 'Edit'
+                id: btn_edit
             MenuBarBtn:
-                text: 'View'
-            MenuBarBtn:
-                text: 'Go'
-                width: 60
+                text: 'Run'
+                id: btn_run
+                width: 80
             MenuBarBtn:
                 text: 'Help'
+                id: btn_help
 
         BoxLayout:
             orientation: 'horizontal'
