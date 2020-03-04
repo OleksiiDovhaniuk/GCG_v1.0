@@ -9,7 +9,10 @@ def default_configurations():
         'chromosome size':  7,
         'crossover chance': .2,
         'mutation chance':  .02,
-        'iterations limit': 1000
+        'memorised number': 5,
+        'iterations limit': 1000,
+        'process time':  600,
+        'info delay': 20
     }
     return configurations
 
