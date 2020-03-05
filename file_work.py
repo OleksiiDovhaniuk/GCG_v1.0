@@ -1,16 +1,22 @@
 import os
 
-relative_path_configurations = "Saves/configurations.txt"
-relative_path_truth_table = "Saves/truth_table.txt"
+relative_path_configurations = "saves/configurations.txt"
+relative_path_truth_table = "saves/truth_table.txt"
+relative_path_results = "saves/results/"
+relative_path_messages = "res/messages/"
 
 def default_configurations():
     configurations = {
         'generation size':  400,
         'chromosome size':  7,
-        'crossover chance': .2,
-        'mutation chance':  .02,
+        'crossover probability': .2,
+        'mutation probability':  .02,
         'memorised number': 5,
         'iterations limit': 1000,
+        'alpha': .91,
+        'betta': .03,
+        'gamma': .03,
+        'lamda': .03,
         'process time':  600,
         'info delay': 20
     }
@@ -41,7 +47,7 @@ def save_configurations(configurations):
     f = open(relative_path_configurations, 'w')
     configurations_str = ''
     for key in configurations:
-        configurations_str += "\n{}: {}".format(key, configurations[key])
+        configurations_str += f'\n{key}: {configurations[key]}'
     f.write(configurations_str[1:])
     f.close
 
@@ -51,8 +57,8 @@ def save_truth_table(truth_table):
     for key in truth_table['inputs']:
         row = ''
         for value in truth_table['inputs'][key]:
-            row += ' {}'.fornat(value)
-        truth_table_str += "\n{}:{}".format(key, row)
+            row += f' {value}'
+        truth_table_str += f'\n{key}:{row}'
     truth_table_str = '\noutputs:'
     for key in truth_table['outputs']:
         row = ''
@@ -60,12 +66,11 @@ def save_truth_table(truth_table):
             if value == None:
                 row += ' X'
             else:
-                row += ' {}'.format(value)
-        truth_table_str += "\n{}:{}".format(key, row)
+                row += f' {value}'
+        truth_table_str += f"\n{key}:{row}"
 
     f.write(truth_table_str[1:])
     f.close
-
 
 def read_configurations():
     try:
@@ -74,13 +79,14 @@ def read_configurations():
             configurations_str = f.read()
         configurations_str = configurations_str.split('\n')  
         if len(configurations_str) != len(default_configurations()):
-            print('An error occured trying to create dictionary from the file (configurations.txt).\n{}').format(configurations_str)
+            print(f'An error occured trying to create dictionary from the file (configurations.txt).\n{configurations_str}')
             return default_configurations()
         else:
             configurations = {}
             for index, row in enumerate(configurations_str):
                 row = row.split(':')
-                if index == 2 or index == 3:
+                if (index == 2 or index == 3 or index == 6
+                    or index == 7 or index == 8 or index == 9):
                     configurations[row[0]] = float(row[1].strip())
                 else:
                     configurations[row[0]] = int(row[1].strip())
@@ -119,4 +125,13 @@ def read_truth_table():
         return truth_table
     except IOError:
         print('An error occured trying to read the file (configurations.txt).')
-        return default_configurations()
+        return default_truth_table()
+    
+def save_results(results, truth_table, configurations):
+    f = open(relative_path_truth_table, 'w+')
+
+    
+
+    f.write()
+    f.close
+        

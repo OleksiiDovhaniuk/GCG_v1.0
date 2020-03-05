@@ -1,0 +1,19 @@
+
+            --- N E W   R U N ---
+Truth Table:
+    Inputs: {inputs_str}
+    Outputs: {outputs_str}
+
+Genetic Algorithm Configurations:
+    generation size: {generation_size} (Power of the Population)
+    chromosome size: {chromosome_size}
+    crossover probability: {crossover_probability}
+    mutation probability: {mutation_probability}
+    coefs: {coefs} (Coef-s of the Fitness Function)
+    memoriesed number: {memorised_number} (Number of Chromosomes, which will be memorised) 
+    process time: {process_time}
+    info delay: {info_delay}
+
+If you are satisfied with the configurations type "y" or "Y" to run the program:
+otherwise type name of the configuration...
+[Type "y" or "Y" to run the program]...

@@ -2,49 +2,77 @@ import datetime
 
 from fitness_function import generation_result
 import genetic_algorithm as gntc
-from file_work import read_configurations, read_truth_table
+from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table
 
-configurations = read_configurations()
-truth_table = read_truth_table()
+def read_input_by_key(key):
+    message = f'Enter value of the {key}: '
+    print(message)
+    value = input()
+    return value
 
-generations_number = configurations['iterations limit']
-generation_size = configurations['generation size']
-chromosome_size = configurations['chromosome size']
-crossover_chance = configurations['crossover chance']
-mutation_chance = configurations['mutation chance']
-memorised_number = configurations['memorised number']
-process_time = configurations['process time']
-info_delay = configurations['info delay']
-inputs = tuple(truth_table['inputs'].values())
-outputs = tuple(truth_table['outputs'].values())
-coefs = [0.7, 0.1, 0.1, 0.1]
+def list_2d_to_str(list_2d):
+    string = ''
+    for value in list_2d:
+        string += '\n\t'
+        string += str(value)
+    return string
 
-inputs_str = ''
-for value in inputs:
-    inputs_str += '\n\t'
-    inputs_str += str(value)
-outputs_str = ''
-for value in outputs:
-    outputs_str += '\n\t'
-    outputs_str += str(value)
+configure_mode = True
+while configure_mode:
+    configurations = read_configurations()
+    truth_table = read_truth_table()
 
-log_config= f'''--- N E W   R U N ---
+    generations_number = configurations['iterations limit']
+    generation_size = configurations['generation size']
+    chromosome_size = configurations['chromosome size']
+    crossover_probability = configurations['crossover probability']
+    mutation_probability = configurations['mutation probability']
+    memorised_number = configurations['memorised number']
+    process_time = configurations['process time']
+    info_delay = configurations['info delay']
+    alpha = configurations['alpha']
+    betta = configurations['betta']
+    gamma = configurations['gamma']
+    lamda = configurations['lamda']
+    inputs = tuple(truth_table['inputs'].values())
+    outputs = tuple(truth_table['outputs'].values())
+    coefs = [alpha, betta, gamma, lamda]
+
+    inputs_str = list_2d_to_str(inputs)
+    outputs_str = list_2d_to_str(outputs)
+
+    message = f'''
+            --- N E W   R U N ---
 Truth Table:
     Inputs: {inputs_str}
     Outputs: {outputs_str}
 
 Genetic Algorithm Configurations:
-    Power of the Population: {generation_size}
-    Chromosome Size: {chromosome_size}
-    Crossover Probability: {crossover_chance}
-    Mutation Probability: {mutation_chance}
-    Coef-s of the Fitness Function: {coefs}
-    Number of Chromosomes, which will be memorised: {memorised_number}
-    Process Time: {process_time}
-    Info Delay: {info_delay}
-'''
-print(log_config)
-memorised_number = 5
+    generation size: {generation_size} (Power of the Population)
+    chromosome size: {chromosome_size}
+    crossover probability: {crossover_probability}
+    mutation probability: {mutation_probability}
+    coefs: {coefs} (Coef-s of the Fitness Function)
+    memoriesed number: {memorised_number} (Number of Chromosomes, which will be memorised) 
+    process time: {process_time}
+    info delay: {info_delay}
+
+If you are satisfied with the configurations type "y" or "Y" to run the program:
+otherwise type name of the configuration...
+[Type "y" or "Y" to run the program]...'''
+
+    print(message)
+    input_key = input()
+    if input_key in configurations:
+        input_value = read_input_by_key(input_key)
+        configurations[input_key] = input_value
+        save_configurations(configurations)
+    elif input_key in truth_table:
+        input_value = read_input_by_key(input_key)
+        truth_table[input_key] = input_value
+        save_truth_table(configurations)
+    elif input_key == 'y' or input_key == 'Y':
+        configure_mode = False
 start_time = datetime.datetime.now()
 time_flag = datetime.datetime.now()
 
@@ -129,8 +157,8 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
         ff_results.pop(index_min)
     # body of genetic algorithm process
     paired_parents = gntc.roulette_selection(ff_results)
-    generation = gntc.crossover(generation, paired_parents, crossover_chance)
-    generation = gntc.mutation(generation, mutation_chance)
+    generation = gntc.crossover(generation, paired_parents, crossover_probability)
+    generation = gntc.mutation(generation, mutation_probability)
     ff_results = generation_result(generation, inputs, outputs, coefs)
     # set process_time
     time = '0' + str(datetime.datetime.now() - start_time)[:7]

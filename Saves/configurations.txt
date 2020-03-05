@@ -1,8 +1,12 @@
-generation size: 400
-chromosome size: 7
-crossover chance: 0.6
-mutation chance: 0.02
+generation size: 1000
+chromosome size: 5
+crossover probability: 0.6
+mutation probability: 0.02
 memorised number: 100
 iterations limit: 1000
-process time: 100
+alpha: 0.91
+betta: 0.03
+gamma: 0.03
+lamda: 0.03
+process time: 300
 info delay: 1
