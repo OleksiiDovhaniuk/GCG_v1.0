@@ -1,4 +1,5 @@
 import os
+import datetime
 
 relative_path_configurations = "saves/configurations.txt"
 relative_path_truth_table = "saves/truth_table.txt"
@@ -27,14 +28,14 @@ def default_truth_table():
         'inputs':{
             'X':    (0, 0, 0, 0, 1, 1, 1, 1),
             'Y':    (0, 0, 1, 1, 0, 0, 1, 1),
-            'Ci_1': (0, 1, 0, 1, 0, 1, 0, 1),
+            'C1':   (0, 1, 0, 1, 0, 1, 0, 1),
             'A1':   (1, 1, 1, 1, 1, 1, 1, 1),
             'A2':   (0, 0, 0, 0, 0, 0, 0, 0),
             'A3':   (1, 1, 1, 1, 1, 1, 1, 1)
             },
         'outputs':{
             'S':    (0, 1, 1, 0, 1, 0, 0, 1),
-            'Ci':   (0, 0, 0, 1, 0, 1, 1, 1),
+            'C2':   (0, 0, 0, 1, 0, 1, 1, 1),
             'G1':   (None, None, None, None, None, None, None, None),
             'G2':   (None, None, None, None, None, None, None, None),
             'G3':   (None, None, None, None, None, None, None, None),
@@ -127,11 +128,46 @@ def read_truth_table():
         print('An error occured trying to read the file (configurations.txt).')
         return default_truth_table()
     
-def save_results(results, truth_table, configurations):
-    f = open(relative_path_truth_table, 'w+')
+def save_results(type, results, configurations, truth_table):
+    save_datetime_str = str(datetime.datetime.now())[:19]
+    save_datetime_str = save_datetime_str.replace(' ', '_')
+    save_datetime_str = save_datetime_str.replace('-', '')
+    save_datetime_str = save_datetime_str.replace(':', '')
 
-    
+    truth_table_str = str(truth_table).replace('}', '')
+    truth_table_str = truth_table_str.replace('{', '')
+    truth_table_str = truth_table_str.replace("'", '')
+    truth_table_str = truth_table_str.replace('], ', ']\n\t')
+    truth_table_str = truth_table_str.replace('puts: ', 'puts:\n\t')
+    truth_table_str = truth_table_str.replace(': [', ':\t[')
 
-    f.write()
+    configurations_str = str(configurations).replace('}', '')
+    configurations_str = configurations_str.replace('{', '')
+    configurations_str = configurations_str.replace("'", '')
+    configurations_str = configurations_str.replace(', ', '\n\t')
+
+    results_str = str(results).replace('}', '')
+    results_str = results_str.replace('{', '')
+    results_str = results_str.replace("'", '')
+    results_str = results_str.replace(']]],', ']]]\n\n')
+    results_str = results_str.replace(']],', ']]\n')
+    results_str = results_str.replace(', time', '\n\ttime')
+    results_str = results_str.replace('value', '\tvalue')
+    results_str = results_str.replace('[[[[', '\n[[[[')
+
+    path = f'{relative_path_results}{save_datetime_str}.txt'
+    f = open(path, 'w+')
+    results_str = f'''The {type} Results are saved in <{save_datetime_str}> 
+
+Inputed Truth Table:
+    {truth_table_str}
+
+Configurations:
+    {configurations_str}
+
+Results:
+    {results_str}
+    '''
+    f.write(results_str)
     f.close
         

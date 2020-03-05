@@ -2,11 +2,11 @@ generation size: 1000
 chromosome size: 5
 crossover probability: 0.6
 mutation probability: 0.02
-memorised number: 100
+memorised number: 5
 iterations limit: 1000
 alpha: 0.91
 betta: 0.03
 gamma: 0.03
 lamda: 0.03
-process time: 300
+process time: 3
 info delay: 1

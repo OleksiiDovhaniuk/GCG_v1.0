@@ -10,5 +10,5 @@ for index, value in enumerate(test_list):
 
 
 
-print(str(datetime.datetime.now() - start_time)[5:7])
+print(str(datetime.datetime.now())[:19])
 print(str(datetime.datetime.now() - start_time)[2:4])

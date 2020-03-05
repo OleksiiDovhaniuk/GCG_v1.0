@@ -2,7 +2,7 @@ import datetime
 
 from fitness_function import generation_result
 import genetic_algorithm as gntc
-from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table
+from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table, save_results
 
 def read_input_by_key(key):
     message = f'Enter value of the {key}: '
@@ -16,6 +16,11 @@ def list_2d_to_str(list_2d):
         string += '\n\t'
         string += str(value)
     return string
+
+def time_delta_in_s(curent_time, start_time):
+    time_delta = int(str(datetime.datetime.now() - start_time)[5:7])
+    time_delta = time_delta + int(str(datetime.datetime.now() - start_time)[2:4])*60
+    return time_delta   
 
 configure_mode = True
 while configure_mode:
@@ -54,10 +59,10 @@ Genetic Algorithm Configurations:
     mutation probability: {mutation_probability}
     coefs: {coefs} (Coef-s of the Fitness Function)
     memoriesed number: {memorised_number} (Number of Chromosomes, which will be memorised) 
-    process time: {process_time}
-    info delay: {info_delay}
+    process time: {process_time} (seconds)
+    info delay: {info_delay} (seconds)
 
-If you are satisfied with the configurations type "y" or "Y" to run the program:
+If you are satisfied with the configurations type "y" or "Y" to run the program;
 otherwise type name of the configuration...
 [Type "y" or "Y" to run the program]...'''
 
@@ -80,7 +85,7 @@ time_flag = datetime.datetime.now()
 generation = None
 ff_results = None
 best_results = None
-best_chromosome =  None
+proper_results = None
 iteration = None
 time = None
 results = None
@@ -104,6 +109,12 @@ best_results = {
     'value': [],
     'time': []
     }
+# dictionary of the proper results(chromosome, ff_value, time)
+proper_results = {
+    'chromosome': [],
+    'value': [],
+    'time': []
+    }
 
 for _ in range(memorised_number):
     max_ff = -1
@@ -117,13 +128,7 @@ for _ in range(memorised_number):
     best_results['time'].append(time)   
     generation.pop(index_max)
     ff_results.pop(index_max)
-
-def time_delta_in_s(curent_time, start_time):
-    time_delta = int(str(datetime.datetime.now() - start_time)[5:7])
-    time_delta = time_delta + int(str(datetime.datetime.now() - start_time)[2:4])*60
-    return time_delta        
-
-
+    
 max_value_index = -1
 max_value = -1
 for index, value in enumerate(best_results['value']):
@@ -198,8 +203,12 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
         print('Process time {}, current value: {}'.format(time, round(max_value, 5)), end='\r')
         if max_value > coefs[0]:
             print('An appropriate chromosome:')
-            for gene in best_results['chromosome'][max_value_index]:
+            best_chromosome = best_results['chromosome'][max_value_index] 
+            for gene in best_chromosome:
                 print(gene)
+            proper_results['chromosome'].append(best_chromosome)
+            proper_results['value'].append(max_value)
+            proper_results['time'].append(time)
             print('The search time is: {}'.format(best_results['time'][max_value_index]))
         time_flag = datetime.datetime.now()
 
@@ -216,3 +225,8 @@ if max_value > coefs[0]:
     for gene in best_results['chromosome'][max_value_index]:
         print(gene) 
     print('The search time is: {}'.format(best_results['time'][max_value_index  ]))
+
+if proper_results['chromosome']:
+    save_results('Proper', proper_results, configurations, truth_table)
+else:
+    save_results('Best', best_results, configurations, truth_table)
