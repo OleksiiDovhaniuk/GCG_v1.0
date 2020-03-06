@@ -1,9 +1,9 @@
-import os
+import os, os.path
 import datetime
 
 relative_path_configurations = "saves/configurations.txt"
 relative_path_truth_table = "saves/truth_table.txt"
-relative_path_results = "saves/results/"
+relative_path_autosaves = "saves/autosaves/"
 relative_path_messages = "res/messages/"
 
 def default_configurations():
@@ -19,7 +19,6 @@ def default_configurations():
         'gamma': .03,
         'lamda': .03,
         'process time':  600,
-        'info delay': 20
     }
     return configurations
 
@@ -80,7 +79,7 @@ def read_configurations():
             configurations_str = f.read()
         configurations_str = configurations_str.split('\n')  
         if len(configurations_str) != len(default_configurations()):
-            print(f'An error occured trying to create dictionary from the file (configurations.txt).\n{configurations_str}')
+            print(f'An error occured trying to create dictionary from the file configurations.txt.')
             return default_configurations()
         else:
             configurations = {}
@@ -93,7 +92,7 @@ def read_configurations():
                     configurations[row[0]] = int(row[1].strip())
             return configurations
     except IOError:
-        print('An error occured trying to read the file (configurations.txt).')
+        print('An error occured trying to read the file configurations.txt.')
         return default_configurations()
 
 def read_truth_table():
@@ -127,12 +126,28 @@ def read_truth_table():
     except IOError:
         print('An error occured trying to read the file (configurations.txt).')
         return default_truth_table()
-    
-def save_results(type, results, configurations, truth_table):
-    save_datetime_str = str(datetime.datetime.now())[:19]
+
+def clear_autosaves():
+    capasity = 20
+    path = relative_path_autosaves
+    files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    files_number = len(files)
+    files.sort()
+    while files_number > capasity:
+        file_name = files[0]
+        file_path = f'{path}{file_name}'
+        os.remove(file_path)
+        print (f'The autosave {file_name} is removed{spaces}')
+        files.pop(0)
+        files_number = len(files)
+    print(f'Number of autosaves - {files_number}')
+
+def autosave(type, results, configurations, truth_table, time):
+    save_datetime_str = str(time)[:19]
     save_datetime_str = save_datetime_str.replace(' ', '_')
     save_datetime_str = save_datetime_str.replace('-', '')
     save_datetime_str = save_datetime_str.replace(':', '')
+    file_name = f'{save_datetime_str}.txt'
 
     truth_table_str = str(truth_table).replace('}', '')
     truth_table_str = truth_table_str.replace('{', '')
@@ -155,9 +170,15 @@ def save_results(type, results, configurations, truth_table):
     results_str = results_str.replace('value', '\tvalue')
     results_str = results_str.replace('[[[[', '\n[[[[')
 
-    path = f'{relative_path_results}{save_datetime_str}.txt'
+    path = f'{relative_path_autosaves}{file_name}'
+    spaces = '            '
+    if os.path.isfile(os.path.join(path)):
+        message = f'An autosave {file_name} is rewritten{spaces}'
+    else:
+        message = f'An autosave {file_name} is created{spaces}'
+
     f = open(path, 'w+')
-    results_str = f'''The {type} Results are saved in <{save_datetime_str}> 
+    results_str = f'''The {type} Results are saved in {file_name} 
 
 Inputed Truth Table:
     {truth_table_str}
@@ -170,4 +191,6 @@ Results:
     '''
     f.write(results_str)
     f.close
+    print(message)
+    clear_autosaves()
         

@@ -2,7 +2,7 @@ import datetime
 
 from fitness_function import generation_result
 import genetic_algorithm as gntc
-from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table, save_results
+from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table, autosave
 
 def read_input_by_key(key):
     message = f'Enter value of the {key}: '
@@ -34,7 +34,7 @@ while configure_mode:
     mutation_probability = configurations['mutation probability']
     memorised_number = configurations['memorised number']
     process_time = configurations['process time']
-    info_delay = configurations['info delay']
+    info_delay = 1
     alpha = configurations['alpha']
     betta = configurations['betta']
     gamma = configurations['gamma']
@@ -47,7 +47,6 @@ while configure_mode:
     outputs_str = list_2d_to_str(outputs)
 
     message = f'''
-            --- N E W   R U N ---
 Truth Table:
     Inputs: {inputs_str}
     Outputs: {outputs_str}
@@ -58,13 +57,11 @@ Genetic Algorithm Configurations:
     crossover probability: {crossover_probability}
     mutation probability: {mutation_probability}
     coefs: {coefs} (Coef-s of the Fitness Function)
-    memoriesed number: {memorised_number} (Number of Chromosomes, which will be memorised) 
+    memorised number: {memorised_number} (Number of Chromosomes, which will be memorised) 
     process time: {process_time} (seconds)
-    info delay: {info_delay} (seconds)
 
-If you are satisfied with the configurations type "y" or "Y" to run the program;
-otherwise type name of the configuration...
-[Type "y" or "Y" to run the program]...'''
+[Type name of the configuration to change it]...
+[Type "y" to run the program]...'''
 
     print(message)
     input_key = input()
@@ -80,42 +77,34 @@ otherwise type name of the configuration...
         configure_mode = False
 start_time = datetime.datetime.now()
 time_flag = datetime.datetime.now()
-
 # genetic algorithm objects (mutable)
 generation = None
 ff_results = None
 best_results = None
 proper_results = None
-iteration = None
 time = None
 results = None
-
-""" 
-    Zero iteration - creation of the start generation
-    """
 # genetic algorithm objects (mutable)
-generation = gntc.create_generation(generation_size, 
-    chromosome_size, len(inputs))
+generation = gntc.create_generation(generation_size, chromosome_size, len(inputs))
 # ff: fitness function
 ff_results = generation_result(generation, inputs, outputs, coefs)
 # interation
 iteration = 0
 # time atributes
 time = '00:00:00'
-
-# dictionary of the best results(chromosome, ff_value, time)
-best_results = {
-    'chromosome': [],
-    'value': [],
-    'time': []
-    }
-# dictionary of the proper results(chromosome, ff_value, time)
+# initialise dictionary of the proper results (chromosome, FF value, search time)
 proper_results = {
     'chromosome': [],
     'value': [],
     'time': []
     }
-
+# initialise dictionary of the best results (chromosome, FF value, search time)
+best_results = {
+    'chromosome': [],
+    'value': [],
+    'time': []
+    }
+# add best N (N = memorised_number) chromosome to the dictionary of the best results 
 for _ in range(memorised_number):
     max_ff = -1
     index_max = -1
@@ -128,29 +117,27 @@ for _ in range(memorised_number):
     best_results['time'].append(time)   
     generation.pop(index_max)
     ff_results.pop(index_max)
-    
-max_value_index = -1
+# generate first info message of the process
 max_value = -1
+max_value_index = -1
 for index, value in enumerate(best_results['value']):
     if value > max_value:
-        max_value_index = index
         max_value = value
-print('Process time {}, current value: {}'.format(time, round(max_value, 5)), end='\r')
+        max_value_index = index
+max_value_rounded = round(max_value, 6)
+message = f'Process time {time}, current value: {max_value_rounded}'
 if max_value > coefs[0]:
-    print('An appropriate chromosome:')
+    message += '\n Now the best appropriate chromosome is:'
     for gene in best_results['chromosome'][max_value_index]:
-        print(gene) 
-    print('The search time is: {}'.format(best_results['time'][max_value_index  ]))
-
-""" 
-    Make a genetic algorithm loop not included the
-    generation creation and the first genectic algorithm objects 
-    setting up.
-    """
+        message += f'\n{gene}' 
+    message += f'The search time is: {best_results["time"][max_value_index  ]}'
+print(message, end='\r')
+previous_massage = message
+""" Make a genetic algorithm loop not included the generation 
+creation and the first genectic algorithm objects setting up.
+"""
 while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
-    # increase iteration
-    iteration += 1
-
+    # restore "stolen" chromosome back to generation
     ff_results.extend(best_results['value'])
     generation.extend(best_results['chromosome'])
     while len(generation) > generation_size:
@@ -167,8 +154,7 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
     ff_results = generation_result(generation, inputs, outputs, coefs)
     # set process_time
     time = '0' + str(datetime.datetime.now() - start_time)[:7]
-    
-    
+    # updating dictionary of the best chromosomes
     for _ in range(memorised_number):
         index_min_best = -1
         min_best_result = 999
@@ -191,42 +177,46 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
             best_results['time'].append(time)   
             generation.pop(index_max)
             ff_results.pop(index_max)
-
+    # seek for the best current chromosome
     max_value_index = -1
     max_value = -1
     for index, value in enumerate(best_results['value']):
         if value > max_value:
             max_value_index = index
             max_value = value
-            
+    # if delay time is past - reveal current results        
     if time_delta_in_s(datetime.datetime.now(), time_flag) >= info_delay:
-        print('Process time {}, current value: {}'.format(time, round(max_value, 5)), end='\r')
+        max_value_rounded = round(max_value, 6)
+        message = f'Process time {time}, current value: {max_value_rounded}'
         if max_value > coefs[0]:
-            print('An appropriate chromosome:')
             best_chromosome = best_results['chromosome'][max_value_index] 
-            for gene in best_chromosome:
-                print(gene)
-            proper_results['chromosome'].append(best_chromosome)
-            proper_results['value'].append(max_value)
-            proper_results['time'].append(time)
-            print('The search time is: {}'.format(best_results['time'][max_value_index]))
+            if not best_chromosome in proper_results['chromosome']:
+                proper_results['chromosome'].append(best_chromosome)
+                proper_results['value'].append(max_value)
+                proper_results['time'].append(time)
+                autosave('Process Proper', proper_results, 
+                    configurations, truth_table, start_time)
+            search_time = best_results['time'][max_value_index]
         time_flag = datetime.datetime.now()
-
-
+    print(message, end ='\r')
+# the last message of the current run of the programm
 max_value_index = -1
 max_value = -1
 for index, value in enumerate(best_results['value']):
     if value > max_value:
         max_value_index = index
         max_value = value
-print('Process time {}, current value: {}'.format(time, round(max_value, 5)))
+max_value_rounded = round(max_value, 5)
+message = f'Process time {time}, current value: {max_value_rounded}'
 if max_value > coefs[0]:
-    print('An appropriate chromosome:')
+    message += '\nAn appropriate chromosome:'
     for gene in best_results['chromosome'][max_value_index]:
-        print(gene) 
-    print('The search time is: {}'.format(best_results['time'][max_value_index  ]))
-
+        message += f'\n{gene}' 
+    search_time = best_results['time'][max_value_index]
+    message += f'\nThe search time is: {search_time}'
+print(f'\r{message: <{len(previous_massage)}}')
+# save results to a folder in new txt-filez
 if proper_results['chromosome']:
-    save_results('Proper', proper_results, configurations, truth_table)
+    autosave('Complete Proper', proper_results, configurations, truth_table, start_time)
 else:
-    save_results('Best', best_results, configurations, truth_table)
+    autosave('Complete Best', best_results, configurations, truth_table, start_time)

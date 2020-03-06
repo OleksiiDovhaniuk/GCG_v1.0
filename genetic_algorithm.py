@@ -6,8 +6,8 @@ if genetic algorithm.
 Functions: 
     create_generation(size, genes_number, in_out_number),
     roullete_selection(fitness_function_values),
-    crossover(generation, paired_parents, crossover_chance),
-    mutation(generation, mutation_chance)
+    crossover(generation, paired_parents, crossover_probability),
+    mutation(generation, mutation_probability)
 
 """
 import random
@@ -93,13 +93,13 @@ def roulette_selection(fitness_function_values):
         for index in range(half_len)]
     return paired_parents
 
-def crossover(generation, paired_parents, crossover_chance):
+def crossover(generation, paired_parents, crossover_probability):
     """ Crossover the parents in generation to get new generation.
 
     Args: 
         generation (4D list).
         paired_parents (2D list): list of parents indexes.
-        crossover_chance (float).
+        crossover_probability (float).
     
     Returns: crossovered_generation (4D list): 
         new generation after crossover.
@@ -107,10 +107,10 @@ def crossover(generation, paired_parents, crossover_chance):
     Note: 
         Current generation should be inmutable 
         on any stages of genetic algorithm.
-        Crossover chance in range (0, 1].
+        Crossover probability in range (0, 1].
 
     # >>> crossover(create_generation(size, genes_number, in_out_number),\
-    #      roullete_selection(ff_values), crossover_chance)
+    #      roullete_selection(ff_values), crossover_probability)
     """
     # define max number of crossovers
     max_crossovers =  len(paired_parents)
@@ -125,7 +125,7 @@ def crossover(generation, paired_parents, crossover_chance):
         for index in range(0, max_crossovers)]
     # crossover the generation
     for pair_ind, pair in enumerate(paired_parents):
-        if (random_shots[pair_ind] <= crossover_chance
+        if (random_shots[pair_ind] <= crossover_probability
                 and pair[0] != pair[1]):
             # split parents into L and R parts
             point = crossover_points[pair_ind]
@@ -145,12 +145,12 @@ def crossover(generation, paired_parents, crossover_chance):
 
     return crossovered_generation
 
-def mutation(generation, mutation_chance):
+def mutation(generation, mutation_probability):
     """ Mutate the chromosomes in generation.
 
     Args: 
         generation (4D list).
-        mutation_chance (float).
+        mutation_probability (float).
     
     Returns: mutated_generation (4D list): 
         new generation after mutation.
@@ -158,12 +158,12 @@ def mutation(generation, mutation_chance):
     Note: 
         Current generation should be inmutable 
         on any stages of genetic algorithm.
-        Mutation chance in range (0, 1]. Usually 
-        mutation_chance is at least 10-times smaller
-        than crossover_chance.
+        Mutation probability in range (0, 1]. Usually 
+        mutation_probability is at least 10-times smaller
+        than crossover_probability.
 
     # >>> mutation(create_generation(size, genes_number, in_out_number),\
-    #         mutation_chance)
+    #         mutation_probability)
     """
     # define max value of mutation point
     max_mutation_point = len(generation[0]) - 1 
@@ -180,7 +180,7 @@ def mutation(generation, mutation_chance):
         for _ in generation]
     # mumtate generation
     for chromosome_ind, chromosome in enumerate(generation):
-        if random_shots[chromosome_ind] <= mutation_chance:
+        if random_shots[chromosome_ind] <= mutation_probability:
             point = mutation_points[chromosome_ind]
             # create empty chromosome 
             mutated_chromosome = [gene for gene in chromosome]
@@ -211,6 +211,6 @@ if __name__ == '__main__':
                                 'genes_number':     5,
                                 'in_out_number':    7,
                                 'ff_values':        [.8, .85],
-                                'crossover_chance': 1,
-                                'mutation_chance':  1
+                                'crossover_probability': 1,
+                                'mutation_probability':  1
                                })
