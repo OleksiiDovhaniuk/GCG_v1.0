@@ -1,11 +1,1 @@
-generation size: 4000
-chromosome size: 10
-crossover probability: 0.6
-mutation probability: 0.02
-memorised number: 10
-iterations limit: 1000
-alpha: 0.91
-betta: 0.03
-gamma: 0.03
-lamda: 0.03
-process time: 2400
+{'generation size': {'value': 1000, 'type': 'int'}, 'chromosome size': {'value': 7, 'type': 'int'}, 'crossover probability': {'value': 0.6, 'type': 'float', 'range': (0, 1)}, 'mutation probability': {'value': 0.02, 'type': 'float', 'range': (0, 1)}, 'memorised number': {'value': 10, 'type': 'int'}, 'iterations limit': {'value': 1000, 'type': 'int'}, 'alpha': {'value': 0.91, 'type': 'float', 'range': (0, 1)}, 'betta': {'value': 0.03, 'type': 'float', 'range': (0, 1)}, 'gamma': {'value': 0.03, 'type': 'float', 'range': (0, 1)}, 'lambda': {'value': 0.03, 'type': 'float', 'range': (0, 1)}, 'process time': {'value': 2, 'type': 'float', 'range': (0, 1)}}

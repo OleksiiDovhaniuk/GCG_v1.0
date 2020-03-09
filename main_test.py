@@ -16,6 +16,7 @@ import genetic_algorithm as gntc
 from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table, autosave
 
 import datetime as dt
+import numpy as np
 
 # genetic algorithm objects (mutable)
 generation = None
@@ -25,7 +26,7 @@ proper_results = None
 time = None
 results = None
 configure_mode = True
-keys_float = ['crossover probability', 'mutation probability', 'alpha', 'betta', 'gamma', 'lamda']
+keys_float = ['crossover probability', 'mutation probability', 'alpha', 'betta', 'gamma', 'lambda']
 
 class main_testApp(App):
     def build(self):
@@ -38,13 +39,6 @@ def read_input_by_key(key):
     print(message)
     value = input()
     return value
-
-def list_2d_to_str(list_2d):
-    string = ''
-    for value in list_2d:
-        string += '\n\t'
-        string += str(value)
-    return string
 
 def time_delta_in_s(curent_time, start_time):
     time_delta = int(str(dt.datetime.now() - start_time)[5:7])
@@ -62,29 +56,45 @@ while configure_mode:
     configurations = read_configurations()
     truth_table = read_truth_table()
 
-    generations_number = configurations['iterations limit']
-    generation_size = configurations['generation size']
-    chromosome_size = configurations['chromosome size']
-    crossover_probability = configurations['crossover probability']
-    mutation_probability = configurations['mutation probability']
-    memorised_number = configurations['memorised number']
-    process_time = configurations['process time']
+    generations_number = configurations['iterations limit']['value']
+    generation_size = configurations['generation size']['value']
+    chromosome_size = configurations['chromosome size']['value']
+    crossover_probability = configurations['crossover probability']['value']
+    mutation_probability = configurations['mutation probability']['value']
+    memorised_number = configurations['memorised number']['value']
+    process_time = configurations['process time']['value']
     info_delay = 1
-    alpha = configurations['alpha']
-    betta = configurations['betta']
-    gamma = configurations['gamma']
-    lamda = configurations['lamda']
-    inputs = tuple(truth_table['inputs'].values())
-    outputs = tuple(truth_table['outputs'].values())
+    alpha = configurations['alpha']['value']
+    betta = configurations['betta']['value']
+    gamma = configurations['gamma']['value']
+    lamda = configurations['lambda']['value']
     coefs = [alpha, betta, gamma, lamda]
-
-    inputs_str = list_2d_to_str(inputs)
-    outputs_str = list_2d_to_str(outputs)
+    inputs = []
+    for row in truth_table['inputs'].to_dict('split')['data']:
+        inputs_value = []
+        for value in row:
+            if value == 'X':
+                value = None
+            inputs_value.append(value)
+        inputs.append(inputs_value)
+    inputs = np.array(inputs).T.tolist()
+    outputs = []
+    for row in truth_table['outputs'].to_dict('split')['data']:
+        outputs_value = []
+        for value in row:
+            if value == 'X':
+                value = None
+            outputs_value.append(value)
+        outputs.append(outputs_value)
+    outputs = np.array(outputs).T.tolist()
+    print(inputs)
 
     message = f'''
 Truth Table:
-    Inputs: {inputs_str}
-    Outputs: {outputs_str}
+    Inputs: 
+{truth_table['inputs']}
+    Outputs: 
+{truth_table['outputs']}
 
 Genetic Algorithm Configurations:
     generation size: {generation_size} (Power of the Population)
@@ -97,7 +107,7 @@ Genetic Algorithm Configurations:
     process time: {process_time} (seconds)
 
 [Type name of the configuration to change it]...
-[Type "y" to run the program]...'''
+[Type "y" to run the program]...'''.replace("'", '')
 
     print(message)
     input_str = input()
@@ -111,8 +121,13 @@ Genetic Algorithm Configurations:
     # read a value accordingly to the inputed key    
     if input_key in configurations:
         input_value = read_input_by_key(input_key).replace(' ', '')
-        if is_valid_float(input_key, input_value) or str.isdigit(input_value):
-            configurations[input_key] = input_value
+        if is_valid_float(input_key, input_value):
+            configurations[input_key]['value'] = float(input_value)
+            save_configurations(configurations)
+        elif str.isdigit(input_value):
+            configurations[input_key]['value'] = int(input_value)
+            for key in configurations:
+                print(f'{key}:{configurations[key]}')
             save_configurations(configurations)
         else:
             message = f'The value [{input_value}] is not appropriate'
@@ -263,5 +278,5 @@ else:
     autosave('Complete Best', best_results, configurations, truth_table, start_time)
 
 
-if __name__ == '__main__':
-    main_testApp().run()
+# if __name__ == '__main__':
+    # main_testApp().run()
