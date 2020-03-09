@@ -73,19 +73,6 @@ kivy.require('1.10.1')
 
 Builder.load_file('view/main.kv')
 
-class MenuDropDown(DropDown):
-    def __init__(self, options_list, **kwargs):
-        self.dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200, pos_hint={'center_y':.855})
-        self.options = options_list
-        for option in self.options:
-            btn = DropDownBtn(text=option)
-            btn.bind(on_release=lambda btn: self.dropdown.select(btn.text))
-            self.dropdown.add_widget(btn)
-        super(MenuDropDown, self).__init__(**kwargs)
-
-    def option_list(self):
-        pass
-
 class HoverButton(Button, HoverBehavior):
     pass
 
@@ -100,6 +87,19 @@ class DropDownBtn(HoverButton):
         self.halign = 'left'
         self.valign = 'middle'
         self.text_size = self.size
+
+class MenuDropDown(DropDown):
+    def __init__(self, options_list, **kwargs):
+        self.dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200, pos_hint={'center_y':.855})
+        self.options = options_list
+        for option in self.options:
+            btn = DropDownBtn(text=option)
+            btn.bind(on_release=lambda btn: self.dropdown.select(btn.text))
+            self.dropdown.add_widget(btn)
+        super(MenuDropDown, self).__init__(**kwargs)
+
+    def option_list(self):
+        pass
 
 options_file = ['New', 'Open', 'Save', 'Exit']
 options_edit = ['Undo', 'Redo', 'Cut', 'Copy', 'Paste']

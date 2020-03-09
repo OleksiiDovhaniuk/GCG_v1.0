@@ -137,7 +137,7 @@ def clear_autosaves():
         file_name = files[0]
         file_path = f'{path}{file_name}'
         os.remove(file_path)
-        print (f'The autosave {file_name} is removed{spaces}')
+        print (f'The autosave {file_name} is removed')
         files.pop(0)
         files_number = len(files)
     print(f'Number of autosaves - {files_number}')

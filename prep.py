@@ -1,9 +1,5 @@
-import os
 from kivy.uix.screenmanager import ScreenManager
 from control.main import Main
-from truthTable import TruthTableScreen
-from configurations import ConfigurationsScreen
-from action import ActionScreen
 
 
 class Prep:

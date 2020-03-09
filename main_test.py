@@ -1,8 +1,37 @@
-import datetime
+from kivy.config import Config
+# deny to resize wondows
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height', '600')
+Config.set('graphics', 'resizable', False)
+# save configurations
+Config.write()
+# import kivy lib
+from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
+from kivy.lang import Builder
 
 from fitness_function import generation_result
 import genetic_algorithm as gntc
 from file_work import read_configurations, read_truth_table, save_configurations, save_truth_table, autosave
+
+import datetime as dt
+
+# genetic algorithm objects (mutable)
+generation = None
+ff_results = None
+best_results = None
+proper_results = None
+time = None
+results = None
+configure_mode = True
+keys_float = ['crossover probability', 'mutation probability', 'alpha', 'betta', 'gamma', 'lamda']
+
+class main_testApp(App):
+    def build(self):
+        root = GridLayout(cols=2, padding=50, spacing=50)
+
+        return root
 
 def read_input_by_key(key):
     message = f'Enter value of the {key}: '
@@ -18,11 +47,17 @@ def list_2d_to_str(list_2d):
     return string
 
 def time_delta_in_s(curent_time, start_time):
-    time_delta = int(str(datetime.datetime.now() - start_time)[5:7])
-    time_delta = time_delta + int(str(datetime.datetime.now() - start_time)[2:4])*60
-    return time_delta   
+    time_delta = int(str(dt.datetime.now() - start_time)[5:7])
+    time_delta = time_delta + int(str(dt.datetime.now() - start_time)[2:4])*60
+    return time_delta  
 
-configure_mode = True
+def is_valid_float(key, value):
+    try:
+        float_value = float(value)
+        return key in keys_float and float_value <= 1
+    except ValueError:
+        return False
+
 while configure_mode:
     configurations = read_configurations()
     truth_table = read_truth_table()
@@ -57,6 +92,7 @@ Genetic Algorithm Configurations:
     crossover probability: {crossover_probability}
     mutation probability: {mutation_probability}
     coefs: {coefs} (Coef-s of the Fitness Function)
+    [...to change coefs - tipe 'alpha', 'betta', 'gamma' or 'lamda' accordingly]
     memorised number: {memorised_number} (Number of Chromosomes, which will be memorised) 
     process time: {process_time} (seconds)
 
@@ -64,26 +100,31 @@ Genetic Algorithm Configurations:
 [Type "y" to run the program]...'''
 
     print(message)
-    input_key = input()
+    input_str = input()
+    # clean input from rubbish spaces
+    input_reversed = input_str[::-1]
+    while input_reversed[0] == ' ':
+        input_reversed = input_reversed[1:]
+    input_key = input_reversed[::-1]
+    while input_key[0] == ' ':
+        input_key = input_key[1:]
+    # read a value accordingly to the inputed key    
     if input_key in configurations:
-        input_value = read_input_by_key(input_key)
-        configurations[input_key] = input_value
-        save_configurations(configurations)
+        input_value = read_input_by_key(input_key).replace(' ', '')
+        if is_valid_float(input_key, input_value) or str.isdigit(input_value):
+            configurations[input_key] = input_value
+            save_configurations(configurations)
+        else:
+            message = f'The value [{input_value}] is not appropriate'
+            print(message,end='\r')
     elif input_key in truth_table:
         input_value = read_input_by_key(input_key)
         truth_table[input_key] = input_value
         save_truth_table(configurations)
     elif input_key == 'y' or input_key == 'Y':
         configure_mode = False
-start_time = datetime.datetime.now()
-time_flag = datetime.datetime.now()
-# genetic algorithm objects (mutable)
-generation = None
-ff_results = None
-best_results = None
-proper_results = None
-time = None
-results = None
+start_time = dt.datetime.now()
+time_flag = dt.datetime.now()
 # genetic algorithm objects (mutable)
 generation = gntc.create_generation(generation_size, chromosome_size, len(inputs))
 # ff: fitness function
@@ -136,7 +177,7 @@ previous_massage = message
 """ Make a genetic algorithm loop not included the generation 
 creation and the first genectic algorithm objects setting up.
 """
-while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
+while time_delta_in_s(dt.datetime.now(), start_time) <= process_time:
     # restore "stolen" chromosome back to generation
     ff_results.extend(best_results['value'])
     generation.extend(best_results['chromosome'])
@@ -153,7 +194,7 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
     generation = gntc.mutation(generation, mutation_probability)
     ff_results = generation_result(generation, inputs, outputs, coefs)
     # set process_time
-    time = '0' + str(datetime.datetime.now() - start_time)[:7]
+    time = '0' + str(dt.datetime.now() - start_time)[:7]
     # updating dictionary of the best chromosomes
     for _ in range(memorised_number):
         index_min_best = -1
@@ -185,7 +226,7 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
             max_value_index = index
             max_value = value
     # if delay time is past - reveal current results        
-    if time_delta_in_s(datetime.datetime.now(), time_flag) >= info_delay:
+    if time_delta_in_s(dt.datetime.now(), time_flag) >= info_delay:
         max_value_rounded = round(max_value, 6)
         message = f'Process time {time}, current value: {max_value_rounded}'
         if max_value > coefs[0]:
@@ -197,7 +238,7 @@ while time_delta_in_s(datetime.datetime.now(), start_time) <= process_time:
                 autosave('Process Proper', proper_results, 
                     configurations, truth_table, start_time)
             search_time = best_results['time'][max_value_index]
-        time_flag = datetime.datetime.now()
+        time_flag = dt.datetime.now()
     print(message, end ='\r')
 # the last message of the current run of the programm
 max_value_index = -1
@@ -220,3 +261,7 @@ if proper_results['chromosome']:
     autosave('Complete Proper', proper_results, configurations, truth_table, start_time)
 else:
     autosave('Complete Best', best_results, configurations, truth_table, start_time)
+
+
+if __name__ == '__main__':
+    main_testApp().run()
