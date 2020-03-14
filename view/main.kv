@@ -1,6 +1,42 @@
-<MenuBarBtn@HoverButton>:
+<LabelConf@Label>
+    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
+    size_hint_y: None
+    height: 26
+    color: 0, 0, 0, 1
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+<TxtConf@TextInput>:
+    background_normal: "res/images/bg_TextInput.png"
+    background_active: "res/images/bg_TextInput_focus.png"
+    cursor_color: (.3, .3, .3, 1)
+    size_hint: None, None
+    size: 100, 26
+    multiline: False
+<LayoutConf@BoxLayout>:
+    padding: 20, .5*(self.height-26)
+    size_hint: .95, .99
+    pos_hint: {'center_x': .5}
+    canvas:
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: "res/images/bg_LayoutConf.png"
+            pos: self.pos
+            size: self.size
+<SideConf@BoxLayout>:
+    orientation: 'vertical'
+    size_hint_x: None
+    width: 360
     canvas.before:
         Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: "res/images/bg_SideConf.png"
+            pos: self.pos
+            size: self.size
+<MenuBarBtn@HoverButton>:
     size_hint: None, None
     size: 100, 28
     background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
@@ -11,6 +47,8 @@
     halign: 'center'
     valign: 'middle'
     text_size: self.size
+    canvas.before:
+        Clear
 <DropDownBtn@Button>:
     background_normal: "res/images/bg_h_dropdown.png" if self.hovered else "res/images/bg_normal.png"
 <HorizontalBoxLayout@BoxLayout>:
@@ -26,10 +64,20 @@
             source: "res/images/bg_h_menu.png"
             pos: self.pos
             size: self.size
+<HorizontalBoxLayoutConf@HorizontalBoxLayout>:
+    size_hint: 1, None
+    size: 300, 30
 <VerticalMenuBar@BoxLayout>:
     orientation: 'vertical'
     size_hint: None, 1
     width: 40
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
 <Main>:
     canvas:
         Clear
@@ -60,28 +108,31 @@
         BoxLayout:
             orientation: 'horizontal'
             id: workspace
-
                     
             BoxLayout:
                 id: plot
+                
+            SideConfAlgorithm:
 
             VerticalMenuBar:
                 id: side_bar
                 
                 MenuBarBtn:
+                    id: btn_algorithm
                     background_normal: "res/images/btn_h_Algorithm.png" if self.hovered else "res/images/btn_n_Algorithm.png"
                     background_down: "res/images/btn_d_Algorithm.png" 
                     size: 40, 138
                 MenuBarBtn:
+                    id: btn_inputs
                     background_normal: "res/images/btn_h_Input.png" if self.hovered else "res/images/btn_n_Input.png"
                     background_down: "res/images/btn_d_Input.png" 
                     size: 40, 84
                 MenuBarBtn:
+                    id: btn_plot
                     background_normal: "res/images/btn_h_Plot.png" if self.hovered else "res/images/btn_n_Plot.png"
                     background_down: "res/images/btn_d_Plot.png" 
                     size: 40, 84
                 BoxLayout:
-
         HorisontalMenuBar:
             id: status_bar
              

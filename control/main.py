@@ -5,8 +5,11 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.uix.label import Label 
+from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.stacklayout import StackLayout
 from kivy.graphics import Color, Rectangle
+import file_work as fw
 
 """Hoverable Behaviour (changing when the mouse is on the widget by O. Poyen.
 License: LGPL
@@ -70,7 +73,6 @@ The end.
 """
 
 kivy.require('1.10.1')
-
 Builder.load_file('view/main.kv')
 
 class HoverButton(Button, HoverBehavior):
@@ -90,34 +92,49 @@ class DropDownBtn(HoverButton):
 
 class MenuDropDown(DropDown):
     def __init__(self, options_list, **kwargs):
+        super(MenuDropDown, self).__init__(**kwargs)
         self.dropdown = DropDown(auto_width=False, size_hint=(None,None), width=200, pos_hint={'center_y':.855})
         self.options = options_list
         for option in self.options:
             btn = DropDownBtn(text=option)
             btn.bind(on_release=lambda btn: self.dropdown.select(btn.text))
             self.dropdown.add_widget(btn)
-        super(MenuDropDown, self).__init__(**kwargs)
 
     def option_list(self):
         pass
 
-options_file = ['New', 'Open', 'Save', 'Exit']
-options_edit = ['Undo', 'Redo', 'Cut', 'Copy', 'Paste']
-options_run = ['Run', 'Pause', 'Stop']
-options_help = ['Welcome', 'Documentation', 'About']
-dropdown_file = MenuDropDown(options_file)
-dropdown_edit = MenuDropDown(options_edit)
-dropdown_run = MenuDropDown(options_run)
-dropdown_help = MenuDropDown(options_help)
+class LabelConf(Label):
+    pass
+class TxtConf(TextInput):
+    pass
+class LayoutConf(BoxLayout):
+    pass
+class SideConf(BoxLayout):
+    pass
 
+class SideConfAlgorithm(SideConf):
+    def __init__(self, **kwargs):
+        super(SideConfAlgorithm, self).__init__(**kwargs)
+        configurations = fw.read_configurations()
+        for key in configurations:
+            name = str(key).replace(" ","_")
+            layout = LayoutConf(id=f'bl_{name}',)
+            label = LabelConf(id=f'lbl_{name}', 
+                text=key)
+            text_input = TxtConf(id=f'txt_{name}', 
+                text=f'{configurations[key]["value"]}')
+            layout.add_widget(label)
+            layout.add_widget(text_input)
+            self.add_widget(layout) 
+        self.add_widget(BoxLayout())
 
 class Main(Screen):
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
-        self.ids.btn_file.bind(on_release=dropdown_file.open)
-        self.ids.btn_edit.bind(on_release=dropdown_edit.open)
-        self.ids.btn_run.bind(on_release=dropdown_run.open)
-        self.ids.btn_help.bind(on_release=dropdown_help.open)
 
-    
+    def expend_side_menu(self, instance):
+        bxl_side_menu = BoxLayout()
+        self.ids.add_widget(bxl_side_menu)
+
+
 
