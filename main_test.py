@@ -17,6 +17,7 @@ from file_work import read_configurations, read_truth_table, save_configurations
 
 import datetime as dt
 import numpy as np
+from pandas import DataFrame, concat
 
 # genetic algorithm objects (mutable)
 generation = None
@@ -26,7 +27,11 @@ proper_results = None
 time = None
 results = None
 configure_mode = True
-keys_float = ['crossover probability', 'mutation probability', 'alpha', 'betta', 'gamma', 'lambda']
+keys_float_words = ['crossover probability', 'mutation probability', 'alpha', 'betta', 'gamma', 'lambda',
+    'crossover Probability', 'mutation Probability', 'Mrossover Probability', 'Mutation Probability',
+    'Crossover probability', 'Mutation probability', 'Alpha', 'Betta', 'Gamma', 'Lambda']
+keys_truth_table_words = ['inputs', 'outputs', 'Inputs', 'Outputs']
+bits_words = ['1', '0', 'x', 'X']
 
 class main_testApp(App):
     def build(self):
@@ -48,7 +53,7 @@ def time_delta_in_s(curent_time, start_time):
 def is_valid_float(key, value):
     try:
         float_value = float(value)
-        return key in keys_float and float_value <= 1
+        return key in keys_float_words and float_value <= 1
     except ValueError:
         return False
 
@@ -69,25 +74,10 @@ while configure_mode:
     gamma = configurations['gamma']['value']
     lamda = configurations['lambda']['value']
     coefs = [alpha, betta, gamma, lamda]
-    inputs = []
-    for row in truth_table['inputs'].to_dict('split')['data']:
-        inputs_value = []
-        for value in row:
-            if value == 'X':
-                value = None
-            inputs_value.append(value)
-        inputs.append(inputs_value)
-    inputs = np.array(inputs).T.tolist()
-    outputs = []
-    for row in truth_table['outputs'].to_dict('split')['data']:
-        outputs_value = []
-        for value in row:
-            if value == 'X':
-                value = None
-            outputs_value.append(value)
-        outputs.append(outputs_value)
-    outputs = np.array(outputs).T.tolist()
-    print(inputs)
+    inputs = np.array(truth_table['inputs'].values).T.tolist()
+    outputs = np.array(truth_table['outputs'].values).T.tolist()
+
+    print(f'{inputs}\n{outputs}')
 
     message = f'''
 Truth Table:
@@ -95,6 +85,7 @@ Truth Table:
 {truth_table['inputs']}
     Outputs: 
 {truth_table['outputs']}
+[Type "inputs" or "outputs" to edit the Truth Table...]
 
 Genetic Algorithm Configurations:
     generation size: {generation_size} (Power of the Population)
@@ -109,7 +100,7 @@ Genetic Algorithm Configurations:
 [Type name of the configuration to change it]...
 [Type "y" to run the program]...'''.replace("'", '')
 
-    print(message)
+    print(message.replace('None', '   X'))
     input_str = input()
     # clean input from rubbish spaces
     input_reversed = input_str[::-1]
@@ -130,12 +121,90 @@ Genetic Algorithm Configurations:
                 print(f'{key}:{configurations[key]}')
             save_configurations(configurations)
         else:
-            message = f'The value [{input_value}] is not appropriate'
-            print(message,end='\r')
-    elif input_key in truth_table:
-        input_value = read_input_by_key(input_key)
-        truth_table[input_key] = input_value
-        save_truth_table(configurations)
+            message = f'The value "{input_value}" is not appropriate'
+            print(message)
+    elif input_key in keys_truth_table_words:
+        message = '[Type key of the column to add or edit it...]'
+        print(message)
+        input_column_key = input()
+        is_valid = False
+        while is_valid == False:
+            message = '[Type list of 0, 1 or X separating by spaces (NuN list will delete the current key from the truth table)...]'
+            print(message)
+            bit_list_str = input().replace(' ', '')
+            bit_list_str = bit_list_str.replace(',', '')
+            bit_list_str = bit_list_str.replace(';', '')
+            bit_list_str = bit_list_str.replace('-', '')
+            bits = []
+            is_valid = True
+            for bit in bit_list_str:
+                if bit in bits_words:
+                    try:
+                        bits.append(int(bit))
+                    except ValueError:
+                        bits.append('X')
+                else:
+                    is_valid = False
+            truth_table_keys = truth_table[input_key].keys()
+            if input_column_key in truth_table_keys:
+                input_size = len(bits)
+                column_size = len(truth_table[input_key][input_column_key])
+                if input_size == 0:
+                    truth_table[input_key] = truth_table[input_key].drop([input_column_key], axis=1)
+                elif input_size <= column_size:
+                    for index in range(input_size, column_size):
+                        bits.append('X')
+                    truth_table[input_key][input_column_key] = bits
+                elif input_size > column_size:
+                    small_inputs = truth_table['inputs']
+                    small_outputs = truth_table['outputs']
+                    columns_number = len(small_inputs.keys())
+                    rows_number = input_size - column_size
+                    addition = [['X' for index in range(columns_number)] for jndex in range(rows_number)]
+                    print(small_inputs)
+                    keys = truth_table['inputs'].keys()
+                    addition_df = DataFrame(columns=keys, data=addition)
+                    new_column = concat([small_inputs, addition_df])
+                    truth_table['inputs'] = new_column
+                    keys = truth_table['outputs'].keys()
+                    addition_df = DataFrame(columns=keys, data=addition)
+                    new_column = concat([small_outputs, addition_df])
+                    truth_table['outputs'] = new_column
+                    truth_table[input_key][input_column_key] = bits
+                else:
+                    print('Error: len(list)<0')
+            else:
+                input_size = len(bits)
+                column_size = len(truth_table[input_key])
+
+                if input_size <= column_size:
+                    for index in range(input_size, column_size):
+                        bits.append('X')
+                    new_df = DataFrame({input_column_key: bits})
+                    truth_table[input_key][input_column_key] = new_df
+                elif input_size > column_size:
+                    small_inputs = truth_table['inputs']
+                    small_outputs = truth_table['outputs']
+                    columns_number = len(small_inputs.keys())
+                    rows_number = input_size - column_size
+                    addition = [['X' for index in range(columns_number)] for jndex in range(rows_number)]
+                    print(small_inputs)
+                    print(f':::{input_size}:::{column_size}:::\n{addition}')
+                    keys = truth_table['inputs'].keys()
+                    addition_df = DataFrame(columns=keys, data=addition)
+                    new_column = concat([small_inputs, addition_df])
+                    truth_table['inputs'] = new_column
+                    keys = truth_table['outputs'].keys()
+                    addition_df = DataFrame(columns=keys, data=addition)
+                    new_column = concat([small_outputs, addition_df])
+                    truth_table['outputs'] = new_column
+                    new_df = DataFrame({input_column_key: bits})
+                    truth_table[input_key][input_column_key] = new_df
+                else:
+                    print('Error: len(list)<0')
+                # truth_table[input_key][input_column_key] = new_df
+        print(truth_table)
+        save_truth_table(truth_table)
     elif input_key == 'y' or input_key == 'Y':
         configure_mode = False
 start_time = dt.datetime.now()

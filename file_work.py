@@ -1,11 +1,15 @@
 import os, os.path
 import datetime
-import pandas as pd
+from pandas import DataFrame
+from numpy import array
 
 relative_path_configurations = "saves/configurations.txt"
 relative_path_truth_table = "saves/truth_table.txt"
 relative_path_autosaves = "saves/autosaves/"
 relative_path_messages = "res/messages/"
+
+# error_type_style = '\033[1;30;43m'
+error_type_style = ''
 
 def default_configurations():
     configurations = {
@@ -35,102 +39,48 @@ def default_configurations():
     return configurations
 
 def default_truth_table():
-    inputs = pd.DataFrame({
-            'X':    (0, 0, 0, 0, 1, 1, 1, 1),
-            'Y':    (0, 0, 1, 1, 0, 0, 1, 1),
-            'C1':   (0, 1, 0, 1, 0, 1, 0, 1),
-            'A1':   (1, 1, 1, 1, 1, 1, 1, 1),
-            'A2':   (0, 0, 0, 0, 0, 0, 0, 0),
-            'A3':   (1, 1, 1, 1, 1, 1, 1, 1)
-            })
-    outputs = pd.DataFrame({
-            'S':    (0, 1, 1, 0, 1, 0, 0, 1),
-            'C2':   (0, 0, 0, 1, 0, 1, 1, 1),
-            'G1':   (0, 0, 1, 1, 1, 1, 0, 0),
-            'G2':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
-            'G3':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'),
-            'G4':   ('X', 'X', 'X', 'X', 'X', 'X', 'X', 'X')
-            })
+    X = 'X' # a symbol of the indefinit state
+    inputs = DataFrame(columns=['X', 'Y', 'C1', 'A1', 'A2', 'A3'], 
+        data=[[0, 0, 0, 1, 0, 1], 
+        [0, 0, 1, 1, 0, 1],
+        [0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 1, 0, 1],
+        [1, 0, 0, 1, 0, 1],
+        [1, 0, 1, 1, 0, 1],
+        [1, 1, 0, 1, 0, 1],
+        [1, 1, 1, 1, 0, 1]])
+    outputs = DataFrame(columns=['S', 'C2', 'P', 'G1', 'G2', 'G3'],
+        data=[[0, 0, 0, X, X, X],
+        [1, 0, 0, X, X, X],
+        [1, 0, 1, X, X, X],
+        [0, 1, 1, X, X, X],
+        [1, 0, 1, X, X, X],
+        [0, 1, 1, X, X, X],
+        [0, 1, 0, X, X, X],
+        [1, 1, 0, X, X, X]])
     truth_table  = {'inputs': inputs, 'outputs': outputs}
-    # truth_table = {
-    #     'inputs':{
-    #         'X':    (0, 0, 0, 0, 1, 1, 1, 1),
-    #         'Y':    (0, 0, 1, 1, 0, 0, 1, 1),
-    #         'C1':   (0, 1, 0, 1, 0, 1, 0, 1),
-    #         'A1':   (1, 1, 1, 1, 1, 1, 1, 1),
-    #         'A2':   (0, 0, 0, 0, 0, 0, 0, 0),
-    #         'A3':   (1, 1, 1, 1, 1, 1, 1, 1)
-    #         },
-    #     'outputs':{
-    #         'S':    (0, 1, 1, 0, 1, 0, 0, 1),
-    #         'C2':   (0, 0, 0, 1, 0, 1, 1, 1),
-    #         'G1':   (None, None, None, None, None, None, None, None),
-    #         'G2':   (None, None, None, None, None, None, None, None),
-    #         'G3':   (None, None, None, None, None, None, None, None),
-    #         'G4':   (None, None, None, None, None, None, None, None)
-    #         }
-    # }   
     return truth_table
 
-# def save_configurations(configurations):
-#     f = open(relative_path_configurations, 'w')
-#     configurations_str = ''
-#     for key in configurations:
-#         configurations_str += f'\n{key}: {configurations[key]}'
-#     f.write(configurations_str[1:])
-#     f.close
 def save_configurations(configurations):
     f = open(relative_path_configurations, 'w')
     f.write(str(configurations))
     f.close
 
-# def save_truth_table(truth_table):
-#     f = open(relative_path_truth_table, 'w')
-#     truth_table_str = 'inputs:'
-#     for key in truth_table['inputs']:
-#         row = ''
-#         for value in truth_table['inputs'][key]:
-#             row += f' {value}'
-#         truth_table_str += f'\n{key}:{row}'
-#     truth_table_str = '\noutputs:'
-#     for key in truth_table['outputs']:
-#         row = ''
-#         for value in truth_table['outputs'][key]:
-#             if value == None:
-#                 row += ' X'
-#             else:
-#                 row += f' {value}'
-#         truth_table_str += f"\n{key}:{row}"
-
-#     f.write(truth_table_str[1:])
-#     f.close
 def save_truth_table(truth_table):
     f = open(relative_path_truth_table, 'w')
-    f.write(str(truth_table))
+    truth_table_str = ''
+    for key in truth_table['inputs']:
+        truth_table_str += f'{key}: {truth_table["inputs"][key].tolist()}\n'
+    truth_table_str = f'{truth_table_str[:len(truth_table_str)-2]}<<<split point>>>\n'
+    for key in truth_table['outputs']:
+        truth_table_str += f'{key}: {truth_table["outputs"][key].tolist()}\n'
+    truth_table_str = f'{truth_table_str[:len(truth_table_str)-2]}'
+    truth_table_str = truth_table_str.replace(']', '')
+    truth_table_str = truth_table_str.replace('[', '')
+    truth_table_str = truth_table_str.replace("'", '')
+    f.write(truth_table_str)
     f.close
 
-# def read_configurations():
-#     try:
-#         f = open (relative_path_configurations, 'r')
-#         if f.mode == 'r':
-#             configurations_str = f.read()
-#         configurations_str = configurations_str.split('\n')  
-#         if len(configurations_str) != len(default_configurations()):
-#             print(f'An error occured trying to create dictionary from the file configurations.txt.')
-#             return default_configurations()
-#         else:
-#             configurations = {}
-#             for index, row in enumerate(configurations_str):
-#                 row = row.split(':')
-#                 if (index == 2 or index == 3 or index == 6
-#                     or index == 7 or index == 8 or index == 9):
-#                     configurations[row[0]] = float(row[1].strip())
-#                 else:
-#                     configurations[row[0]] = int(row[1].strip())
-#             return configurations
-#     except IOError:
-#         print('An error occured trying to read the file configurations.txt.')
-#         return default_configurations()
 def read_configurations():
     try:
         f = open (relative_path_configurations, 'r')
@@ -139,56 +89,47 @@ def read_configurations():
             try:
                 return eval(configurations_str)
             except SyntaxError:
-                print(f'An error occured trying to transform dictionary from the file configurations.txt.')
+                print(f'{error_type_style}An error occured trying to transform dictionary from the file configurations.txt.')
                 return default_configurations()
     except IOError:
-        print('An error occured trying to open the file configurations.txt.')
+        print(f'{error_type_style}An error occured trying to open the file configurations.txt.')
         return default_configurations()
 
-# def read_truth_table():
-#     try:
-#         f = open (relative_path_truth_table, 'r')
-#         if f.mode == 'r':
-#             truth_table_str = f.read()
-#         truth_table_str = truth_table_str.split('\n')  
-#         truth_table = {'inputs': {}, 'outputs': {}}
-#         half_len = len(truth_table_str) // 2
-#         for row in truth_table_str[1:half_len]:
-#             row = row.split(':')
-#             values = []
-#             values_str = row[1].strip()
-#             values_str = values_str.split(' ')
-#             for value_str in values_str:
-#                 values.append(int(value_str))
-#             truth_table['inputs'][row[0].strip()] = values
-#         for row in truth_table_str[half_len+1:]:
-#             row = row.split(':')
-#             values = []
-#             values_str = row[1].strip()
-#             values_str = values_str.split(' ')
-#             for value_str in values_str:
-#                 if value_str == 'X':
-#                     values.append(None)
-#                 else:
-#                     values.append(int(value_str))
-#             truth_table['outputs'][row[0].strip()] = values
-#         return truth_table
-#     except IOError:
-#         print('An error occured trying to read the file (configurations.txt).')
-#         return default_truth_table()
+def list_strs_to_df(list_strs):
+    keys = []
+    for rows_str in list_strs:
+        keys.append(rows_str.split(': ')[0])
+    values_list = []
+    for rows_str in list_strs:
+        values = []
+        for value_str in rows_str.split(': ')[1].split(', '):
+            if value_str == '0' or value_str == '1':
+                values.append(int(value_str))
+            else: 
+                values.append(None)
+        values_list.append(values)
+    values_list = array(values_list).T.tolist()
+    df = DataFrame(data=values_list, columns=keys)
+    return df
+
 def read_truth_table():
     try:
         f = open (relative_path_truth_table, 'r')
         if f.mode == 'r':
-            truth_table = f.read()
+            truth_table_str = f.read()
+            # split
+            inputs_strs = truth_table_str.split('<<<split point>>>\n')[0].split('\n')
+            outputs_strs = truth_table_str.split('<<<split point>>>\n')[1].split('\n')
             try:
-                return pd.DataFrame(eval(truth_table))
+                inputs = list_strs_to_df(inputs_strs)
+                outputs = list_strs_to_df(outputs_strs)
+                truth_table = {'inputs': inputs, 'outputs': outputs}
+                return truth_table
             except SyntaxError:
-                print(f'An error occured trying to transform dictionary from truth_table.txt.')
+                print(f'{error_type_style}An error occured trying to transform dictionary from truth_table.txt.')
                 return default_truth_table()
-        return truth_table
     except IOError:
-        print('An error occured trying to read truth_table.txt.')
+        print(f'{error_type_style}An error occured trying to read truth_table.txt.')
         return default_truth_table()
 
 def clear_autosaves():
@@ -219,21 +160,21 @@ def autosave(type, results, configurations, truth_table, time):
     truth_table_str = truth_table_str.replace(', ', '\n\t')
     truth_table_str = truth_table_str.replace(':', '\n')
 
-    # configurations_str = str(configurations).replace('}', '')
-    # configurations_str = configurations_str.replace('{', '')
-    # configurations_str = configurations_str.replace("'", '')
-    # configurations_str = configurations_str.replace(', ', '\n\t')
-    
+    configurations_str = ''
+    for key in configurations:
+        configurations_str += f'{key}: {configurations[key]["value"]}\n'
 
-    results_str = str(results).replace('}', '')
-    results_str = results_str.replace('{', '')
-    results_str = results_str.replace("'", '')
-    results_str = results_str.replace(']]],', ']]]\n\n')
-    results_str = results_str.replace(']],', ']]\n')
-    results_str = results_str.replace(', time', '\n\ttime')
-    results_str = results_str.replace('value', '\tvalue')
-    results_str = results_str.replace('[[[[', '\n[[[[')
-
+    results_str = ''
+    for index in range(len(results['chromosome'])):
+        results_str += f'chromosome #{index}\n'
+        for gene in results['chromosome'][index]:
+            for alet in gene:
+                results_str += str(alet)
+            results_str += '\n'
+        results_str += f'the fitness function value: {round(results["value"][index], 6)}\n'
+        results_str += f'the searching time: {results["time"][index]}\n'
+        results_str += '______________________________________________________\n'
+        
     path = f'{relative_path_autosaves}{file_name}'
     spaces = '            '
     if os.path.isfile(os.path.join(path)):
@@ -244,13 +185,15 @@ def autosave(type, results, configurations, truth_table, time):
     f = open(path, 'w+')
     results_str = f'''The {type} Results are saved in {file_name} 
 
-Inputed Truth Table:
+    Inputed Truth Table:
+------------------------
     {truth_table_str}
 
-Configurations:
-    {configurations_str}
-
-Results:
+    Configurations:
+-------------------
+{configurations_str}
+    Results:
+------------
     {results_str}
     '''
     f.write(results_str)
