@@ -14,17 +14,15 @@ error_type_style = ''
 def default_configurations():
     configurations = {
         'generation size': {
-            'value': 400, 'type': 'int'},
+            'value': 400, 'type': 'int', 'range': ('memorised number', 9999)},
         'chromosome size': {
-            'value': 7, 'type': 'int'},
+            'value': 7, 'type': 'int', 'range': (2, 99)},
         'crossover probability': {
             'value':.2, 'type': 'float', 'range': (0, 1)},
         'mutation probability': {
             'value':.02, 'type': 'float', 'range': (0, 1)},
         'memorised number': {
-            'value': 5, 'type': 'int'},
-        'iterations limit': {
-            'value': 1000, 'type': 'int'},
+            'value': 5, 'type': 'int', 'range': (0, 'generation size')},
         'alpha': {
             'value':.91, 'type': 'float', 'range': (0, 1)},
         'betta': {
@@ -34,7 +32,9 @@ def default_configurations():
         'lambda': {
             'value':.03, 'type': 'float', 'range': (0, 1)},
         'process time': {
-            'value':.03, 'type': 'float', 'range': (0, 1)},
+            'value':.03, 'type': 'int', 'range': (1, 99999999999), 'active': True},
+        'iterations limit': {
+            'value': 1000, 'type': 'int', 'range': (1, 99999999999), 'active': False},
     }
     return configurations
 

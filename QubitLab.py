@@ -21,7 +21,7 @@ class mainApp(App):
         Window.toggle_fullscreen()
         Window.fullscreen = False
         self.icon = 'res/icons/logo.png'
-        self.title = 'GGC v1.0'
+        self.title = 'QubitLab'
         Window.clearcolor = (1, 1, 1, 1)
         return prep.screen_manager
 

@@ -1,3 +1,9 @@
+<RadioButton@CheckBox>
+    background_radio_normal: 'atlas://res/images/defaulttheme/RadioButton_on'
+    background_radio_down: 'atlas://res/images/defaulttheme/RadioButton_off'
+    size_hint: None, None
+    size: 40, 40
+    pos_hint: {'center_y': .5}
 <LabelConf@Label>
     font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
     size_hint_y: None
@@ -6,16 +12,64 @@
     halign: 'left'
     valign: 'middle'
     text_size: self.size
-<TxtConf@TextInput>:
-    background_normal: "res/images/bg_TextInput.png"
-    background_active: "res/images/bg_TextInput_focus.png"
-    cursor_color: (.3, .3, .3, 1)
+<LblTTbl@Label>
+    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
+    font_size: 16
+    size_hint: None, None
+    size: 10, 16
+    color: 0, 0, 0, 1
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+<Cell>:
+    background_normal: "res/images/bg_Cell_hover.png" if self.hovered else "res/images/bg_Cell_normal.png"
+    background_down: "res/images/bg_Cell_down.png"
+    font_size: 16
+    size_hint: None, None
+    size: 48, 48
+    color: 0, 0, 0, 1
+    valign: 'center'
+    halign: 'center'
+    text_size: self.size
+<EmptyCell>:
+    disabled: True
+    background_disabled_normal: 'atlas://res/images/defaulttheme/Empty'
+<TitleCell>:
+    background_normal: "res/images/bg_TitleCell_hover.png" if self.hovered else "res/images/bg_TitleCell_normal.png"
+    background_down: "res/images/bg_TitleCell_down.png"
+    color:(1, 1, 1, 1)
+<IndexCell>:
+    text: 'del' if self.hovered else self.index
+<KeyCell>:
+    
+<RangeFilteredInput@TextInput>:
+    background_normal: 'res/images/bg_TextInput.png'
+    background_active: 'res/images/bg_TextInput_focus.png'
+    cursor_color: (.305, .643, .807, 1)
+    hint_text_color: (.4, .4, .4, 1)
+    cursor_width: 2
     size_hint: None, None
     size: 100, 26
+    write_tab: False
+    multiline: False
+<NameInput@TextInput>:
+    background_normal: 'atlas://res/images/defaulttheme/Empty'
+    background_active: 'res/images/bg_TextInput_focus.png'
+    size_hint: .9, None
+    height: 36
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    text_color: (0, 0, 0, 1)
+    font_size: 24
+    cursor_color: (.305, .643, .807, 1)
+    valign: 'middle'
+    halign: 'center'
+    # cursor_width: 2
+    write_tab: False
     multiline: False
 <LayoutConf@BoxLayout>:
     padding: 20, .5*(self.height-26)
-    size_hint: .95, .99
+    size_hint: .95, None
+    height: 40
     pos_hint: {'center_x': .5}
     canvas:
         Color:
@@ -49,6 +103,33 @@
     text_size: self.size
     canvas.before:
         Clear
+<Btn@HoverButton>:
+    size_hint: None, None
+    size: 120, 28
+    background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
+    background_down: "res/images/bg_h_dropdown.png"
+    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
+    font_size: '18sp'
+    color: 0, 0, 0, 1
+    halign: 'center'
+    valign: 'middle'
+    text_size: self.size
+    canvas.before:
+        Clear
+<BtnSaveAs@HoverButton>:
+    size_hint: None, None
+    size: 166, 47
+    background_normal: "atlas://res/images/defaulttheme/bg_btn_SaveAs_hover" if self.hovered else "atlas://res/images/defaulttheme/bg_btn_SaveAs_normal"
+    background_down: "atlas://res/images/defaulttheme/bg_btn_SaveAs_down"
+    canvas.before:
+        Clear
+<BtnOpen@HoverButton>:
+    size_hint: None, None
+    size: 146, 47
+    background_normal: "atlas://res/images/defaulttheme/bg_btn_Open_hover" if self.hovered else "atlas://res/images/defaulttheme/bg_btn_Open_normal"
+    background_down: "atlas://res/images/defaulttheme/bg_btn_Open_down"
+    canvas.before:
+        Clear
 <DropDownBtn@Button>:
     background_normal: "res/images/bg_h_dropdown.png" if self.hovered else "res/images/bg_normal.png"
 <HorizontalBoxLayout@BoxLayout>:
@@ -78,6 +159,169 @@
         Rectangle:
             pos: self.pos
             size: self.size
+<LoadDialog>:
+    BoxLayout:
+        orientation: "vertical"
+        size: root.size
+        pos: root.pos
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint: None, None
+                size: 200, 30
+                Btn:
+                    text: 'List View'
+                    on_press: fc.view_mode = 'list'
+                BoxLayout:
+                    size_hint_x: None
+                    width: 10
+                Btn:
+                    text: 'Icon View'
+                    on_press: fc.view_mode = 'icon'
+            FileChooser:
+                id: fc
+                multiselect: False
+                rootpath: "saves\confs"
+                FileChooserListLayout
+                FileChooserIconLayout
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Open"
+                on_release: root.load(fc.path, fc.selection)
+<SaveDialog>:
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint: None, None
+                size: 200, 30
+                Btn:
+                    text: 'List View'
+                    on_press: fc.view_mode = 'list'
+                BoxLayout:
+                    size_hint_x: None
+                    width: 10
+                Btn:
+                    text: 'Icon View'
+                    on_press: fc.view_mode = 'icon'
+            FileChooser:
+                id: fc
+                multiselect: False
+                rootpath: "saves\confs"
+                on_selection: text_input.text = self.selection and self.selection[0] or ''
+                FileChooserListLayout
+                FileChooserIconLayout
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Save"
+                on_release: root.save(fc.path, text_input.text)
+<TTblDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        canvas.before:
+            Clear
+            Color:
+                rgb: (1, 1, 1)
+            Rectangle:
+                source: "res/images/bg_SideConf.png"
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'vertical'
+                LabelConf:
+                    text: 'Inputs'
+                    # color:(1, 1, 1, 1)
+                    font_size: 18
+                BoxLayout:
+                    orientation: 'vertical'
+                    id: inputs_tbl
+            BoxLayout:
+            BoxLayout:
+                orientation: 'vertical'
+                LabelConf:
+                    text: 'Outputs'
+                    # color:(1, 1, 1, 1)
+                    font_size: 18
+                BoxLayout:
+                    orientation: 'vertical'
+                    id: outputs_tbl
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Apply"
+                on_release: root.apply()
+
+<InputsLt>:
+    BoxLayout: 
+        size_hint_y: None
+        height: 10
+    NameInput:
+        id: device_name
+        text: 'Name of The Device'
+    BoxLayout:
+        size_hint: .8, None
+        height: 40
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        Btn:
+            width: 300
+            text: 'Edit the Truth Table'
+            on_release: root.show_ttbl()
+    BoxLayout:
+        BoxLayout:
+        Button:
+            size_hint: None, None
+            size: 200, 240
+            pos_hint: {'center_y': .5}
+            disabled: True
+            background_disabled_normal: 'res/images/bg_ReservedPlace.png'
+        BoxLayout:
+    BoxLayout:
+        id: btns_container
+        orientation: 'horizontal'
+        size_hint: .95, None 
+        height: 50
+        padding: 20, 5
+        BtnSaveAs:
+        BtnOpen:
 <Main>:
     canvas:
         Clear
@@ -112,25 +356,34 @@
             BoxLayout:
                 id: plot
                 
-            SideConfAlgorithm:
+            BoxLayout:
+                id: side_conf_container
+                size_hint_x: None
+                width: 360
 
             VerticalMenuBar:
                 id: side_bar
                 
                 MenuBarBtn:
                     id: btn_algorithm
+                    group: 'side_menu_btns'
                     background_normal: "res/images/btn_h_Algorithm.png" if self.hovered else "res/images/btn_n_Algorithm.png"
                     background_down: "res/images/btn_d_Algorithm.png" 
+                    background_disabled_normal: "res/images/btn_d_Algorithm.png" 
                     size: 40, 138
                 MenuBarBtn:
                     id: btn_inputs
+                    group: 'side_menu_btns'
                     background_normal: "res/images/btn_h_Input.png" if self.hovered else "res/images/btn_n_Input.png"
                     background_down: "res/images/btn_d_Input.png" 
+                    background_disabled_normal: "res/images/btn_d_Input.png" 
                     size: 40, 84
                 MenuBarBtn:
                     id: btn_plot
+                    group: 'side_menu_btns'
                     background_normal: "res/images/btn_h_Plot.png" if self.hovered else "res/images/btn_n_Plot.png"
                     background_down: "res/images/btn_d_Plot.png" 
+                    background_disabled_normal: "res/images/btn_d_Plot.png" 
                     size: 40, 84
                 BoxLayout:
         HorisontalMenuBar:
