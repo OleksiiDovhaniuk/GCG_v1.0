@@ -5,9 +5,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 
 from control.cell import Cell, EmptyCell, TitleCell, AddCell, IndexCell
+from control.layout import TTblRow
 
 from pandas import DataFrame
-
 from functools import partial
 
 
@@ -19,8 +19,8 @@ class Load(FloatLayout):
 
 class Save(FloatLayout):
     save = ObjectProperty(None)
-    text = ObjectProperty(None)
     cancel = ObjectProperty(None)
+    data = ObjectProperty(None)
 
 class TruthTable(FloatLayout):
     apply = ObjectProperty(None)
@@ -35,13 +35,10 @@ class TruthTable(FloatLayout):
         self.create_table('inputs')
         self.create_table('outputs')
         
-    def create_table(self, name):
-        values = self.truth_table[name].replace([None], 'X')
-        tbl = self.ids[f'{name}_tbl']
-        
-        row = BoxLayout(orientation='horizontal',
-                        size_hint_y=None,
-                        height=48) 
+    def create_table(self, table):
+        values = self.truth_table[table].replace([None], 'X')
+        tbl = self.ids[f'{table}_tbl']    
+        row = TTblRow() 
         row.add_widget(EmptyCell())
         key_widgets = ['rows', 'indices']
         for index, key in enumerate(values):
@@ -55,24 +52,20 @@ class TruthTable(FloatLayout):
         widgets = []
         indices = [0, 1]
         for index in range(values.shape[0]):
-            row = BoxLayout(orientation='horizontal',
-                        size_hint_y=None,
-                        height=48) 
+            row = TTblRow() 
             index_cell = IndexCell(index=str(index))
             row.add_widget(index_cell)
             row_widgets = [row, index_cell]
             for key in values:
                 value = values[key][index]
                 cell = Cell(text=str(value),
-                            cell_type=name)
+                            cell_type=table)
                 row.add_widget(cell)
                 row_widgets.append(cell)
             tbl.add_widget(row)
             indices.append(index+1)
             widgets.append(row_widgets)
-        row = BoxLayout(orientation='horizontal',
-                        size_hint_y=None,
-                        height=48)
+        row = TTblRow()
         add_cell = AddCell()
         row.add_widget(add_cell)
         tbl.add_widget(row)
@@ -85,12 +78,12 @@ class TruthTable(FloatLayout):
         row_widgets = [None for _ in range(len(key_widgets))]
         row_widgets[0] = align_lt
         widgets.append(row_widgets)
-        self.cells[name] = DataFrame(data=widgets,
+        self.cells[table] = DataFrame(data=widgets,
                                 index=indices,
                                 columns=key_widgets)
-        for index, cell in enumerate(self.cells[name]['indices'][:len(indices)-2]):
-            cell.bind(on_release=partial(self.remove_row, name, int(cell.index)))
-        
+        for index, cell in enumerate(self.cells[table]['indices'][:len(indices)-2]):
+            cell.bind(on_release=partial(self.remove_row, table, int(cell.index)))
+        add_cell.bind(on_release=partial(self.add_row, table))
 
     def remove_row(self, table, index, *args):
         tbl = self.ids[f'{table}_tbl']
@@ -99,7 +92,7 @@ class TruthTable(FloatLayout):
         size = len(cells.index)
         last_cell_index = len(columns)-1
         new_cells_part1 = DataFrame(columns=columns)
-        new_cells_part1 =  new_cells_part1.append(self.cells[table].iloc[:index, :])
+        new_cells_part1 =  new_cells_part1.append(cells.iloc[:index, :])
         rows = cells.iloc[index:, 0].values
         for row in rows:
             tbl.remove_widget(row)
@@ -107,9 +100,7 @@ class TruthTable(FloatLayout):
         widgets = []
         for jndex, row in enumerate(rows):
             kndex = index + jndex
-            new_row = BoxLayout(orientation='horizontal',
-                            size_hint_y=None,
-                            height=48)
+            new_row = TTblRow()
             new_index_cell = IndexCell(index = str(cells.iloc[kndex, 1].index))
             row_widgets = [new_row, new_index_cell]
             new_row.add_widget(new_index_cell)
@@ -120,9 +111,8 @@ class TruthTable(FloatLayout):
                 row_widgets.append(new_cell)
             tbl.add_widget(new_row)
             widgets.append(row_widgets)
-        row = BoxLayout(orientation='horizontal',
-                            size_hint_y=None,
-                            height=48)
+
+        row = TTblRow()
         tbl.add_widget(row)
         add_cell = AddCell()
         row.add_widget(add_cell)
@@ -130,6 +120,7 @@ class TruthTable(FloatLayout):
         row_widgets[0] = row
         row_widgets[1] = add_cell
         widgets.append(row_widgets)
+
         align_lt = BoxLayout()
         tbl.add_widget(align_lt)
         row_widgets = [None for _ in range(len(columns))]
@@ -137,10 +128,66 @@ class TruthTable(FloatLayout):
         widgets.append(row_widgets)
         new_indices = [jndex for jndex in range(index, size-1)]
         new_cells_part2 = DataFrame(data=widgets, columns=columns, index=new_indices)
+        self.cells[table] = new_cells_part1.append(new_cells_part2)
         for index, cell in enumerate(new_cells_part2['indices'][:len(new_indices)-2]):
             cell.bind(on_release=partial(self.remove_row, table, int(cell.index)))
-        self.cells[table] = new_cells_part1.append(new_cells_part2)
+        add_cell.bind(on_release=partial(self.add_row, table))
 
-Factory.register('Load', cls=Load)
-Factory.register('Save', cls=Save)
-Factory.register('TruthTable', cls=TruthTable)
+    def add_row(self, table, *args):
+        tbl = self.ids[f'{table}_tbl']
+        cells = self.cells[table] 
+        columns = cells.columns
+        row_size = len(columns)
+        print(row_size)
+        del_index = len(cells.index) - 2
+
+        new_cells_part1 = DataFrame(columns=columns)
+        new_cells_part1 =  new_cells_part1.append(cells.iloc[:del_index, :])
+
+        rows = cells.iloc[del_index:, 0].values
+        for row in rows:
+            tbl.remove_widget(row)
+
+        row = TTblRow()
+        index_cell = IndexCell(index=str(del_index))
+        row_widgets = [row, index_cell]
+        row.add_widget(index_cell)
+        for index in range(row_size-3):
+            cell = Cell(text='0',
+                    cell_type=table)
+            row.add_widget(cell)
+            row_widgets.append(cell)
+        tbl.add_widget(row)
+        widgets = [row_widgets]
+
+        row = TTblRow()
+        add_cell = AddCell()
+        row.add_widget(add_cell)
+        tbl.add_widget(row)
+        row_widgets = [None for _ in range(row_size)]
+        row_widgets[0] = row
+        row_widgets[1] = add_cell
+        widgets.append(row_widgets)
+
+        row = TTblRow()
+        tbl.add_widget(row)
+        row_widgets = [None for _ in range(row_size)]
+        row_widgets[0] = row
+        widgets.append(row_widgets)
+
+        new_indices = [index for index in range (del_index, del_index + 3)]
+        new_cells_part2 = DataFrame(data=widgets, columns=columns, index=new_indices)
+        self.cells[table] = new_cells_part1.append(new_cells_part2)
+        for index, cell in enumerate(new_cells_part2['indices'][:len(new_indices)-2]):
+            cell.bind(on_release=partial(self.remove_row, table, int(cell.index)))
+        add_cell.bind(on_release=partial(self.add_row, table))
+
+
+    def reset(self):
+        self.cells = {'inputs': None, 'outputs': None}
+        tbl = self.ids['inputs_tbl']
+        tbl.clear_widgets()
+        self.create_table('inputs')
+        tbl = self.ids['outputs_tbl']
+        tbl.clear_widgets()
+        self.create_table('outputs')  

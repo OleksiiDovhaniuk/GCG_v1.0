@@ -27,9 +27,9 @@
         height: 50
         padding: 20, 5
         SaveAsBtn:
-            disabled: True
+            on_release: root.save_conf()
         OpenBtn:
-            disabled: True
+            on_release: root.show_load()
 
 <Inputs>:
     BoxLayout:

@@ -15,3 +15,6 @@ class VerticalMenuBar(BoxLayout):
 
 class LayoutConf(BoxLayout):
     pass
+
+class TTblRow(BoxLayout):
+    pass

@@ -35,7 +35,9 @@
                 width: 10
             Btn:
                 text: "Open"
-                on_release: root.load(fc.path, fc.selection)
+                on_release:
+                    root.load(file_chooser.path,\
+                    file_chooser.selection)
 
 <Save>:
     text_input: text_input
@@ -81,7 +83,9 @@
                 width: 10
             Btn:
                 text: "Save"
-                on_release: root.save(fc.path, text_input.text)
+                on_release:
+                    root.save(file_chooser.path,\
+                    text_input.text)
 
 <TruthTable>:
     BoxLayout:
@@ -96,34 +100,41 @@
                 source: 'res/images/bg_SideConf.png'
                 pos: self.pos
                 size: self.size
-        BoxLayout:
-            orientation: 'horizontal'
+        ScrollView:
+            do_scroll_x: True
+            do_scroll_y: True
             BoxLayout:
-                orientation: 'vertical'
-                Lbl:
-                    text: 'Inputs'
-                    font_size: 18
+                id: scroll_view
+                orientation: 'horizontal'
+                size_hint: None, None
+                size: 1300, 1000
+                pos_hint:{'left': 1}
                 BoxLayout:
-                    id: inputs_tbl
                     orientation: 'vertical'
-            BoxLayout:
-                size_hint_x: None
-                width: 32
-            BoxLayout:
-                orientation: 'vertical'
-                Lbl:
-                    text: 'Outputs'
-                    font_size: 18
+                    Lbl:
+                        text: 'Inputs'
+                        font_size: 18
+                    BoxLayout:
+                        id: inputs_tbl
+                        orientation: 'vertical'
                 BoxLayout:
-                    id: outputs_tbl
+                    size_hint_x: None
+                    width: 48
+                BoxLayout:
                     orientation: 'vertical'
+                    Lbl:
+                        text: 'Outputs'
+                        font_size: 18
+                    BoxLayout:
+                        id: outputs_tbl
+                        orientation: 'vertical'
+                BoxLayout:
         BoxLayout:
             size_hint_y: None
             height: 30
             BoxLayout:
             Btn:
                 text: "Reset"
-                disabled: True
                 on_release: root.reset()
             BoxLayout:
                 size_hint_x: None
