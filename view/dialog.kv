@@ -1,0 +1,140 @@
+<Load>:
+    BoxLayout:
+        orientation: "vertical"
+        size: root.size
+        pos: root.pos
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint: None, None
+                size: 200, 30
+                Btn:
+                    text: 'List View'
+                    on_press: file_chooser.view_mode = 'list'
+                BoxLayout:
+                    size_hint_x: None
+                    width: 10
+                Btn:
+                    text: 'Icon View'
+                    on_press: file_chooser.view_mode = 'icon'
+            FileChooser:
+                id: file_chooser
+                multiselect: False
+                rootpath: "saves\confs"
+                FileChooserListLayout
+                FileChooserIconLayout
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Open"
+                on_release: root.load(fc.path, fc.selection)
+
+<Save>:
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint: None, None
+                size: 200, 30
+                Btn:
+                    text: 'List View'
+                    on_press: file_chooser.view_mode = 'list'
+                BoxLayout:
+                    size_hint_x: None
+                    width: 10
+                Btn:
+                    text: 'Icon View'
+                    on_press: file_chooser.view_mode = 'icon'
+            FileChooser:
+                id: file_chooser
+                multiselect: False
+                rootpath: "saves\confs"
+                on_selection: text_input.text = self.selection and self.selection[0] or ''
+                FileChooserListLayout
+                FileChooserIconLayout
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Save"
+                on_release: root.save(fc.path, text_input.text)
+
+<TruthTable>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        canvas.before:
+            Clear
+            Color:
+                rgb: (1, 1, 1)
+            Rectangle:
+                source: 'res/images/bg_SideConf.png'
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'vertical'
+                Lbl:
+                    text: 'Inputs'
+                    font_size: 18
+                BoxLayout:
+                    id: inputs_tbl
+                    orientation: 'vertical'
+            BoxLayout:
+                size_hint_x: None
+                width: 32
+            BoxLayout:
+                orientation: 'vertical'
+                Lbl:
+                    text: 'Outputs'
+                    font_size: 18
+                BoxLayout:
+                    id: outputs_tbl
+                    orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            BoxLayout:
+            Btn:
+                text: "Reset"
+                disabled: True
+                on_release: root.reset()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            BoxLayout:
+                size_hint_x: None
+                width: 10
+            Btn:
+                text: "Apply"
+                disabled: True
+                on_release: root.apply()

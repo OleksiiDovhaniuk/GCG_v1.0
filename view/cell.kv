@@ -1,0 +1,49 @@
+<Cell>:
+    background_normal:
+        "res/images/bg_Cell_hover.png" \
+        if self.hovered else "res/images/bg_Cell_normal.png"
+    background_down: "res/images/bg_Cell_down.png"
+    font_size: 16
+    size_hint: None, None
+    size: 48, 48
+    color: 0, 0, 0, 1
+    valign: 'center'
+    halign: 'center'
+    text_size: self.size
+
+<TitleCell>:
+    background_normal:
+        "res/images/bg_TitleCell_hover.png" \
+        if self.hovered else "res/images/bg_TitleCell_normal.png"
+    background_down: "res/images/bg_TitleCell_down.png"
+    foreground_color: (0, 0, 0, 1) if self.focus else (1, 1, 1, 1)
+    font_size: 14 if self.focus else 16
+    size_hint: None, None
+    size: 48, 48
+    halign: 'left' if self.focus else 'center'
+    valign: 'center'
+    padding: [2, 6] if self.focus else [0, 15]
+    text_size: self.size
+    multiline: False
+    write_tab: False
+
+<IndexCell>:
+    background_normal:
+        "res/images/bg_TitleCell_hover.png" \
+        if self.hovered else "res/images/bg_TitleCell_normal.png"
+    background_down: "res/images/bg_TitleCell_down.png"
+    color: 1, 1, 1, 1
+    text: 'del' if self.hovered else self.index
+
+<AddCell>:
+    background_normal:
+        "res/images/bg_AddCell_hover.png" \
+        if self.hovered else "res/images/bg_AddCell_normal.png"
+    background_down: "res/images/bg_AddCell_down.png"
+    color: 1, 1, 1, 1
+    text: 'add' if self.hovered else '+'
+    font_size: 16 if self.hovered else 24
+
+<EmptyCell>:
+    disabled: True
+    background_disabled_normal: 'atlas://res/images/defaulttheme/Empty'

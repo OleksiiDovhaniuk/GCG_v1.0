@@ -1,0 +1,98 @@
+<SideConf>:
+    orientation: 'vertical'
+    size_hint_x: None
+    width: 360
+    canvas.before:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: "res/images/bg_SideConf.png"
+            pos: self.pos
+            size: self.size
+
+<Algorithm>:
+    BoxLayout:
+        size_hint_y: None
+        height: 24
+        BoxLayout:
+        MinimiseBtn:
+            on_release: root.minimise()
+    BoxLayout:
+        id: algorithm_cont
+        orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: .95, None
+        height: 50
+        padding: 20, 5
+        SaveAsBtn:
+            disabled: True
+        OpenBtn:
+            disabled: True
+
+<Inputs>:
+    BoxLayout:
+        size_hint_y: None
+        height: 24
+        BoxLayout:
+        MinimiseBtn:
+            on_release: root.minimise()
+    BoxLayout:
+        size_hint_y: None
+        height: 10
+    NameInput:
+        id: device_name
+        text: 'Name of The Device'
+    BoxLayout:
+        size_hint: .8, None
+        height: 40
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        Btn:
+            width: 300
+            text: 'Edit the Truth Table'
+            on_release: root.show_ttbl()
+    BoxLayout:
+        BoxLayout:
+        Button:
+            size_hint: None, None
+            size: 200, 240
+            pos_hint: {'center_y': .5}
+            disabled: True
+            background_disabled_normal: 'res/images/bg_ReservedPlace.png'
+        BoxLayout:
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: .95, None
+        height: 50
+        padding: 20, 5
+        SaveAsBtn:
+            disabled: True
+        OpenBtn:
+            disabled: True
+
+<Plot>:
+    BoxLayout:
+        size_hint_y: None
+        height: 24
+        BoxLayout:
+        MinimiseBtn:
+            on_release: root.minimise()
+    BoxLayout:
+        BoxLayout:
+        Button:
+            size_hint: None, None
+            size: 200, 240
+            pos_hint: {'center_y': .5}
+            disabled: True
+            background_disabled_normal: 'res/images/bg_ReservedPlace.png'
+        BoxLayout:
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: .95, None
+        height: 50
+        padding: 20, 5
+        SaveAsBtn:
+            disabled: True
+        OpenBtn:
+            disabled: True
