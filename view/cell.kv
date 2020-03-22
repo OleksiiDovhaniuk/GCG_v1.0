@@ -1,8 +1,8 @@
 <Cell>:
     background_normal:
-        "res/images/bg_Cell_hover.png" \
-        if self.hovered else "res/images/bg_Cell_normal.png"
-    background_down: "res/images/bg_Cell_down.png"
+        self.theme + 'Cell_hovered'\
+        if self.hovered else self.theme + 'Cell_normal'
+    background_down: self.theme + 'Cell_down'
     font_size: 16
     size_hint: None, None
     size: 48, 48
@@ -13,37 +13,37 @@
 
 <TitleCell>:
     background_normal:
-        "res/images/bg_TitleCell_hover.png" \
-        if self.hovered else "res/images/bg_TitleCell_normal.png"
-    background_down: "res/images/bg_TitleCell_down.png"
+        self.theme + 'TitleCell_hovered' \
+        if self.hovered else self.theme + 'TitleCell_normal'
+    background_down: self.theme + 'TitleCell_down'
     foreground_color: (0, 0, 0, 1) if self.focus else (1, 1, 1, 1)
-    font_size: 14 if self.focus else 16
+    font_size: 14 if self.focus else 15
     size_hint: None, None
     size: 48, 48
     halign: 'left' if self.focus else 'center'
     valign: 'center'
-    padding: [2, 6] if self.focus else [0, 15]
+    padding: [2, 15] if self.focus else [0, 15]
     text_size: self.size
     multiline: False
     write_tab: False
 
 <IndexCell>:
     background_normal:
-        "res/images/bg_TitleCell_hover.png" \
-        if self.hovered else "res/images/bg_TitleCell_normal.png"
-    background_down: "res/images/bg_TitleCell_down.png"
+        self.theme + 'IndexCell_hovered' \
+        if self.hovered else self.theme + 'IndexCell_normal'
+    background_down: self.theme + 'IndexCell_down'
     color: 1, 1, 1, 1
     text: 'del' if self.hovered else self.index
 
 <AddCell>:
     background_normal:
-        "res/images/bg_AddCell_hover.png" \
-        if self.hovered else "res/images/bg_AddCell_normal.png"
-    background_down: "res/images/bg_AddCell_down.png"
+        self.theme + 'AddCell_hovered' \
+        if self.hovered else self.theme + 'AddCell_normal'
+    background_down: self.theme + 'AddCell_down'
     color: 1, 1, 1, 1
     text: 'add' if self.hovered else '+'
     font_size: 16 if self.hovered else 24
 
 <EmptyCell>:
     disabled: True
-    background_disabled_normal: 'atlas://res/images/defaulttheme/Empty'
+    background_disabled_normal: self.theme + 'Empty'

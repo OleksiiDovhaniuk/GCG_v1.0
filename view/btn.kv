@@ -1,55 +1,37 @@
 <Btn>:
     size_hint: None, None
-    size: 120, 28
-    background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
-    background_down: "res/images/bg_h_dropdown.png"
+    size: 120, 32
+    background_normal:
+        self.theme + 'Btn_hovered' \
+        if self.hovered else self.theme + 'Btn_normal'
+    background_down: self.theme + 'Btn_down'
+    background_disabled_normal: self.theme + 'Btn_disabled'
     font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
     font_size: '18sp'
-    color: 0, 0, 0, 1
+    color: 1, 1, 1, 1
     halign: 'center'
     valign: 'middle'
     text_size: self.size
     canvas.before:
         Clear
 
-<MenuBarBtn>:
-    size_hint: None, None
-    size: 100, 28
-    background_normal: "res/images/bg_hover_button.png" if self.hovered else "res/images/bg_normal.png"
-    background_down: "res/images/bg_hover_button.png"
-    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
-    font_size: '18sp'
-    color: 0, 0, 0, 1
-    halign: 'center'
-    valign: 'middle'
-    text_size: self.size
-    canvas.before:
-        Clear
-
-<MinimiseBtn>:
-    size_hint: None, None
+<ArrowBtn>:
     size: 24, 24
     background_normal:
-        "res/images/bg_BtnMinimise_hover.png"\
-        if self.hovered else "res/images/bg_BtnMinimise_normal.png"
-    background_down: "res/images/bg_BtnMinimise_down.png"
+        self.theme + 'ArrowBtn_hovered'\
+        if self.hovered else self.theme + 'ArrowBtn_normal'
+    background_down: self.theme + 'ArrowBtn_down'
 
 <SaveAsBtn>:
-    size_hint: None, None
-    size: 166, 47
+    size: 32, 32
     background_normal:
-        "atlas://res/images/defaulttheme/bg_btn_SaveAs_hover"\
-        if self.hovered else "atlas://res/images/defaulttheme/bg_btn_SaveAs_normal"
-    background_down: "atlas://res/images/defaulttheme/bg_btn_SaveAs_down"
-    canvas.before:
-        Clear
+        self.theme + 'SaveAsBtn_hovered'\
+        if self.hovered else self.theme + 'SaveAsBtn_normal'
+    background_down: self.theme + 'SaveAsBtn_down'
 
 <OpenBtn>:
-    size_hint: None, None
-    size: 146, 47
+    size: 32, 32
     background_normal:
-        "atlas://res/images/defaulttheme/bg_btn_Open_hover"\
-        if self.hovered else "atlas://res/images/defaulttheme/bg_btn_Open_normal"
-    background_down: "atlas://res/images/defaulttheme/bg_btn_Open_down"
-    canvas.before:
-        Clear
+        self.theme + 'OpenBtn_hovered'\
+        if self.hovered else self.theme + 'OpenBtn_normal'
+    background_down: self.theme + 'OpenBtn_down'

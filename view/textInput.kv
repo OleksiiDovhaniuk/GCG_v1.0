@@ -1,17 +1,20 @@
-<RangeFilteredInput>:
-    background_normal: 'res/images/bg_TextInput.png'
-    background_active: 'res/images/bg_TextInput_focus.png'
-    cursor_color: (.305, .643, .807, 1)
+<TxtInput>:
+    background_normal: self.theme + 'TextInput_normal'
+    background_active: self.theme + 'TextInput_focused'
+    background_disabled_normal: self.theme + 'TextInput_disabled'
     hint_text_color: (.4, .4, .4, 1)
     cursor_width: 2
-    size_hint: None, None
-    size: 100, 26
+    cursor_color: (.305, .643, .807, 1)
     write_tab: False
     multiline: False
 
+<RangeFilteredInput>:
+    size_hint: None, None
+    size: 72, 26
+    font_size: 14
+
 <NameInput>:
-    background_normal: 'atlas://res/images/defaulttheme/Empty'
-    background_active: 'res/images/bg_TextInput_focus.png'
+    background_normal: self.theme + 'Empty'
     size_hint: .9, None
     height: 36
     pos_hint: {'center_x': .5, 'center_y': .5}
@@ -20,5 +23,4 @@
     cursor_color: (.305, .643, .807, 1)
     valign: 'middle'
     halign: 'center'
-    write_tab: False
-    multiline: False
+    on_focus: self.select_textinput()

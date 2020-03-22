@@ -88,7 +88,7 @@
                     text_input.text)
 
 <TruthTable>:
-    BoxLayout:
+    DefaultLeyout:
         size: root.size
         pos: root.pos
         orientation: 'vertical'
@@ -97,7 +97,7 @@
             Color:
                 rgb: (1, 1, 1)
             Rectangle:
-                source: 'res/images/bg_SideConf.png'
+                source: self.theme + 'bg'
                 pos: self.pos
                 size: self.size
         ScrollView:
@@ -110,7 +110,10 @@
                 size: 1300, 1000
                 pos_hint:{'left': 1}
                 BoxLayout:
+                    id: inputs_cont
                     orientation: 'vertical'
+                    size_hint:  None, None
+                    size: 600, 1000
                     Lbl:
                         text: 'Inputs'
                         font_size: 18
@@ -118,17 +121,16 @@
                         id: inputs_tbl
                         orientation: 'vertical'
                 BoxLayout:
-                    size_hint_x: None
-                    width: 48
-                BoxLayout:
+                    id: outputs_cont
                     orientation: 'vertical'
+                    size_hint:  None, None
+                    size: 600, 1000
                     Lbl:
                         text: 'Outputs'
                         font_size: 18
                     BoxLayout:
                         id: outputs_tbl
                         orientation: 'vertical'
-                BoxLayout:
         BoxLayout:
             size_hint_y: None
             height: 30

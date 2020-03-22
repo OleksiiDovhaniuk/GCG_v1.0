@@ -87,7 +87,13 @@ def read_configurations():
         if f.mode == 'r':
             configurations_str = f.read()
             try:
-                return eval(configurations_str)
+                conf =  eval(configurations_str)
+                for key in conf:
+                    if conf[key]['type'] == 'int':
+                        conf[key]['value'] = int(conf[key]['value'])
+                    elif conf[key]['type'] == 'float':
+                        conf[key]['value'] = float(conf[key]['value'])
+                return conf
             except SyntaxError:
                 print(f'{error_type_style}An error occured trying to transform dictionary from the file configurations.txt.')
                 return default_configurations()
@@ -142,10 +148,10 @@ def clear_autosaves():
         file_name = files[0]
         file_path = f'{path}{file_name}'
         os.remove(file_path)
-        print (f'The autosave {file_name} is removed')
+        # print (f'The autosave {file_name} is removed')
         files.pop(0)
         files_number = len(files)
-    print(f'Number of autosaves - {files_number}')
+    # print(f'Number of autosaves - {files_number}')
 
 def autosave(type, results, configurations, truth_table, time):
     save_datetime_str = str(time)[:19]
@@ -198,6 +204,6 @@ def autosave(type, results, configurations, truth_table, time):
     '''
     f.write(results_str)
     f.close
-    print(message)
+    # print(message)
     clear_autosaves()
         

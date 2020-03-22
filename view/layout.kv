@@ -6,7 +6,7 @@
         Color:
             rgb: (1, 1, 1)
         Rectangle:
-            source: "res/images/bg_h_menu.png"
+            source: self.theme + 'bg'
             pos: self.pos
             size: self.size
 
@@ -27,7 +27,7 @@
             size: self.size
 
 <LayoutConf>:
-    padding: 20, .5*(self.height-26)
+    padding: 20, .5* (self.height-26)
     size_hint: .95, None
     height: 40
     pos_hint: {'center_x': .5}
@@ -35,7 +35,7 @@
         Color:
             rgb: (1, 1, 1)
         Rectangle:
-            source: "res/images/bg_LayoutConf.png"
+            source: self.theme + 'HorizontalContainer'
             pos: self.pos
             size: self.size
 

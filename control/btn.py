@@ -1,11 +1,13 @@
 from kivy.lang import Builder
 from control.hoverBehaviour import HoverButton
 
+from design import Design
+
 
 Builder.load_file('view/btn.kv')
 
 class Btn(HoverButton):
-    pass
+    theme = Design().default_theme
 
 class SaveAsBtn(Btn):
     pass
@@ -13,8 +15,5 @@ class SaveAsBtn(Btn):
 class OpenBtn(Btn):
     pass
 
-class MinimiseBtn(Btn):
-    pass
-
-class MenuBarBtn(Btn):
+class ArrowBtn(Btn):
     pass

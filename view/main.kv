@@ -8,71 +8,76 @@
     BoxLayout:
         orientation: 'vertical'
         HorisontalMenuBar:
-            MenuBarBtn:
-                text: 'File'
-                id: btn_file
-            MenuBarBtn:
-                text: 'Edit'
-                id: btn_edit
-            MenuBarBtn:
-                text: 'Run'
-                id: btn_run
-                width: 80
-            MenuBarBtn:
-                text: 'Help'
-                id: btn_help
+            id: top_menu
+            Btn:
+                text:      'File'
+                id:         btn_file
+                on_release: root.show_menu()
+                disabled:   True
+            BoxLayout:
+                id:          btn_run
+                size_hint_x: None
+                width:       80
+                Btn:
+                    text:      'Run'
+                    size_hint:  1, 1
+                    on_release: root.run()
+            Btn:
+                text:    'Help'
+                id:       btn_help
+                disabled: True
         BoxLayout:
             orientation: 'horizontal'
-            id: workspace
+            id:           workspace
             BoxLayout:
                 id: plot
             BoxLayout:
-                id: side_conf_container
+                id:          side_conf_container
                 size_hint_x: None
-                width: 360
+                width:       360
             VerticalMenuBar:
                 id: side_bar
-                MenuBarBtn:
+                width: 32
+                Btn:
                     id: btn_algorithm
                     group: 'side_menu_btns'
                     background_normal:
-                        "res/images/btn_h_Algorithm.png"\
-                        if self.hovered else "res/images/btn_n_Algorithm.png"
-                    background_down: "res/images/btn_d_Algorithm.png"
-                    background_disabled_normal: "res/images/btn_d_Algorithm.png"
+                        self.theme + 'AlgorithmBtn_hovered'\
+                        if self.hovered else self.theme + 'AlgorithmBtn_normal'
+                    background_down: self.theme + 'AlgorithmBtn_down'
+                    background_disabled_normal: self.theme + 'AlgorithmBtn_disabled'
                     on_release: root.show_config_algorithm()
-                    size: 40, 138
-                MenuBarBtn:
+                    size: 32, 138
+                Btn:
                     id: btn_inputs
                     group: 'side_menu_btns'
                     background_normal:
-                        "res/images/btn_h_Input.png"\
-                        if self.hovered else "res/images/btn_n_Input.png"
-                    background_down: "res/images/btn_d_Input.png"
-                    background_disabled_normal: "res/images/btn_d_Input.png"
+                        self.theme + 'InputsBtn_hovered'\
+                        if self.hovered else self.theme + 'InputsBtn_normal'
+                    background_down: self.theme + 'InputsBtn_down'
+                    background_disabled_normal: self.theme + 'InputsBtn_disabled'
                     on_release: root.show_config_inputs()
-                    size: 40, 84
-                MenuBarBtn:
+                    size: 32, 84
+                Btn:
                     id: btn_plot
                     group: 'side_menu_btns'
                     background_normal:
-                        "res/images/btn_h_Plot.png"\
-                        if self.hovered else "res/images/btn_n_Plot.png"
-                    background_down: "res/images/btn_d_Plot.png"
-                    background_disabled_normal: "res/images/btn_d_Plot.png"
+                        self.theme + 'PlotBtn_hovered'\
+                        if self.hovered else self.theme + 'PlotBtn_normal'
+                    background_down: self.theme + 'PlotBtn_down'
+                    background_disabled_normal: self.theme + 'PlotBtn_disabled'
                     on_release: root.show_config_plot()
-                    size: 40, 84
+                    size: 32, 84
                 BoxLayout:
         HorisontalMenuBar:
-            id: status_bar
-
             Label:
+                id: status_bar
                 text: 'Process: 78%'
                 font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
                 size_hint: None, None
                 size: 130, 30
                 color: 0, 0, 0, 1
-            MenuBarBtn:
-                width: 30
-                text: '>'
+            ArrowBtn:
+                width: 24
                 pos_hint: {'center_y': 0.5}
+            BoxLayout:

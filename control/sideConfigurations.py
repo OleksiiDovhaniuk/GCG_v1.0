@@ -1,16 +1,17 @@
-from kivy.properties import ObjectProperty
-from kivy.factory import Factory
-from kivy.uix.boxlayout import BoxLayout
-from kivy.lang import Builder
+from kivy.properties     import ObjectProperty
+from kivy.factory        import Factory
+from kivy.lang           import Builder
+from kivy.uix.boxlayout  import BoxLayout
 
-from control.dialog import TruthTable
-from control.layout import LayoutConf
-from control.lbl import Lbl
-from control.textInput import RangeFilteredInput
+from control.dialog      import TruthTable
+from control.layout      import LayoutConf
+from control.lbl         import Lbl
+from control.textInput   import RangeFilteredInput
 from control.radioButton import RbtEndCondition
-from control.popup import WhitePopup
-from control.dialog import Load, Save
+from control.popup       import WhitePopup
+from control.dialog      import Load, Save
 
+from design              import Design
 import file_work as fw
 import os
 
@@ -18,19 +19,22 @@ import os
 Builder.load_file('view/sideConfigurations.kv')
 
 class SideConf(BoxLayout):
+    theme    = Design().default_theme
+    minimise = ObjectProperty(None)
+
     def show_save(self):
-        content = Save(save=self.save, 
-                    cancel=self.dismiss_popup,
-                    data=self.data)
-        self._popup = WhitePopup(title="Save file",
-                            content=content)
+        content     = Save(save  =self.save, 
+                           cancel=self.dismiss_popup,
+                           data  =self.data)
+        self._popup = WhitePopup(title  ="Save file",
+                                 content=content)
         self._popup.open()
 
     def show_load(self):
-        content = Load(load=self.load, 
-                    cancel=self.dismiss_popup)
-        self._popup = WhitePopup(title="Open file",
-                            content=content)
+        content     = Load(load  =self.load, 
+                           cancel=self.dismiss_popup)
+        self._popup = WhitePopup(title  ="Open file",
+                                 content=content)
         self._popup.open()
 
     def save(self, path, filename):        
@@ -38,53 +42,61 @@ class SideConf(BoxLayout):
             stream.write(str(self.data))
         self.dismiss_popup()
         
-
     def load(self, path, filename):
         with open(os.path.join(path, filename[0])) as stream:
             self.data = stream.read()
         self.dismiss_popup()
         
-    
     def dismiss_popup(self):
         self._popup.dismiss()
 
 class Algorithm(SideConf):
-    saved_conf = fw.read_configurations()
-    active_conf = saved_conf
-    inputs = {}
+    saved_conf            = fw.read_configurations()
+    active_conf           = saved_conf
+    inputs                = {}
     layouts_end_condition = {}
-    color_disable = (.8, .8, .8, 1)
-    hint_color_normal = (.4, .4, .4, 1)
-    color_normal = (0, 0, 0, 1)
-    minimise = ObjectProperty(None)
+    color_disable         = (.8, .8, .8, 1)
+    hint_color_normal     = (.4, .4, .4, 1)
+    color_normal          = (0, 0, 0, 1)
 
     def __init__(self, **kwargs):
         super(Algorithm, self).__init__(**kwargs)
         saved_conf = self.saved_conf
+
         for key in saved_conf:
-            layout = LayoutConf()
-            label = Lbl(text=key)
-            text_input = RangeFilteredInput(hint_text=f'{saved_conf[key]["value"]}',
-                input_filter=saved_conf[key]['type'],
-                valid_range = saved_conf[key]['range'])
-            layout.add_widget(label)
-            radio_btn = None
+            layout     = LayoutConf()
+            label      = Lbl(text=key)
+            radio_btn  = None
+            text_input = RangeFilteredInput(
+                hint_text   =f'{saved_conf[key]["value"]}',
+                input_filter=   saved_conf[key]['type'],
+                valid_range =   saved_conf[key]['range'])
+
             if key in ['process time', 'iterations limit']:
                 radio_btn = RbtEndCondition(active=saved_conf[key]['active'])
                 if not radio_btn.active:
-                    label.color = self.color_disable
+                    label.color         = self.color_disable
                     text_input.disabled = True
                 layout.add_widget(radio_btn)
-                self.layouts_end_condition.update({key: {'Layout': layout,
-                                                    'Label': label,
-                                                    'RadioButton': radio_btn,
-                                                    'TextInput': text_input}})
-            self.inputs.update({key: {'Layout': layout,
-                                'Label': label,
-                                'RadioButton': radio_btn,
-                                'TextInput': text_input}})
+                self.layouts_end_condition.update({key: {
+                    'Layout'     : layout,
+                    'Label'      : label,
+                    'RadioButton': radio_btn,
+                    'TextInput'  : text_input}})
+            else:
+                layout.add_widget(BoxLayout(
+                    size_hint=(None, None),
+                    size     =(40, 40)))
+            layout.add_widget(label)
+
+            self.inputs.update({key: {
+                'Layout'     : layout,
+                'Label'      : label,
+                'RadioButton': radio_btn,
+                'TextInput'  : text_input}})
             layout.add_widget(text_input)
             self.ids.algorithm_cont.add_widget(layout) 
+
         for key in self.layouts_end_condition:
             radio_btn = self.layouts_end_condition[key]['RadioButton']
             radio_btn.bind(on_press=self.swap_end_conditions)
@@ -124,8 +136,10 @@ class Algorithm(SideConf):
             return 
         self.dismiss_popup()
         
-
-    def save(self, path, filename):        
+    def save(self, path, filename):  
+        if len(filename.replace(' ','')) == 0:
+            print('REPLACE')
+            return       
         with open(os.path.join(path, filename), 'w') as stream:
             stream.write(str(self.data))
         self.refresh_widgets()
@@ -197,6 +211,7 @@ class Algorithm(SideConf):
     def refresh_widgets(self):
         self.active_conf = self.saved_conf
         saved_conf = self.saved_conf
+        fw.save_configurations(saved_conf)
         inputs = self.inputs
         for key in inputs:
             lbl = inputs[key]['Label']
@@ -227,7 +242,6 @@ class Inputs(SideConf):
                             content=content)
         self._popup.open()
     
-
     def apply(self):        
         pass        
 

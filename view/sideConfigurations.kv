@@ -7,37 +7,36 @@
         Color:
             rgb: (1, 1, 1)
         Rectangle:
-            source: "res/images/bg_SideConf.png"
+            source: self.theme + 'bg'
             pos: self.pos
             size: self.size
-
-<Algorithm>:
     BoxLayout:
         size_hint_y: None
         height: 24
         BoxLayout:
-        MinimiseBtn:
+        ArrowBtn:
             on_release: root.minimise()
+
+<Algorithm>:
     BoxLayout:
         id: algorithm_cont
+        size_hint: 1, 1
         orientation: 'vertical'
     BoxLayout:
         orientation: 'horizontal'
         size_hint: .95, None
-        height: 50
-        padding: 20, 5
+        height: 32
+        padding: 20, 10
+        Btn:
+            text: 'cencel'
+        Btn:
+            text: 'apply'
         SaveAsBtn:
             on_release: root.save_conf()
         OpenBtn:
             on_release: root.show_load()
 
 <Inputs>:
-    BoxLayout:
-        size_hint_y: None
-        height: 24
-        BoxLayout:
-        MinimiseBtn:
-            on_release: root.minimise()
     BoxLayout:
         size_hint_y: None
         height: 10
@@ -54,12 +53,12 @@
             on_release: root.show_ttbl()
     BoxLayout:
         BoxLayout:
-        Button:
+        Btn:
             size_hint: None, None
-            size: 200, 240
+            size: 240, 240
             pos_hint: {'center_y': .5}
             disabled: True
-            background_disabled_normal: 'res/images/bg_ReservedPlace.png'
+            background_disabled_normal: self.theme + 'ReservedPlace'
         BoxLayout:
     BoxLayout:
         orientation: 'horizontal'
@@ -73,19 +72,13 @@
 
 <Plot>:
     BoxLayout:
-        size_hint_y: None
-        height: 24
         BoxLayout:
-        MinimiseBtn:
-            on_release: root.minimise()
-    BoxLayout:
-        BoxLayout:
-        Button:
+        Btn:
             size_hint: None, None
-            size: 200, 240
+            size: 240, 240
             pos_hint: {'center_y': .5}
             disabled: True
-            background_disabled_normal: 'res/images/bg_ReservedPlace.png'
+            background_disabled_normal: self.theme + 'ReservedPlace'
         BoxLayout:
     BoxLayout:
         orientation: 'horizontal'

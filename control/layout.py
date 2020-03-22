@@ -1,20 +1,25 @@
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 
+from design import Design
+
 
 Builder.load_file('view/layout.kv')
 
-class HorisontalMenuBar(BoxLayout):
+class DefaultLeyout(BoxLayout):
+    theme = Design().default_theme
+
+class HorisontalMenuBar(DefaultLeyout):
     pass
 
-class HorizontalConf(BoxLayout):
+class HorizontalConf(DefaultLeyout):
     pass
 
-class VerticalMenuBar(BoxLayout):
+class VerticalMenuBar(DefaultLeyout):
     pass
 
-class LayoutConf(BoxLayout):
+class LayoutConf(DefaultLeyout):
     pass
 
-class TTblRow(BoxLayout):
+class TTblRow(DefaultLeyout):
     pass
