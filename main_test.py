@@ -345,7 +345,3 @@ if proper_results['chromosome']:
     autosave('Complete Proper', proper_results, configurations, truth_table, start_time)
 else:
     autosave('Complete Best', best_results, configurations, truth_table, start_time)
-
-
-# if __name__ == '__main__':
-    # main_testApp().run()
