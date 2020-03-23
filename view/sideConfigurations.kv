@@ -20,17 +20,13 @@
 <Algorithm>:
     BoxLayout:
         id: algorithm_cont
-        size_hint: 1, 1
         orientation: 'vertical'
     BoxLayout:
         orientation: 'horizontal'
-        size_hint: .95, None
+        size_hint_y: None
         height: 32
-        padding: 20, 10
-        Btn:
-            text: 'cencel'
-        Btn:
-            text: 'apply'
+        padding: 26, 10
+        BoxLayout:
         SaveAsBtn:
             on_release: root.save_conf()
         OpenBtn:

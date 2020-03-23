@@ -23,12 +23,14 @@ class Main(Screen):
 
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
+        self.side_config_algorithm = Algorithm(minimise=self.minimize_conf)
+        self.side_config_inputs = Inputs (minimise=self.minimize_conf)
+        self.side_config_plot = Plot (minimise=self.minimize_conf)
 
     def show_config_algorithm(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_config = Algorithm(minimise=self.minimize_conf)
-        side_cont.add_widget(side_config)
+        side_cont.add_widget(self.side_config_algorithm)
 
         self.ids.btn_algorithm.disabled = True
         self.ids.btn_inputs.disabled    = False
@@ -37,8 +39,9 @@ class Main(Screen):
     def show_config_inputs(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_config = Inputs (minimise=self.minimize_conf)
-        side_cont.add_widget(side_config)
+        side_cont.add_widget(self.side_config_inputs)
+        
+        self.side_config_algorithm.refresh_widgets()
 
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = True
@@ -47,8 +50,9 @@ class Main(Screen):
     def show_config_plot(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_config = Plot (minimise=self.minimize_conf)
-        side_cont.add_widget(side_config)
+        side_cont.add_widget(self.side_config_plot)
+
+        self.side_config_algorithm.refresh_widgets()
 
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = False

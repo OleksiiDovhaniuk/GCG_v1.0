@@ -12,8 +12,16 @@ Builder.load_file('view/textInput.kv')
 class TxtInput(TextInput):
     theme = Design().default_theme
 
-class RangeFilteredInput(TxtInput):
+class AlgorithmConfigsInput(TxtInput):
     valid_range = ObjectProperty([0, 9999])
+    push_value  = ObjectProperty(None)
+    key         = StringProperty('')
+
+    def on_focus(self, *args):
+        if not self.focus:
+                text_size = len(self.text)
+                if text_size > 0:
+                    self.push_value(self)
 
 class NameInput(TxtInput):
     def select_textinput(self):

@@ -6,7 +6,7 @@ from kivy.uix.boxlayout  import BoxLayout
 from control.dialog      import TruthTable
 from control.layout      import LayoutConf
 from control.lbl         import Lbl
-from control.textInput   import RangeFilteredInput
+from control.textInput   import AlgorithmConfigsInput
 from control.radioButton import RbtEndCondition
 from control.popup       import WhitePopup
 from control.dialog      import Load, Save
@@ -51,29 +51,33 @@ class SideConf(BoxLayout):
         self._popup.dismiss()
 
 class Algorithm(SideConf):
-    saved_conf            = fw.read_configurations()
-    active_conf           = saved_conf
+    saved_configs  = fw.read_configurations()
+    active_configs = fw.read_configurations()
+
     inputs                = {}
     layouts_end_condition = {}
+
     color_disable         = (.8, .8, .8, 1)
     hint_color_normal     = (.4, .4, .4, 1)
     color_normal          = (0, 0, 0, 1)
 
     def __init__(self, **kwargs):
         super(Algorithm, self).__init__(**kwargs)
-        saved_conf = self.saved_conf
+        saved_configs = self.saved_configs
 
-        for key in saved_conf:
+        for key in saved_configs:
             layout     = LayoutConf()
             label      = Lbl(text=key)
             radio_btn  = None
-            text_input = RangeFilteredInput(
-                hint_text   =f'{saved_conf[key]["value"]}',
-                input_filter=   saved_conf[key]['type'],
-                valid_range =   saved_conf[key]['range'])
+            text_input = AlgorithmConfigsInput(
+                key         =     key,
+                hint_text   =  f'{saved_configs[key]["value"]}',
+                input_filter=     saved_configs[key]['type'],
+                valid_range =     saved_configs[key]['range'],
+                push_value  =self.update_config)
 
             if key in ['process time', 'iterations limit']:
-                radio_btn = RbtEndCondition(active=saved_conf[key]['active'])
+                radio_btn = RbtEndCondition(active=saved_configs[key]['active'])
                 if not radio_btn.active:
                     label.color         = self.color_disable
                     text_input.disabled = True
@@ -102,34 +106,38 @@ class Algorithm(SideConf):
             radio_btn.bind(on_press=self.swap_end_conditions)
         self.ids.algorithm_cont.add_widget(BoxLayout()) 
 
-    def swap_end_conditions(self, obj):
+    def swap_end_conditions(self, instance):
         layouts = self.layouts_end_condition
-        if  obj.active:
+        configs = self.active_configs
+
+        if  instance.active:
             for key in layouts:
-                label = layouts[key]['Label']
-                text_input = layouts[key]['TextInput']
+                label           = layouts[key]['Label']
+                text_input      = layouts[key]['TextInput']
                 is_r_btn_active = layouts[key]['RadioButton'].active
                 if is_r_btn_active:
-                    label.color = self.color_normal
+                    label.color                = self.color_normal
                     text_input.hint_text_color = self.hint_color_normal
+                    configs[key]['active'] = True
                 else:
-                    label.color = self.color_disable
+                    label     .color           = self.color_disable
                     text_input.hint_text_color = self.color_disable
+                    configs[key]['active'] = False
+
                 text_input.disabled = not is_r_btn_active
-        obj.active = True
+
+        self.active_configs = configs
+        instance.active = True
 
     def save_conf(self):
-        if self.valid(): 
-            self.data = self.active_conf
-            self.show_save()
-        else:
-            self.active_conf = self.save_conf 
+        self.data = self.active_configs
+        self.show_save()
     
     def load(self, path, filename):
         with open(os.path.join(path, filename[0])) as stream:
             str_data = stream.read()
         try:
-            self.saved_conf = eval(str_data)
+            self.active_configs = eval(str_data)
             self.refresh_widgets()
         except SyntaxError:
             print(f'File {filename[0]} is corrupted')
@@ -138,97 +146,87 @@ class Algorithm(SideConf):
         
     def save(self, path, filename):  
         if len(filename.replace(' ','')) == 0:
-            print('REPLACE')
             return       
         with open(os.path.join(path, filename), 'w') as stream:
             stream.write(str(self.data))
         self.refresh_widgets()
         self.dismiss_popup()
 
-    def valid(self):
-        valid = True 
-        active_conf = self.saved_conf
-        inputs = self.inputs
-        range_paar = []
-        for key in inputs:
-            btn = inputs[key]['RadioButton']
-            txt_input = inputs[key]['TextInput']
-            txt = txt_input.text
-            if len(txt)>0:
-                range_min = txt_input.valid_range[0]
-                range_max = txt_input.valid_range[1]
-                try:
-                    min_value = float(range_min)
-                except ValueError:
-                    try:
-                        min_value = float(active_conf[range_min]['value'])
-                        range_paar.append([range_min, key])
-                    except ValueError:
-                        valid = False
-                        txt_input.text = ''
-                        print(f'A min value of the range of an active configuration {active_conf[key]} is corrupted') 
-                try:
-                    max_value = float(range_max)
-                except ValueError:
-                    try: 
-                        max_value = float(active_conf[range_max]['value'])
-                        range_paar.append([key, range_max])
-                    except ValueError:
-                        valid = False
-                        txt_input.text = ''
-                        print(f'A max value of the range of an active configuration {active_conf[key]} is corrupted') 
-                try:
-                    txt_float = float(txt)
-                except ValueError:
-                    valid = False
-                    txt_input.text = ''
-                    print(f'Value in "{key}" is not appropriate')
-                    print(f'... or not in range [{txt_input.valid_range[0]}, {txt_input.valid_range[1]}]') 
-                if  min_value <= txt_float <=  max_value:
-                    try:
-                        txt_int = int(txt)
-                        active_conf[key]['value'] = str(txt_int)
-                    except ValueError:
-                        active_conf[key]['value'] = str(txt_float)
-                else:
-                    valid = False
-                    txt_input.text = ''
-                    print(f'Value in "{key}" is out of range') 
-            if btn:
-                active_conf[key]['active'] = btn.active
-        for paar in range_paar:
-            upper_key = paar[0]
-            lower_key = paar[1]
-            print(paar)
-            if active_conf[upper_key]['value'] > active_conf[lower_key]['value']:
-                valid = False
-                inputs[upper_key]['TextInput'].text = ''
-                inputs[lower_key]['TextInput'].text = ''
-
-        self.active_conf = active_conf
-        return valid
-
     def refresh_widgets(self):
-        self.active_conf = self.saved_conf
-        saved_conf = self.saved_conf
+        saved_conf  = self.saved_conf  = self.active_configs
+        inputs      = self.inputs
         fw.save_configurations(saved_conf)
-        inputs = self.inputs
+
         for key in inputs:
-            lbl = inputs[key]['Label']
-            btn = inputs[key]['RadioButton']
-            txt_input = inputs[key]['TextInput']
-            txt_input.text = ''
+            lbl                 = inputs[key]['Label']
+            btn                 = inputs[key]['RadioButton']
+            txt_input           = inputs[key]['TextInput']
+            txt_input.text      = ''
             txt_input.hint_text = f'{saved_conf[key]["value"]}'
             if btn: 
-                btn.active = saved_conf[key]['active']
+                btn.active         = saved_conf[key]['active']
                 txt_input.disabled = not btn.active
                 if btn.active:
-                    lbl.color = self.color_normal
+                    lbl      .color           = self.color_normal
                     txt_input.hint_text_color = self.hint_color_normal
                 else:
-                    lbl.color = self.color_disable
+                    lbl      .color           = self.color_disable
                     txt_input.hint_text_color = self.color_disable
 
+    def update_config(self, instence):
+        layouts_end_condition = self.layouts_end_condition
+        active_configs        = self.active_configs
+
+        range_min   = instence.valid_range[0]
+        range_max   = instence.valid_range[1]
+        key         = instence.key
+        txt         = instence.text
+        valig       = True
+        range_paar  = []
+
+        try:
+            min_value = float(range_min)
+        except ValueError:
+            try:
+                min_value = float(active_configs[range_min]['value'])
+                range_paar.append([range_min, key])
+            except ValueError:
+                instence.text = ''
+                valig = False
+                print(f'A min value of the range of an active configuration {active_configs[key]} is corrupted') 
+
+        try:
+            max_value = float(range_max)
+        except ValueError:
+            try: 
+                max_value = float(active_configs[range_max]['value'])
+                range_paar.append([key, range_max])
+            except ValueError:
+                instence.text = ''
+                valig = False
+                print(f'A max value of the range of an active configuration {active_configs[key]} is corrupted')
+
+        try:
+            txt_float = float(txt)
+        except ValueError:
+            instence.text = ''
+            valig = False
+            print(f'Value in "{key}" is not appropriate')
+            print(f'... or not in range [{range_min}, {range_max}]')
+
+        if  min_value <= txt_float <=  max_value:
+            try:
+                txt_int = int(txt)
+                active_configs[key]['value'] = str(txt_int)
+            except ValueError:
+                active_configs[key]['value'] = str(txt_float)
+        else:
+            valig = False
+            instence.text = ''
+            print(f'Value in "{key}" is out of range') 
+
+        if valig: self.active_configs = active_configs
+        else: self.active_configs = self.saved_configs
 
 class Inputs(SideConf):
     saved_ttbl = fw.read_truth_table()

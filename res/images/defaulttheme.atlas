@@ -13,9 +13,9 @@
 	"OpenBtn_hovered": 	[42,  326, 32, 32],
 	"OpenBtn_down":		[79,  326, 32, 32],
 	"OpenBtn_disabled":	[116, 326, 32, 32],
-	"Cell_normal":  	[42,  475, 32, 32],
-	"Cell_hovered": 	[79,  475, 32, 32],
-	"Cell_down":	[116, 475, 32, 32],
+	"Cell_normal":  	[43,  476, 30, 30],
+	"Cell_hovered": 	[80,  476, 30, 30],
+	"Cell_down":	[117, 476, 30, 30],
 	"Cell_h_hovered": 	[153, 475, 32, 32],
 	"Cell_v_hovered": 	[153, 438, 32, 32],
 	"AddCell_normal":	[42,  438, 32, 32],
@@ -50,4 +50,4 @@
 	"InputsBtn_down":	    	[116, 5, 32, 84],
 	"InputsBtn_disabled": 	[116, 5, 32, 84],
 	"ReservedPlace":	 [267, 5, 240, 240],
-	"Empty": [0, 0, 5, 5]}}
+	"Empty": [480, 480, 32, 32]}}
