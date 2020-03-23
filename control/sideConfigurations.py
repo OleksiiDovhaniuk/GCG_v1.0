@@ -155,7 +155,6 @@ class Algorithm(SideConf):
     def refresh_widgets(self):
         saved_conf  = self.saved_conf  = self.active_configs
         inputs      = self.inputs
-        fw.save_configurations(saved_conf)
 
         for key in inputs:
             lbl                 = inputs[key]['Label']
@@ -225,8 +224,12 @@ class Algorithm(SideConf):
             instence.text = ''
             print(f'Value in "{key}" is out of range') 
 
-        if valig: self.active_configs = active_configs
-        else: self.active_configs = self.saved_configs
+        if valig: 
+            self.active_configs = active_configs
+            fw.save_configurations(active_configs)
+        else: 
+            self.active_configs = self.saved_configs
+            fw.save_configurations(self.saved_configs)
 
 class Inputs(SideConf):
     saved_ttbl = fw.read_truth_table()

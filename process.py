@@ -65,7 +65,6 @@ class Process():
         max_value_rounded = round(max_value, 6)
 
 
-        self.generations_number    = configurations['iterations limit']     ['value']
         self.generation_size       = configurations['generation size']      ['value']
         self.chromosome_size       = configurations['chromosome size']      ['value']
         self.crossover_probability = configurations['crossover probability']['value']
@@ -88,6 +87,7 @@ class Process():
         str_time       = '0' + str(self.time)[:7] 
         self.message   = f'Process time {str_time}, the best result: {max_value_rounded}'
         self.flag_time = datetime.now()
+        self.int_time = int(round(self.time.total_seconds(), 0))
     
     def do_loop(self):
         best_results            = self.best_results
@@ -129,7 +129,7 @@ class Process():
                                            outputs, 
                                            coefs)
 
-        self.time         = datetime.now() - (start_time + self.pause_time)
+        self.time = datetime.now() - (start_time + self.pause_time)
         str_time  = '0' + str(self.time)[:7] 
 
         # updating dictionary of the best chromosomes
@@ -193,3 +193,5 @@ class Process():
         str_time          = '0' + str(self.time)[:7] 
         max_value_rounded = round(max_value, 6)
         self.message      = f'Process time {str_time}, the best result: {max_value_rounded}'
+        self.int_time = int(round(self.time.total_seconds(), 0))
+        

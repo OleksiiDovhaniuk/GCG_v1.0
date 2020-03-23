@@ -3,4 +3,4 @@ def start():
     ab = 'ab'
     abc = ab
 
-print(ab)
+print(round(2.34, 0))

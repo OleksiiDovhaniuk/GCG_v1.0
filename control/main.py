@@ -95,6 +95,14 @@ class Main(Screen):
         process = self.process
         process.do_loop()
         message = process.message
+        configs = process.configurations
+
+        if ((configs['iterations limit']['active'] and
+                process.iterations >= configs['iterations limit']['value']) or
+            (configs['process time']['active'] and
+                process.int_time >= configs['process time']['value'])):
+            message = 'Final result: ' + message
+            self.stop()
 
         self.ids.status_bar.text  = message
         self.ids.status_bar.width = (len(message) + 1) * 10
