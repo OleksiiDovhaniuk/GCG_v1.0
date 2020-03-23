@@ -12,15 +12,13 @@
             Btn:
                 text:      'File'
                 id:         btn_file
-                on_release: root.show_menu()
                 disabled:   True
             BoxLayout:
                 id:          btn_run
                 size_hint_x: None
-                width:       80
+                width: 120
                 Btn:
                     text:      'Run'
-                    size_hint:  1, 1
                     on_release: root.run()
             Btn:
                 text:    'Help'

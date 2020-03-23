@@ -13,7 +13,8 @@ from control.btn                import Btn
 
 from process                    import Process
 from design                     import Design
-
+from functools                  import partial
+from datetime                   import datetime
 
 kivy   .require  ('1.10.1')
 Builder.load_file('view/main.kv')
@@ -24,8 +25,20 @@ class Main(Screen):
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
         self.side_config_algorithm = Algorithm(minimise=self.minimize_conf)
-        self.side_config_inputs = Inputs (minimise=self.minimize_conf)
-        self.side_config_plot = Plot (minimise=self.minimize_conf)
+        self.side_config_inputs    = Inputs   (minimise=self.minimize_conf)
+        self.side_config_plot      = Plot     (minimise=self.minimize_conf)
+
+        self.btn_run     = Btn(text ='Run')
+        self.btn_pause   = Btn(text ='Pause')
+        self.btn_restore = Btn(text ='Restore')
+        self.btn_stop    = Btn(text ='Stop')
+
+        self.btn_run    .bind(on_release=self.run)
+        self.btn_pause  .bind(on_release=self.pause)
+        self.btn_restore.bind(on_release=self.restore)
+        self.btn_stop   .bind(on_release=self.stop)
+
+        self.pause_start = None
 
     def show_config_algorithm(self, *args):
         side_cont = self.ids.side_conf_container
@@ -65,30 +78,18 @@ class Main(Screen):
         self.ids.btn_inputs.disabled    = False
         self.ids.btn_plot.disabled      = False
 
-    def show_menu(self, *args):
-        menu = DropDownMenu()
-        self.ids.plot.add_widget(menu)
-
     def run(self, *args):
         self.ids.btn_run.clear_widgets()
-        self.ids.btn_run.width = 220
-        self.btn_pause = Btn(text      ='Pause',
-                             size_hint =(None, 1),
-                             width     =120,)
-                            #  on_release=self.pause())
-        self.btn_stop = Btn(text      ='Stop',
-                            size_hint =(None, 1),
-                            width     =100,)
-                            # on_release=self.stop())
-        self.ids.btn_run.add_widget(self.btn_pause)
+        self.ids.btn_run.width = 240
         self.ids.btn_run.add_widget(self.btn_stop)
-        
+        self.ids.btn_run.add_widget(self.btn_pause)
+
         self.process = Process()
-        message = self.process.message
+        message      = self.process.message
+
         self.ids.status_bar.text  = message
         self.ids.status_bar.width = (len(message) + 1) * 10
-
-        Clock.schedule_interval(self.do_loop, 1)
+        self.run_event = Clock.schedule_interval(self.do_loop,  1)
 
     def do_loop(self, *args):
         process = self.process
@@ -99,10 +100,27 @@ class Main(Screen):
         self.ids.status_bar.width = (len(message) + 1) * 10
 
     def pause(self, *args):
-        pass
+        Clock.unschedule(self.run_event)
+
+        self.pause_start = datetime.now()
+
+        self.ids.btn_run.remove_widget(self.btn_pause)
+        self.ids.btn_run.add_widget   (self.btn_restore)
+    
+    def restore(self, *args):
+        self.run_event = Clock.schedule_interval(self.do_loop,  1)
+
+        self.process.pause_time += datetime.now() - self.pause_start
+
+        self.ids.btn_run.remove_widget(self.btn_restore)
+        self.ids.btn_run.add_widget   (self.btn_pause)
     
     def stop(self, *args):
-        pass
+        Clock.unschedule(self.run_event)
+
+        self.ids.btn_run.width = 120
+        self.ids.btn_run.clear_widgets()
+        self.ids.btn_run.add_widget(self.btn_run)
         
         
     
