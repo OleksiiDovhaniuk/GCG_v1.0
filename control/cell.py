@@ -82,9 +82,6 @@ class TitleCell(TxtInput, HoverBehavior):
             elif text_size > 2:
                 self.text = self.text[:3]
     
-    def do_nothing(self, *args):
-        pass
-    
 class IndexCell(Cell):
     index = ObjectProperty(None)
 
