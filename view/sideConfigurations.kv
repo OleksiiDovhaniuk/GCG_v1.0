@@ -1,6 +1,6 @@
 <SideConf>:
     orientation: 'vertical'
-    size_hint_x: None
+    size_hint_x: 1
     width: 360
     canvas.before:
         Clear
@@ -12,25 +12,43 @@
             size: self.size
     BoxLayout:
         size_hint_y: None
-        height: 24
+        height: 34
         BoxLayout:
+            size_hint_x: None
+            width: 10
+        Lbl:
+            text: '[color=#133957]' + root.title + '[/color]'
+            markup: True
         ArrowBtn:
             on_release: root.minimise()
+    BoxLayout:
+        id: container
+        orientation: 'vertical'
+        BoxLayout:
+            BoxLayout:
+            Btn:
+                size_hint: None, None
+                size: 240, 240
+                pos_hint: {'center_y': .5}
+                disabled: True
+                background_disabled_normal: self.theme + 'ReservedPlace'
+            BoxLayout:
+
+<SideConfBottom>:
+    size_hint_y: None
+    height: 34
+    padding: 26, 1
+    BoxLayout:
+    SaveAsBtn:
+        id: save_as_btn
+        on_release: root.save_conf()
+    OpenBtn:
+        id: open_btn
+        on_release: root.show_load()
+
 
 <Algorithm>:
-    BoxLayout:
-        id: algorithm_cont
-        orientation: 'vertical'
-    BoxLayout:
-        orientation: 'horizontal'
-        size_hint_y: None
-        height: 32
-        padding: 26, 10
-        BoxLayout:
-        SaveAsBtn:
-            on_release: root.save_conf()
-        OpenBtn:
-            on_release: root.show_load()
+    SideConfBottom:
 
 <Inputs>:
     BoxLayout:
@@ -56,32 +74,10 @@
             disabled: True
             background_disabled_normal: self.theme + 'ReservedPlace'
         BoxLayout:
-    BoxLayout:
-        orientation: 'horizontal'
-        size_hint: .95, None
-        height: 50
-        padding: 20, 5
-        SaveAsBtn:
-            disabled: True
-        OpenBtn:
-            disabled: True
+    SideConfBottom:
 
 <Plot>:
-    BoxLayout:
-        BoxLayout:
-        Btn:
-            size_hint: None, None
-            size: 240, 240
-            pos_hint: {'center_y': .5}
-            disabled: True
-            background_disabled_normal: self.theme + 'ReservedPlace'
-        BoxLayout:
-    BoxLayout:
-        orientation: 'horizontal'
-        size_hint: .95, None
-        height: 50
-        padding: 20, 5
-        SaveAsBtn:
-            disabled: True
-        OpenBtn:
-            disabled: True
+    SideConfBottom:
+
+<Results>:
+    SideConfBottom:

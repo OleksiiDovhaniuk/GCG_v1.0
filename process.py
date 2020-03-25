@@ -1,14 +1,15 @@
 import genetic_algorithm as gntc
 import file_work         as fw
+
 from fitness_function    import generation_result
 from numpy               import array
 from datetime            import datetime
+from pandas              import DataFrame
 
 class Process():
     def __init__(self):
         start_time      = self.start_time = datetime.now()
         self.pause_time = start_time - start_time
-        str_time        = '00:00:00'
 
         configurations  = fw.read_configurations()
         truth_table     = fw.read_truth_table()
@@ -23,6 +24,7 @@ class Process():
         coefs                 = [alpha, betta, gamma, lamda]
         inputs                = array(truth_table['inputs'] .values).T.tolist()
         outputs               = array(truth_table['outputs'].values).T.tolist()
+        have_result           = False
 
         generation = gntc.create_generation(generation_size, 
                                             chromosome_size, 
@@ -32,15 +34,15 @@ class Process():
                                     inputs, 
                                     outputs, 
                                     coefs) # [alpha, betta, gamma, lambda]
-        proper_results = {'chromosome': [],
-                          'value'     : [], # fitness function values
-                          'time'      : []} # search time
 
-        best_results = {'chromosome': [],
-                        'value'     : [], # fitness function values
-                        'time'      : []} # search time
+        columns = ['chromosome', # DataFrame columns
+                   'value',      # fitness function value
+                   'time',]      # search time
 
-        # add best N (N = memorised_number) chromosome to the dictionary of the best results 
+        data    = []             # DataFrame data 
+
+        self.time = datetime.now() - (start_time + self.pause_time)
+        # add best N (N = memorised_number) chromosome to the DataFrame data of the best results 
         for _ in range(memorised_number):
             max_ff    = -1
             index_max = -1
@@ -48,21 +50,19 @@ class Process():
                 if value > max_ff:
                     index_max = index 
                     max_ff    = value
-            best_results['chromosome'].append(generation[index_max])
-            best_results['value']     .append(max_ff)
-            best_results['time']      .append(str_time)   
+            data.append([generation[index_max], max_ff, self.time])
 
             generation.pop(index_max)
             ff_results.pop(index_max)
 
-        # generate first info message of the process
-        max_value       = -1
-        max_value_index = -1
-        for index, value in enumerate(best_results['value']):
-            if value > max_value:
-                max_value       = value
-                max_value_index = index
-        max_value_rounded = round(max_value, 6)
+        # serach for the appropiate chromosomes
+        index = 0
+        value = data[index][1]
+        data_proper = [] # DataFrame data of proper chromosomes
+        while value > alpha:
+            data_proper.append(data[index])
+            have_result = True
+            index += 1
 
 
         self.generation_size       = configurations['generation size']      ['value']
@@ -71,7 +71,6 @@ class Process():
         self.mutation_probability  = configurations['mutation probability'] ['value']
         self.info_delay            = 1
         self.iteration             = 0
-
         self.configurations        = configurations
         self.truth_table           = truth_table
         self.memorised_number      = memorised_number
@@ -80,40 +79,47 @@ class Process():
         self.coefs                 = coefs
         self.ff_results            = ff_results # ff: fitness function
         self.generation            = generation
-        self.proper_results        = proper_results
-        self.best_results          = best_results
+        self.best_results          = DataFrame(columns=columns, data=data)
+        self.proper_results        = DataFrame(columns=columns, data=data_proper)
+        self.have_result           = have_result
+        self.columns               = columns
         
         self.time      = datetime.now() - start_time 
         str_time       = '0' + str(self.time)[:7] 
-        self.message   = f'Process time {str_time}, the best result: {max_value_rounded}'
+        max_value      = round(data[0][1], 6)
+        self.message   = f'Process time {str_time}, the best result: {max_value}'
         self.flag_time = datetime.now()
-        self.int_time = int(round(self.time.total_seconds(), 0))
+        self.int_time  = int(round(self.time.total_seconds(), 0))
     
     def do_loop(self):
-        best_results            = self.best_results
-        ff_results              = self.ff_results
-        generation              = self.generation
-        generation_size         = self.generation_size
-        crossover_probability   = self.crossover_probability
-        mutation_probability    = self.mutation_probability
-        inputs                  = self.inputs
-        outputs                 = self.outputs
-        coefs                   = self.coefs
-        start_time              = self.start_time
-        memorised_number        = self.memorised_number
-        proper_results          = self.proper_results
-        configurations          = self.configurations
-        truth_table             = self.truth_table
+        best_results          = self.best_results
+        proper_results         = self.proper_results
+        ff_results            = self.ff_results
+        generation            = self.generation
+        generation_size       = self.generation_size
+        crossover_probability = self.crossover_probability
+        mutation_probability  = self.mutation_probability
+        inputs                = self.inputs
+        outputs               = self.outputs
+        coefs                 = self.coefs
+        alpha                 = self.coefs[0]
+        start_time            = self.start_time
+        memorised_number      = self.memorised_number
+        configurations        = self.configurations
+        truth_table           = self.truth_table
+        have_result           = self.have_result
+        columns               = self.columns
 
 
         # restore "stolen" chromosome back to generation
-        ff_results.extend(best_results['value'])
-        generation.extend(best_results['chromosome'])
+        ff_results.extend(best_results['value'].tolist())
+        generation.extend(best_results['chromosome'].tolist())
         while len(generation) > generation_size:
-            min_ff      = 99
-            index_min   = -1
+            min_ff    = 99
+            index_min = -1
             for index, value in enumerate(ff_results):
                 if value < min_ff: index_min = index 
+
             generation.pop(index_min)
             ff_results.pop(index_min)
         
@@ -122,55 +128,44 @@ class Process():
         generation     = gntc.crossover(generation, 
                                         paired_parents, 
                                         crossover_probability)
-        generation     = gntc.mutation(generation, 
-                                       mutation_probability)
         ff_results     = generation_result(generation, 
                                            inputs, 
                                            outputs, 
                                            coefs)
 
-        self.time = datetime.now() - (start_time + self.pause_time)
-        str_time  = '0' + str(self.time)[:7] 
-
         # updating dictionary of the best chromosomes
-        for _ in range(memorised_number):
-            index_min_best  = -1
-            min_best_result = 999
-            for index, value in enumerate(best_results['value']):
-                if value < min_best_result:
-                    index_min_best  = index 
-                    min_best_result = value
+        self.time = datetime.now() - (start_time + self.pause_time)
+        top       = len(best_results.index) - 1
+        count     = 0
+        for index, value in enumerate(ff_results):
+            if (value >= alpha and 
+                generation[index] not in proper_results['chromosome'].tolist()):
 
-            max_ff    = -1
-            index_max = -1
-            for index, value in enumerate(ff_results):
-                if value > max_ff:
-                    index_max = index 
-                    max_ff    = value
+                have_result    = True
+                proper_results = proper_results.append([value, 
+                                                      generation[index], 
+                                                      self.time])
 
-            if max_ff > min_best_result:
-                best_results['chromosome'].pop(index_min_best)
-                best_results['value']     .pop(index_min_best)
-                best_results['time']      .pop(index_min_best)   
+            if (value > best_results['value'].tolist()[top] and 
+                count < memorised_number):
                 
-                best_results['chromosome'].append(generation[index_max])
-                best_results['value']     .append(max_ff)
-                best_results['time']      .append(str_time) 
+                best_results = best_results.drop([top])
+                data         = best_results.values.tolist()
+                data.append([generation[index], value, self.time])
+                best_results = DataFrame(columns=columns,
+                                         data=data)
+                best_results = best_results.sort_values(by='value', 
+                                                        ascending=False)
 
-                generation.pop(index_max)
-                ff_results.pop(index_max)
+                generation.pop(index)
+                ff_results.pop(index)
 
-        # seek for the best current chromosome
-        max_value_index = -1
-        max_value =       -1
-        for index, value in enumerate(best_results['value']):
-            if value > max_value:
-                max_value_index = index
-                max_value       = value
-
+                count += 1
 
         # save results to a folder in new txt-file
-        if proper_results['chromosome']:
+        if have_result:
+            proper_results = proper_results.sort_values(by='value',
+                                                        ascending=False)
             fw.autosave('Complete Proper',
                         proper_results, 
                         configurations, 
@@ -191,7 +186,7 @@ class Process():
 
         self.time         = datetime.now() - (start_time + self.pause_time)
         str_time          = '0' + str(self.time)[:7] 
-        max_value_rounded = round(max_value, 6)
+        max_value_rounded = round(best_results['value'].tolist()[0], 6)
         self.message      = f'Process time {str_time}, the best result: {max_value_rounded}'
         self.int_time = int(round(self.time.total_seconds(), 0))
         

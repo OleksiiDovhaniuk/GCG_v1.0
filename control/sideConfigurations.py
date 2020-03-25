@@ -1,15 +1,20 @@
-from kivy.properties     import ObjectProperty
 from kivy.factory        import Factory
 from kivy.lang           import Builder
 from kivy.uix.boxlayout  import BoxLayout
+from kivy.uix.scrollview import ScrollView
+from kivy.properties     import ObjectProperty,\
+                                StringProperty
 
 from control.dialog      import TruthTable
 from control.layout      import LayoutConf
-from control.lbl         import Lbl
 from control.textInput   import AlgorithmConfigsInput
 from control.radioButton import RbtEndCondition
 from control.popup       import WhitePopup
-from control.dialog      import Load, Save
+from control.dialog      import Load,\
+                                Save
+from control.lbl         import Lbl,\
+                                ResultsLbl,\
+                                TitleLbl
 
 from design              import Design
 import file_work as fw
@@ -20,7 +25,12 @@ Builder.load_file('view/sideConfigurations.kv')
 
 class SideConf(BoxLayout):
     theme    = Design().default_theme
+    title    = StringProperty('Default Configurations')
     minimise = ObjectProperty(None)
+
+    COLOR_DISABLED    = (.8, .8, .8, 1)
+    HINT_COLOR_NORMAL = (.4, .4, .4, 1)
+    COLOR_NORMAL      = (0, 0, 0, 1)
 
     def show_save(self):
         content     = Save(save  =self.save, 
@@ -50,6 +60,9 @@ class SideConf(BoxLayout):
     def dismiss_popup(self):
         self._popup.dismiss()
 
+class SideConfBottom(BoxLayout):
+    pass
+
 class Algorithm(SideConf):
     saved_configs  = fw.read_configurations()
     active_configs = fw.read_configurations()
@@ -57,13 +70,11 @@ class Algorithm(SideConf):
     inputs                = {}
     layouts_end_condition = {}
 
-    color_disable         = (.8, .8, .8, 1)
-    hint_color_normal     = (.4, .4, .4, 1)
-    color_normal          = (0, 0, 0, 1)
 
     def __init__(self, **kwargs):
         super(Algorithm, self).__init__(**kwargs)
         saved_configs = self.saved_configs
+        self.ids.container.clear_widgets()
 
         for key in saved_configs:
             layout     = LayoutConf()
@@ -79,7 +90,7 @@ class Algorithm(SideConf):
             if key in ['process time', 'iterations limit']:
                 radio_btn = RbtEndCondition(active=saved_configs[key]['active'])
                 if not radio_btn.active:
-                    label.color         = self.color_disable
+                    label.color         = self.COLOR_DISABLED
                     text_input.disabled = True
                 layout.add_widget(radio_btn)
                 self.layouts_end_condition.update({key: {
@@ -99,12 +110,12 @@ class Algorithm(SideConf):
                 'RadioButton': radio_btn,
                 'TextInput'  : text_input}})
             layout.add_widget(text_input)
-            self.ids.algorithm_cont.add_widget(layout) 
+            self.ids.container.add_widget(layout) 
 
         for key in self.layouts_end_condition:
             radio_btn = self.layouts_end_condition[key]['RadioButton']
             radio_btn.bind(on_press=self.swap_end_conditions)
-        self.ids.algorithm_cont.add_widget(BoxLayout()) 
+        self.ids.container.add_widget(BoxLayout()) 
 
     def swap_end_conditions(self, instance):
         layouts = self.layouts_end_condition
@@ -116,12 +127,12 @@ class Algorithm(SideConf):
                 text_input      = layouts[key]['TextInput']
                 is_r_btn_active = layouts[key]['RadioButton'].active
                 if is_r_btn_active:
-                    label.color                = self.color_normal
-                    text_input.hint_text_color = self.hint_color_normal
+                    label.color                = self.COLOR_NORMAL
+                    text_input.hint_text_color = self.HINT_COLOR_NORMAL
                     configs[key]['active'] = True
                 else:
-                    label     .color           = self.color_disable
-                    text_input.hint_text_color = self.color_disable
+                    label     .color           = self.COLOR_DISABLED
+                    text_input.hint_text_color = self.COLOR_DISABLED
                     configs[key]['active'] = False
 
                 text_input.disabled = not is_r_btn_active
@@ -166,11 +177,11 @@ class Algorithm(SideConf):
                 btn.active         = saved_conf[key]['active']
                 txt_input.disabled = not btn.active
                 if btn.active:
-                    lbl      .color           = self.color_normal
-                    txt_input.hint_text_color = self.hint_color_normal
+                    lbl      .color           = self.COLOR_NORMAL
+                    txt_input.hint_text_color = self.HINT_COLOR_NORMAL
                 else:
-                    lbl      .color           = self.color_disable
-                    txt_input.hint_text_color = self.color_disable
+                    lbl      .color           = self.COLOR_DISABLED
+                    txt_input.hint_text_color = self.COLOR_DISABLED
 
     def update_config(self, instence):
         layouts_end_condition = self.layouts_end_condition
@@ -233,7 +244,10 @@ class Algorithm(SideConf):
 
 class Inputs(SideConf):
     saved_ttbl = fw.read_truth_table()
-    minimise = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(Inputs, self).__init__(**kwargs)
+        self.remove_widget(self.ids.container)
 
     def show_ttbl(self, *args):
         content = TruthTable(apply=self.apply, 
@@ -250,4 +264,41 @@ class Inputs(SideConf):
         self._popup.dismiss()
 
 class Plot(SideConf):
-    minimise = ObjectProperty(None)
+    pass
+
+class Results(SideConf):
+    def __init__(self, **kwargs):
+        super(Results, self).__init__(**kwargs)
+
+        container = self.ids.container
+        container.clear_widgets()
+
+        self.lines_number  = 8
+        self.lbl_height    = ResultsLbl().font_size
+        scroll_view_height = 2200
+        scroll_view   = ScrollView(do_scroll_y=True)
+
+        container.add_widget(scroll_view)
+
+        default_content_text = 'No Information is Present'
+        self.widgets = {'Truth Table'    : [TitleLbl  (title='Truth Table'),
+                                            ResultsLbl(text=default_content_text)],
+                        'Schemes'        : [TitleLbl  (title='Schemes'),         
+                                            ResultsLbl(text=default_content_text)],
+                        'Genotypes'      : [TitleLbl  (title='Genotypes'),       
+                                            ResultsLbl(text     =default_content_text,
+                                                       font_size=10)],
+                        'Configurations' : [TitleLbl  (title='Configurations'), 
+                                            ResultsLbl(text=default_content_text)]}
+
+        self.inner_container = BoxLayout(orientation='vertical',
+                                    size_hint_y=None,
+                                    height     =scroll_view_height)
+        for key in self.widgets:
+            self.inner_container.add_widget(self.widgets[key][0])
+            self.inner_container.add_widget(self.widgets[key][1])
+        self.inner_container.add_widget(BoxLayout())
+        scroll_view.add_widget(self.inner_container)
+
+    def resize_container(self):
+        pass

@@ -170,16 +170,7 @@ def autosave(type, results, configurations, truth_table, time):
     for key in configurations:
         configurations_str += f'{key}: {configurations[key]["value"]}\n'
 
-    results_str = ''
-    for index in range(len(results['chromosome'])):
-        results_str += f'chromosome #{index}\n'
-        for gene in results['chromosome'][index]:
-            for alet in gene:
-                results_str += str(alet)
-            results_str += '\n'
-        results_str += f'the fitness function value: {round(results["value"][index], 6)}\n'
-        results_str += f'the searching time: {results["time"][index]}\n'
-        results_str += '______________________________________________________\n'
+    results_str = f'{str(results)}______________________________________________________\n'
         
     path = f'{relative_path_autosaves}{file_name}'
     spaces = '            '

@@ -245,10 +245,10 @@ class TruthTable(Dialog):
         tables = ['inputs', 'outputs']
         
         for table in tables:
-            width = len(cells[table].columns) * 48 + 49
+            width = len(cells[table].columns) * 48 + 48
             self.ids[f'{table}_cont'].width = width
             size[0] += width
-            height = len(cells[table].index) * 48 + 48
+            height = len(cells[table].index)  * 48 + 48
             if height > size[1]: size[1] = height
         
         for table in tables:

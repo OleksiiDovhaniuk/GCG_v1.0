@@ -6,7 +6,8 @@ from kivy.clock                 import Clock
 
 from control.sideConfigurations import Algorithm,\
                                        Inputs,\
-                                       Plot
+                                       Plot,\
+                                       Results
 from control.dropDownMenu       import DropDownMenu
 from control.lbl                import Lbl
 from control.btn                import Btn
@@ -24,9 +25,14 @@ class Main(Screen):
 
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
-        self.side_config_algorithm = Algorithm(minimise=self.minimize_conf)
-        self.side_config_inputs    = Inputs   (minimise=self.minimize_conf)
-        self.side_config_plot      = Plot     (minimise=self.minimize_conf)
+        self.side_config_algorithm = Algorithm(title='Algorithm Configurations',
+                                               minimise=self.minimize_conf)
+        self.side_config_inputs    = Inputs   (title='Inputs Configurations',
+                                               minimise=self.minimize_conf)
+        self.side_config_plot      = Plot     (title='Plot Configurations',
+                                               minimise=self.minimize_conf)
+        self.side_results          = Results  (title='Results',
+                                               minimise=self.minimize_conf)
 
         self.btn_run     = Btn(text ='Run')
         self.btn_pause   = Btn(text ='Pause')
@@ -48,6 +54,7 @@ class Main(Screen):
         self.ids.btn_algorithm.disabled = True
         self.ids.btn_inputs.disabled    = False
         self.ids.btn_plot.disabled      = False
+        self.ids.btn_results.disabled   = False
     
     def show_config_inputs(self, *args):
         side_cont = self.ids.side_conf_container
@@ -59,6 +66,7 @@ class Main(Screen):
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = True
         self.ids.btn_plot.disabled      = False
+        self.ids.btn_results.disabled   = False
     
     def show_config_plot(self, *args):
         side_cont = self.ids.side_conf_container
@@ -70,6 +78,19 @@ class Main(Screen):
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = False
         self.ids.btn_plot.disabled      = True
+        self.ids.btn_results.disabled   = False
+
+    def show_side_results(self, *args):
+        side_cont = self.ids.side_conf_container
+        side_cont.clear_widgets()
+        side_cont.add_widget(self.side_results)
+
+        self.side_config_algorithm.refresh_widgets()
+
+        self.ids.btn_algorithm.disabled = False
+        self.ids.btn_inputs.disabled    = False
+        self.ids.btn_plot.disabled      = False
+        self.ids.btn_results.disabled   = True
 
     def minimize_conf(self, *args):
         side_cont = self.ids.side_conf_container
@@ -77,6 +98,7 @@ class Main(Screen):
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = False
         self.ids.btn_plot.disabled      = False
+        self.ids.btn_results.disabled   = False
 
     def run(self, *args):
         self.ids.btn_run.clear_widgets()
@@ -86,6 +108,8 @@ class Main(Screen):
 
         self.process = Process()
         message      = self.process.message
+        self.show_ttbl()
+        self.show_configs()
 
         self.ids.status_bar.text  = message
         self.ids.status_bar.width = (len(message) + 1) * 10
@@ -101,8 +125,11 @@ class Main(Screen):
                 process.iterations >= configs['iterations limit']['value']) or
             (configs['process time']['active'] and
                 process.int_time >= configs['process time']['value'])):
+            self.show_genotypes()
             message = 'Final result: ' + message
             self.stop()
+        elif process.have_result:
+            self.show_genotypes()
 
         self.ids.status_bar.text  = message
         self.ids.status_bar.width = (len(message) + 1) * 10
@@ -130,5 +157,67 @@ class Main(Screen):
         self.ids.btn_run.clear_widgets()
         self.ids.btn_run.add_widget(self.btn_run)
         
+    def show_ttbl(self):
+        ttbl_str = ''
+        ttbl     = self.process.truth_table
+        lines_number = 0
+
+        for key in ttbl:
+            ttbl_str += f'{key}:\n'
+            lines_number += 1
+            for row_key in ttbl[key]:
+                key_space = ''
+                for _ in range(3 - len(row_key)):
+                    key_space += ' '
+                key_space += row_key
+                ttbl_str += f'{key_space}: '
+                for value in ttbl[key][row_key]:
+                    if value == None: ttbl_str += 'X '
+                    else: ttbl_str += f'{str(value)} '
+                ttbl_str += '\n'
+                lines_number += 1
+
+        self.side_results.lines_number += lines_number - 1
+        self.side_results.resize_container()
+        self.side_results.widgets['Truth Table'][1].text   = ttbl_str
+        self.side_results.widgets['Truth Table'][1].height = lines_number * 24
+
+    def show_schemes(self):
+        pass
+
+    def show_genotypes(self):
+        process = self.process
+        if process.have_result: genotypes = process.proper_results
+        else: genotypes = process.best_results.iloc[:5, :]
+        genotypes_str  = ''
+
+        for index, value in enumerate(genotypes['value'].tolist()):
+            chromosome_str = ['' for _ in range(len(genotypes.iloc[0, 0][0]))]
+            genotypes_str += f'Chromosom #{index+1}:\n' 
+
+            for gene in genotypes.iloc[index, 0]:
+                for jndex, alet in enumerate(gene):
+                    chromosome_str[jndex] += f'{alet}'
+
+            for gene_str in chromosome_str:
+                genotypes_str += f'{gene_str}\n'
+
+            value_round = round(value, 6)
+            str_time    = str(process.best_results.iloc[index, 2])[7:18] 
+            genotypes_str += f'Fitness Function value {value_round} \n'
+            genotypes_str += f'Search Time {str_time}\n\n'
+
+        self.side_results.widgets['Genotypes'][1].text   = genotypes_str
+        self.side_results.widgets['Genotypes'][1].height = 1000
+
+    def show_configs(self):
+        configs_str = ''
+        configs = self.process.configurations
+        lines_number = len(configs)
+        for key in configs:
+            configs_str += f'{key}: '
+            configs_str += f'{configs[key]["value"]}\n'
         
-    
+        self.side_results.resize_container()
+        self.side_results.widgets['Configurations'][1].text = configs_str
+        self.side_results.widgets['Configurations'][1].height = 300

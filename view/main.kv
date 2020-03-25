@@ -66,6 +66,16 @@
                     background_disabled_normal: self.theme + 'PlotBtn_disabled'
                     on_release: root.show_config_plot()
                     size: 32, 84
+                Btn:
+                    id: btn_results
+                    group: 'side_menu_btns'
+                    background_normal:
+                        self.theme + 'ResultsBtn_hovered'\
+                        if self.hovered else self.theme + 'ResultsBtn_normal'
+                    background_down: self.theme + 'ResultsBtn_down'
+                    background_disabled_normal: self.theme + 'ResultsBtn_disabled'
+                    on_release: root.show_side_results()
+                    size: 32, 111
                 BoxLayout:
         HorisontalMenuBar:
             Label:
