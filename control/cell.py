@@ -14,7 +14,8 @@ Builder.load_file('view/cell.kv')
 
 class Cell(HoverButton):
     cell_type = StringProperty('inputs')
-    theme = Design().default_theme
+    text      = StringProperty('0')
+    theme     = Design().default_theme
 
     def __init__(self, **kwargs):
         super(Cell, self).__init__(**kwargs)
@@ -35,9 +36,9 @@ class EmptyCell(Cell):
     pass
 
 class TitleCell(TxtInput, HoverBehavior):
-    cell_type = StringProperty('inputs')
+    cell_type     = StringProperty('inputs')
     remove_column = ObjectProperty(None)
-    index = ObjectProperty(None)
+    index         = ObjectProperty(None)
     PROPER_VALUES = {'inputs': ['0', '1'],
                     'outputs': ['0', '1', '*']}
     
@@ -78,12 +79,18 @@ class TitleCell(TxtInput, HoverBehavior):
         if not self.focus:
             text_size = len(self.text)
             if text_size == 0:
-                self.remove_column(self.cell_type, self.index)
+                self.remove_column(self)
             elif text_size > 2:
                 self.text = self.text[:3]
     
 class IndexCell(Cell):
     index = ObjectProperty(None)
+    title = StringProperty(str(index))
+
+    def __init__(self, **kwargs):
+        super(IndexCell, self).__init__(**kwargs)
+        
+        self.title = str(self.index + 1)
 
 class AddCell(Cell):
     pass
