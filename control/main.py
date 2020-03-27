@@ -3,6 +3,7 @@ import kivy
 from kivy.lang                  import Builder
 from kivy.uix.screenmanager     import Screen
 from kivy.clock                 import Clock
+from kivy.uix.boxlayout         import BoxLayout
 
 from control.sideConfigurations import Algorithm,\
                                        Inputs,\
@@ -49,6 +50,7 @@ class Main(Screen):
     def show_config_algorithm(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
+        side_cont.width = 360
         side_cont.add_widget(self.side_config_algorithm)
 
         self.ids.btn_algorithm.disabled = True
@@ -59,6 +61,7 @@ class Main(Screen):
     def show_config_inputs(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
+        side_cont.width = 360
         side_cont.add_widget(self.side_config_inputs)
         
         self.side_config_algorithm.refresh_widgets()
@@ -71,6 +74,7 @@ class Main(Screen):
     def show_config_plot(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
+        side_cont.width = 360
         side_cont.add_widget(self.side_config_plot)
 
         self.side_config_algorithm.refresh_widgets()
@@ -83,6 +87,7 @@ class Main(Screen):
     def show_side_results(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
+        side_cont.width = 360
         side_cont.add_widget(self.side_results)
 
         self.side_config_algorithm.refresh_widgets()
@@ -95,6 +100,7 @@ class Main(Screen):
     def minimize_conf(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
+        side_cont.width = 0
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled    = False
         self.ids.btn_plot.disabled      = False
@@ -104,6 +110,8 @@ class Main(Screen):
         self.ids.btn_run.clear_widgets()
         self.ids.btn_run.width = 240
         self.ids.btn_run.add_widget(self.btn_stop)
+        self.ids.btn_run.add_widget(BoxLayout(size_hint_x=None,
+                                              width=1))
         self.ids.btn_run.add_widget(self.btn_pause)
 
         self.process = Process()

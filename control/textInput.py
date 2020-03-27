@@ -27,3 +27,10 @@ class NameInput(TxtInput):
     def select_textinput(self):
         if self.focus:
             Clock.schedule_once(lambda dt: self.select_all())
+
+class FileInput(TxtInput):
+    pass
+
+class ConfsInput(FileInput):
+    path = StringProperty('saves\confs\default.txt')
+    

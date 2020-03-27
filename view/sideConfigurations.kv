@@ -2,14 +2,6 @@
     orientation: 'vertical'
     size_hint_x: 1
     width: 360
-    canvas.before:
-        Clear
-        Color:
-            rgb: (1, 1, 1)
-        Rectangle:
-            source: self.theme + 'bg'
-            pos: self.pos
-            size: self.size
     BoxLayout:
         size_hint_y: None
         height: 34
@@ -36,19 +28,16 @@
 
 <SideConfBottom>:
     size_hint_y: None
-    height: 34
-    padding: 26, 1
+    height: 52
+    padding: 26, 10
     BoxLayout:
     SaveAsBtn:
-        id: save_as_btn
-        on_release: root.save_conf()
+        on_release: root.parent.save_conf()
+    BoxLayout:
+        size_hint_x: None
+        width: 10
     OpenBtn:
-        id: open_btn
-        on_release: root.show_load()
-
-
-<Algorithm>:
-    SideConfBottom:
+        on_release: root.parent.show_load()
 
 <Inputs>:
     BoxLayout:
@@ -56,28 +45,19 @@
         height: 10
     NameInput:
         id: device_name
-        text: 'Name of The Device'
+        text: 'Default Device'
+    Separator10
     BoxLayout:
-        size_hint: .8, None
-        height: 40
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        Btn:
-            width: 300
-            text: 'Edit the Truth Table'
-            on_release: root.show_ttbl()
-    BoxLayout:
+        padding: 10, 0
         BoxLayout:
-        Btn:
-            size_hint: None, None
-            size: 240, 240
-            pos_hint: {'center_y': .5}
-            disabled: True
-            background_disabled_normal: self.theme + 'ReservedPlace'
-        BoxLayout:
-    SideConfBottom:
-
-<Plot>:
-    SideConfBottom:
-
-<Results>:
-    SideConfBottom:
+            orientation: 'vertical'
+            size_hint_x: None
+            width: 32
+            EditBtn:
+                on_release: root.show_ttbl()
+            BoxLayout
+        Lbl:
+            # size_hint_x: None
+            text: 'HELLO WORLD!'
+            font_size: 26
+        Separator10

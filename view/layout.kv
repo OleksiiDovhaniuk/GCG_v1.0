@@ -1,3 +1,40 @@
+<GreyDefault>:
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: self.theme + 'bg'
+            pos: self.pos
+            size: self.size
+
+<DarkDefault>:
+    canvas.before:
+        Clear
+        Color:
+            rgb: (.6, .6, .6)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<LightDefault>:
+    canvas.before:
+        Clear
+        Color:
+            rgb: (.8, .8, .8)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<WhiteDefault>:
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 <HorisontalMenuBar>:
     size_hint_y: None
     height: 30
@@ -12,7 +49,7 @@
 
 <HorizontalConf>:
     size_hint_y: None
-    heiht: 30
+    height: 30
 
 <VerticalMenuBar>:
     orientation: 'vertical'
@@ -43,3 +80,11 @@
     orientation: 'horizontal'
     size_hint_y: None
     height: 48
+
+<Separator1>:
+    size_hint: None, None
+    size: 1, 1
+
+<Separator10>:
+    size_hint: None, None
+    size: 10, 10

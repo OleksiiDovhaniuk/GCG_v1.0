@@ -1,29 +1,31 @@
-from kivy.factory        import Factory
-from kivy.lang           import Builder
-from kivy.uix.boxlayout  import BoxLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.properties     import ObjectProperty,\
-                                StringProperty
+from kivy.factory         import Factory
+from kivy.lang            import Builder
+from kivy.uix.boxlayout   import BoxLayout
+from kivy.uix.scrollview  import ScrollView
+from kivy.uix.scatter     import Scatter
+from kivy.properties      import ObjectProperty,\
+                                 StringProperty
 
-from control.dialog      import TruthTable
-from control.layout      import LayoutConf
-from control.textInput   import AlgorithmConfigsInput
-from control.radioButton import RbtEndCondition
-from control.popup       import WhitePopup
-from control.dialog      import Load,\
-                                Save
-from control.lbl         import Lbl,\
-                                ResultsLbl,\
-                                TitleLbl
+from control.dialog       import TruthTable
+from control.layout       import LayoutConf,\
+                                 GreyDefault
+from control.textInput    import AlgorithmConfigsInput
+from control.radioButton  import RbtEndCondition
+from control.popup        import WhitePopup
+from control.dialog       import Load,\
+                                 Save
+from control.lbl          import Lbl,\
+                                 ResultsLbl,\
+                                 TitleLbl
 
-from design              import Design
+from design               import Design
 import file_work as fw
 import os
 
 
 Builder.load_file('view/sideConfigurations.kv')
 
-class SideConf(BoxLayout):
+class SideConf(GreyDefault):
     theme    = Design().default_theme
     title    = StringProperty('Default Configurations')
     minimise = ObjectProperty(None)
@@ -75,6 +77,8 @@ class Algorithm(SideConf):
         super(Algorithm, self).__init__(**kwargs)
         saved_configs = self.saved_configs
         self.ids.container.clear_widgets()
+        bottom = SideConfBottom()
+        self.add_widget(bottom)
 
         for key in saved_configs:
             layout     = LayoutConf()
@@ -248,6 +252,8 @@ class Inputs(SideConf):
     def __init__(self, **kwargs):
         super(Inputs, self).__init__(**kwargs)
         self.remove_widget(self.ids.container)
+        bottom = SideConfBottom()
+        self.add_widget(bottom)
 
     def show_ttbl(self, *args):
         content = TruthTable(apply=self.apply, 
@@ -257,7 +263,7 @@ class Inputs(SideConf):
                             content=content)
         self._popup.open()
     
-    def apply(self):        
+    def apply(self, *args):        
         pass        
 
     def dismiss_popup(self):
@@ -299,6 +305,9 @@ class Results(SideConf):
             self.inner_container.add_widget(self.widgets[key][1])
         self.inner_container.add_widget(BoxLayout())
         scroll_view.add_widget(self.inner_container)
+
+        bottom = SideConfBottom()
+        self.add_widget(bottom)
 
     def resize_container(self):
         pass

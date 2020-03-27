@@ -1,94 +1,121 @@
 <Load>:
     BoxLayout:
-        orientation: "vertical"
         size: root.size
         pos: root.pos
-        BoxLayout:
-            orientation: 'vertical'
-            BoxLayout:
-                size_hint: None, None
-                size: 200, 30
-                Btn:
-                    text: 'List View'
-                    on_press: file_chooser.view_mode = 'list'
-                BoxLayout:
-                    size_hint_x: None
-                    width: 10
-                Btn:
-                    text: 'Icon View'
-                    on_press: file_chooser.view_mode = 'icon'
+        orientation: "vertical"
+        GreyDefault:
+            size_hint_y: None
+            height: 14
+        WhiteDefault:
+            size_hint_y: None
+            height: 430
             FileChooser:
                 id: file_chooser
                 multiselect: False
                 rootpath: "saves\confs"
-                FileChooserListLayout
+                on_selection: text_input.text = self.selection[0]
+                FlChsrListLayout
                 FileChooserIconLayout
-        BoxLayout:
-            size_hint_y: None
-            height: 30
+        GreyDefault:
+            orientation: 'vertical'
             BoxLayout:
-            Btn:
-                text: "Cancel"
-                on_release: root.cancel()
+                size_hint_y: None
+                height: 44
+                padding: 5, 0
+                Lbl:
+                    text: 'File name: '
+                    size_hint: None, None
+                    size: 130, 34
+                    font_size: 18
+                    halign: 'right'
+                    pos_hint: {'y_center':.5}
+                TxtInput:
+                    id: text_input
+                    size_hint_y: None
+                    height: 32
+                    font_size: 16
+                    valign: 'bottom'
+                    multiline: False
             BoxLayout:
-                size_hint_x: None
-                width: 10
-            Btn:
-                text: "Open"
-                on_release:
-                    root.load(file_chooser.path,\
-                    file_chooser.selection)
+                size_hint_y: None
+                height: 44
+                padding: 20, 0
+                ListViewBtn:
+                    on_press: file_chooser.view_mode = 'list'
+                Separator10
+                IconViewBtn:
+                    on_press: file_chooser.view_mode = 'icon'
+                BoxLayout:
+                Btn:
+                    text: "Cancel"
+                    on_release: root.cancel()
+                Separator10
+                Btn:
+                    text: "Open"
+                    on_release:
+                        root.load(file_chooser.path,\
+                        file_chooser.selection)
 
 <Save>:
-    text_input: text_input
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "vertical"
-        BoxLayout:
-            orientation: 'vertical'
-            BoxLayout:
-                size_hint: None, None
-                size: 200, 30
-                Btn:
-                    text: 'List View'
-                    on_press: file_chooser.view_mode = 'list'
-                BoxLayout:
-                    size_hint_x: None
-                    width: 10
-                Btn:
-                    text: 'Icon View'
-                    on_press: file_chooser.view_mode = 'icon'
+        GreyDefault:
+            size_hint_y: None
+            height: 14
+        WhiteDefault:
+            size_hint_y: None
+            height: 430
             FileChooser:
                 id: file_chooser
                 multiselect: False
                 rootpath: "saves\confs"
-                on_selection: text_input.text = self.selection and self.selection[0] or ''
-                FileChooserListLayout
+                on_selection: text_input.text = self.selection[0]
+                FlChsrListLayout
                 FileChooserIconLayout
-        TextInput:
-            id: text_input
-            size_hint_y: None
-            height: 30
-            multiline: False
-        BoxLayout:
-            size_hint_y: None
-            height: 30
+        GreyDefault:
+            orientation: 'vertical'
             BoxLayout:
-            Btn:
-                text: "Cancel"
-                on_release: root.cancel()
+                size_hint_y: None
+                height: 44
+                padding: 5, 0
+                Lbl:
+                    text: 'File name: '
+                    size_hint: None, None
+                    size: 130, 34
+                    font_size: 18
+                    halign: 'right'
+                    pos_hint: {'y_center':.5}
+                TxtInput:
+                    id: text_input
+                    size_hint_y: None
+                    height: 32
+                    font_size: 16
+                    valign: 'bottom'
+                    multiline: False
             BoxLayout:
-                size_hint_x: None
-                width: 10
-            Btn:
-                text: "Save"
-                on_release:
-                    root.save(file_chooser.path,\
-                    text_input.text)
+                size_hint_y: None
+                height: 44
+                padding: 20, 0
+                ListViewBtn:
+                    on_press: file_chooser.view_mode = 'list'
+                Separator10
+                IconViewBtn:
+                    on_press: file_chooser.view_mode = 'icon'
+                BoxLayout:
+                Btn:
+                    text: "Cancel"
+                    on_release: root.cancel()
+                Separator10
+                Btn:
+                    text: "Save"
+                    on_release:
+                        root.save(file_chooser.path,\
+                        text_input.text)
 
 <TruthTable>:
-    DefaultLeyout:
+    GreyDefault:
         size: root.size
         pos: root.pos
         orientation: 'vertical'
@@ -132,21 +159,18 @@
                         orientation: 'vertical'
         BoxLayout:
             size_hint_y: None
-            height: 30
+            height: 44
+            padding: 20, 0
             BoxLayout:
             Btn:
                 text: "Reset"
                 on_release: root.reset()
-            BoxLayout:
-                size_hint_x: None
-                width: 10
+            Separator10
             Btn:
                 text: "Cancel"
                 on_release: root.cancel()
-            BoxLayout:
-                size_hint_x: None
-                width: 10
+            Separator10
             Btn:
+                id: apply_btn
                 text: "Apply"
-                disabled: True
-                on_release: root.apply()
+                # on_release: root.apply()

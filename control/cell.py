@@ -3,8 +3,9 @@ from kivy.lang              import Builder
 from kivy.clock             import Clock
 from kivy.uix.textinput     import TextInput
 
-from control.hoverBehaviour import HoverBehavior, HoverButton
+from control.hoverBehaviour import HoverBehavior
 from control.textInput      import TxtInput
+from control.btn            import Btn
 
 from pandas                 import DataFrame
 from design                 import Design
@@ -12,7 +13,7 @@ import string
 
 Builder.load_file('view/cell.kv')
 
-class Cell(HoverButton):
+class Cell(Btn):
     cell_type = StringProperty('inputs')
     text      = StringProperty('0')
     theme     = Design().default_theme
@@ -36,10 +37,11 @@ class EmptyCell(Cell):
     pass
 
 class TitleCell(TxtInput, HoverBehavior):
-    cell_type     = StringProperty('inputs')
-    remove_column = ObjectProperty(None)
-    index         = ObjectProperty(None)
-    PROPER_VALUES = {'inputs': ['0', '1'],
+    cell_type      = StringProperty('inputs')
+    remove_column  = ObjectProperty(None)
+    valid_to_apply = ObjectProperty(None)
+    index          = ObjectProperty(None)
+    PROPER_VALUES  = {'inputs': ['0', '1'],
                     'outputs': ['0', '1', '*']}
     
     def insert_text(self, substring, from_undo=False):
@@ -82,6 +84,7 @@ class TitleCell(TxtInput, HoverBehavior):
                 self.remove_column(self)
             elif text_size > 2:
                 self.text = self.text[:3]
+            self.valid_to_apply()
     
 class IndexCell(Cell):
     index = ObjectProperty(None)

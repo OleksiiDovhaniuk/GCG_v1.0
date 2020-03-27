@@ -15,5 +15,14 @@ class SaveAsBtn(Btn):
 class OpenBtn(Btn):
     pass
 
+class IconViewBtn(Btn):
+    pass
+
+class ListViewBtn(Btn):
+    pass
+
+class EditBtn(Btn):
+    pass
+
 class ArrowBtn(Btn):
     pass

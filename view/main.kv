@@ -2,17 +2,21 @@
     canvas:
         Clear
         Color:
-            rgba: .7, .7, .7, 1
+            rgba: .5, .5, .5, .5
         Rectangle:
             size: self.size
     BoxLayout:
         orientation: 'vertical'
-        HorisontalMenuBar:
+        GreyDefault:
             id: top_menu
+            size_hint_y: None
+            height: 34 
+            padding: 1, 1
             Btn:
                 text:      'File'
                 id:         btn_file
                 disabled:   True
+            Separator1
             BoxLayout:
                 id:          btn_run
                 size_hint_x: None
@@ -20,22 +24,28 @@
                 Btn:
                     text:      'Run'
                     on_release: root.run()
+            Separator1
             Btn:
                 text:    'Help'
                 id:       btn_help
                 disabled: True
+        Separator1
         BoxLayout:
             orientation: 'horizontal'
             id:           workspace
-            BoxLayout:
+            DarkDefault:
                 id: plot
             BoxLayout:
                 id:          side_conf_container
                 size_hint_x: None
-                width:       360
-            VerticalMenuBar:
+                width:       0
+            Separator1
+            GreyDefault:
                 id: side_bar
-                width: 32
+                orientation: 'vertical'
+                size_hint_x: None
+                width: 34
+                padding: 1, 0
                 Btn:
                     id: btn_algorithm
                     group: 'side_menu_btns'
@@ -46,6 +56,7 @@
                     background_disabled_normal: self.theme + 'AlgorithmBtn_disabled'
                     on_release: root.show_config_algorithm()
                     size: 32, 138
+                Separator1
                 Btn:
                     id: btn_inputs
                     group: 'side_menu_btns'
@@ -56,6 +67,7 @@
                     background_disabled_normal: self.theme + 'InputsBtn_disabled'
                     on_release: root.show_config_inputs()
                     size: 32, 84
+                Separator1
                 Btn:
                     id: btn_plot
                     group: 'side_menu_btns'
@@ -66,6 +78,7 @@
                     background_disabled_normal: self.theme + 'PlotBtn_disabled'
                     on_release: root.show_config_plot()
                     size: 32, 84
+                Separator1
                 Btn:
                     id: btn_results
                     group: 'side_menu_btns'
@@ -77,7 +90,10 @@
                     on_release: root.show_side_results()
                     size: 32, 111
                 BoxLayout:
-        HorisontalMenuBar:
+        Separator1
+        GreyDefault:
+            size_hint_y: None
+            height: 30
             Label:
                 id: status_bar
                 text: 'Process: 78%'

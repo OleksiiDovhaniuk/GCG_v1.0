@@ -6,20 +6,38 @@ from design import Design
 
 Builder.load_file('view/layout.kv')
 
-class DefaultLeyout(BoxLayout):
+class DefaultLayout(BoxLayout):
     theme = Design().default_theme
 
-class HorisontalMenuBar(DefaultLeyout):
+class GreyDefault(DefaultLayout):
     pass
 
-class HorizontalConf(DefaultLeyout):
+class LightDefault(DefaultLayout):
     pass
 
-class VerticalMenuBar(DefaultLeyout):
+class DarkDefault(DefaultLayout):
     pass
 
-class LayoutConf(DefaultLeyout):
+class WhiteDefault(DefaultLayout):
     pass
 
-class TTblRow(DefaultLeyout):
+class HorisontalMenuBar(DefaultLayout):
+    pass
+
+class HorizontalConf(DefaultLayout):
+    pass
+
+class VerticalMenuBar(DefaultLayout):
+    pass
+
+class LayoutConf(DefaultLayout):
+    pass
+
+class TTblRow(DefaultLayout):
+    pass
+
+class Separator1(DefaultLayout):
+    pass
+
+class Separator10(DefaultLayout):
     pass

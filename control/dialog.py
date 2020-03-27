@@ -10,6 +10,8 @@ from control.cell         import Cell,\
                                  TitleCell,\
                                  AddCell,\
                                  IndexCell
+from control.flChsr       import FlChsrIconLayout,\
+                                 FlChsrListLayout
 
 from pandas               import DataFrame
 from functools            import partial
@@ -53,7 +55,8 @@ class TruthTable(Dialog):
             cell = TitleCell(text=key, 
                         cell_type=table,
                         index=index+2,
-                        remove_column=self.remove_column)
+                        remove_column=self.remove_column,
+                        valid_to_apply=self.valid_to_apply)
             row.add_widget(cell)
             key_widgets.append(cell)
 
@@ -194,7 +197,8 @@ class TruthTable(Dialog):
         columns[0].remove_widget(columns[add_index])
         key_cell = TitleCell(index=add_index,
                         cell_type=table,
-                        remove_column=self.remove_column)
+                        remove_column=self.remove_column,
+                        valid_to_apply=self.valid_to_apply)
         columns[0].add_widget(key_cell)
         key_cell.focus = True
         columns[0].add_widget(columns[add_index])
@@ -220,13 +224,21 @@ class TruthTable(Dialog):
 
         self.resize()
 
+    def valid_to_apply(self, *args):
+        ins_size  = len(self.cells['inputs'] .columns)
+        outs_size = len(self.cells['outputs'].columns)
+        if ins_size == outs_size:
+            self.ids['apply_btn'].disabled = False
+        else:
+            self.ids['apply_btn'].disabled = True
+
     def resize(self):
         cells = self.cells
         size = [0, 0]
         tables = ['inputs', 'outputs']
         
         for table in tables:
-            width = len(cells[table].columns) * 48 + 48
+            width = len(cells[table].columns) * 48
             self.ids[f'{table}_cont'].width = width
             size[0] += width
             height = len(cells[table].index)  * 48 + 48
