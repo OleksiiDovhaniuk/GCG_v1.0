@@ -59,7 +59,9 @@ class TruthTable(Dialog):
                         index=index+2,
                         remove_column  =self.remove_column,
                         valid_to_apply =self.valid_to_apply,
-                        is_equal_signal=self.is_equal_signal)
+                        is_equal_signal=self.is_equal_signal,
+                        erase_signal   =self.erase_signal,
+                        write_column   =self.write_column)
             row.add_widget(cell)
             key_widgets.append(cell)
 
@@ -183,7 +185,8 @@ class TruthTable(Dialog):
         column_size = len(cells.index) - 2
         columns     = cells.columns
 
-        signals.pop(columns[index].text)
+        if instance.reserved_title in self.signals:
+            self.signals.remove(instance.reserved_title)
 
         columns[0].remove_widget(columns[index])
         for cell in columns[1+index: -1]:
@@ -206,7 +209,9 @@ class TruthTable(Dialog):
                         cell_type      =table,
                         remove_column  =self.remove_column,
                         valid_to_apply =self.valid_to_apply,
-                        is_equal_signal=self.is_equal_signal)
+                        is_equal_signal=self.is_equal_signal,
+                        erase_signal   =self.erase_signal,
+                        write_column   =self.write_column)
         columns[0].add_widget(key_cell)
         key_cell.focus = True
         columns[0].add_widget(columns[add_index])
@@ -284,4 +289,18 @@ class TruthTable(Dialog):
         self.cancel()
 
     def is_equal_signal(self, signal):
-        return signal in self.signals
+        if signal in self.signals: 
+            return True
+        else: 
+            self.signals.append(signal)
+            return False
+
+    def erase_signal(self, signal):
+        if signal in self.signals:
+            self.signals.remove(signal)
+
+    def write_column(self, instence, value):
+        cells = self.cells[instence.cell_type]
+
+        for cell in cells.iloc[:-2, instence.index]:
+            cell.text = value

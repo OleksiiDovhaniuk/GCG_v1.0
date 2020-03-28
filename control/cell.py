@@ -38,9 +38,12 @@ class EmptyCell(Cell):
 
 class TitleCell(TxtInput, HoverBehavior):
     cell_type       = StringProperty('inputs')
+    reserved_title  = StringProperty('def.')
     remove_column   = ObjectProperty(None)
     valid_to_apply  = ObjectProperty(None)
     is_equal_signal = ObjectProperty(None)
+    erase_signal    = ObjectProperty(None)
+    write_column    = ObjectProperty(None)
     index           = ObjectProperty(None)
     PROPER_VALUES   = {'inputs': ['0', '1'],
                     'outputs': ['0', '1', '*']}
@@ -83,15 +86,32 @@ class TitleCell(TxtInput, HoverBehavior):
         return super(TitleCell, self).insert_text(s, from_undo=from_undo)
 
     def on_focus(self, *args):
+        text      = self.text
+        text_size = len(text)
+
         if not self.focus:
-            text_size = len(self.text)
-
             if text_size == 0 : self.remove_column(self)
-            elif text_size > 2: self.text = self.text[:3]
+            elif '=' in text: 
+                index     = text.index('=')
+                if index + 2 == text_size:
+                    value = text[index+1]
+                    if value == '*': value = 'X'
+                    self.write_column(self, value)
+                self.text = text[:index]
 
-            # if self.is_equal_signal(self.text): 
-            #     self.text = ''
+            if self.is_equal_signal(text):
+                if self.reserved_title == 'def.':
+                    self.remove_column(self)
+                else:
+                    self.text = self.reserved_title
+            else: 
+                self.erase_signal(self.reserved_title)
+
             self.valid_to_apply()
+        else:
+            if 0 < text_size < 4:
+                self.reserved_title = text
+
     
 class IndexCell(Cell):
     index = ObjectProperty(None)
