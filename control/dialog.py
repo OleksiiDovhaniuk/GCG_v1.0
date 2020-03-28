@@ -32,16 +32,18 @@ class Save(Dialog):
     data = ObjectProperty(None)
 
 class TruthTable(Dialog):
-    apply       = ObjectProperty(None)
+    get_ttbl    = ObjectProperty(None)
     reset       = ObjectProperty(None)
     truth_table = ObjectProperty(None)
     cells       = {'inputs': [], 'outputs': []}
+    signals     = []
 
     def __init__(self, truth_table, **kwargs):
         super(TruthTable, self).__init__(**kwargs)
         self.truth_table = truth_table
-        self.create_table('inputs')
-        self.create_table('outputs')
+
+        for table in ['inputs', 'outputs']:
+            self.create_table(table)
         self.resize()
         
     def create_table(self, table):
@@ -55,10 +57,13 @@ class TruthTable(Dialog):
             cell = TitleCell(text=key, 
                         cell_type=table,
                         index=index+2,
-                        remove_column=self.remove_column,
-                        valid_to_apply=self.valid_to_apply)
+                        remove_column  =self.remove_column,
+                        valid_to_apply =self.valid_to_apply,
+                        is_equal_signal=self.is_equal_signal)
             row.add_widget(cell)
             key_widgets.append(cell)
+
+            self.signals.append(key.replace(' ', ''))
 
         add_cell_column = AddCell()
         row.add_widget(add_cell_column)
@@ -178,6 +183,8 @@ class TruthTable(Dialog):
         column_size = len(cells.index) - 2
         columns     = cells.columns
 
+        signals.pop(columns[index].text)
+
         columns[0].remove_widget(columns[index])
         for cell in columns[1+index: -1]:
             cell.index -= 1
@@ -195,10 +202,11 @@ class TruthTable(Dialog):
         column_size = len(cells.index) - 2
         
         columns[0].remove_widget(columns[add_index])
-        key_cell = TitleCell(index=add_index,
-                        cell_type=table,
-                        remove_column=self.remove_column,
-                        valid_to_apply=self.valid_to_apply)
+        key_cell = TitleCell(index     =add_index,
+                        cell_type      =table,
+                        remove_column  =self.remove_column,
+                        valid_to_apply =self.valid_to_apply,
+                        is_equal_signal=self.is_equal_signal)
         columns[0].add_widget(key_cell)
         key_cell.focus = True
         columns[0].add_widget(columns[add_index])
@@ -214,6 +222,14 @@ class TruthTable(Dialog):
         self.cells[table].insert(add_index, key_cell, column_widgets, False)
         self.resize()
         
+    def valid_to_apply(self, *args):
+        ins_size  = len(self.cells['inputs'] .columns)
+        outs_size = len(self.cells['outputs'].columns)
+        if ins_size == outs_size:
+            self.ids['apply_btn'].disabled = False
+        else:
+            self.ids['apply_btn'].disabled = True
+
     def reset(self):
         self.cells = {'inputs' : None, 'outputs': None}
 
@@ -222,15 +238,8 @@ class TruthTable(Dialog):
             tbl.clear_widgets()
             self.create_table(table)
 
+        self.valid_to_apply()    
         self.resize()
-
-    def valid_to_apply(self, *args):
-        ins_size  = len(self.cells['inputs'] .columns)
-        outs_size = len(self.cells['outputs'].columns)
-        if ins_size == outs_size:
-            self.ids['apply_btn'].disabled = False
-        else:
-            self.ids['apply_btn'].disabled = True
 
     def resize(self):
         cells = self.cells
@@ -248,3 +257,31 @@ class TruthTable(Dialog):
             self.ids[f'{table}_cont'].height = size[1]
         
         self.ids.scroll_view.size = size
+
+    def apply(self, *args):
+        cells       = self.cells
+        truth_table = {}
+
+        for table in ['inputs', 'outputs']:
+            table_dict = {}
+
+            for index, title_cell in enumerate(cells[table].columns[2:-1]):
+                key = title_cell.text
+                while len(key) < 3:
+                    key = ' ' + key
+                table_dict[key] = []
+
+                jndex = index + 2
+                for cell in cells[table].iloc[:-2, jndex].values:
+                    value = cell.text
+                    if value == 'X': value = None
+                    else: value = int(value)
+                    table_dict[key].append(value)
+
+            truth_table[table] = DataFrame.from_dict(table_dict)
+
+        self.get_ttbl(truth_table)
+        self.cancel()
+
+    def is_equal_signal(self, signal):
+        return signal in self.signals

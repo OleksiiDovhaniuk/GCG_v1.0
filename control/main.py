@@ -6,7 +6,7 @@ from kivy.clock                 import Clock
 from kivy.uix.boxlayout         import BoxLayout
 
 from control.sideConfigurations import Algorithm,\
-                                       Inputs,\
+                                       Input,\
                                        Plot,\
                                        Results
 from control.dropDownMenu       import DropDownMenu
@@ -28,7 +28,7 @@ class Main(Screen):
         super(Main, self).__init__(**kwargs)
         self.side_config_algorithm = Algorithm(title='Algorithm Configurations',
                                                minimise=self.minimize_conf)
-        self.side_config_inputs    = Inputs   (title='Inputs Configurations',
+        self.side_config_input     = Input    (title='Input Configurations',
                                                minimise=self.minimize_conf)
         self.side_config_plot      = Plot     (title='Plot Configurations',
                                                minimise=self.minimize_conf)
@@ -62,7 +62,7 @@ class Main(Screen):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
         side_cont.width = 360
-        side_cont.add_widget(self.side_config_inputs)
+        side_cont.add_widget(self.side_config_input)
         
         self.side_config_algorithm.refresh_widgets()
 

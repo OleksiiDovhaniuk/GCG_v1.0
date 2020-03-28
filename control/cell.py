@@ -37,13 +37,18 @@ class EmptyCell(Cell):
     pass
 
 class TitleCell(TxtInput, HoverBehavior):
-    cell_type      = StringProperty('inputs')
-    remove_column  = ObjectProperty(None)
-    valid_to_apply = ObjectProperty(None)
-    index          = ObjectProperty(None)
-    PROPER_VALUES  = {'inputs': ['0', '1'],
+    cell_type       = StringProperty('inputs')
+    remove_column   = ObjectProperty(None)
+    valid_to_apply  = ObjectProperty(None)
+    is_equal_signal = ObjectProperty(None)
+    index           = ObjectProperty(None)
+    PROPER_VALUES   = {'inputs': ['0', '1'],
                     'outputs': ['0', '1', '*']}
     
+    def __init__ (self, **kwargs):
+        super(TitleCell, self).__init__(**kwargs)
+        self.text = self.text.replace(' ', '')
+
     def insert_text(self, substring, from_undo=False):
         length = len(self.text) + 1
         
@@ -80,10 +85,12 @@ class TitleCell(TxtInput, HoverBehavior):
     def on_focus(self, *args):
         if not self.focus:
             text_size = len(self.text)
-            if text_size == 0:
-                self.remove_column(self)
-            elif text_size > 2:
-                self.text = self.text[:3]
+
+            if text_size == 0 : self.remove_column(self)
+            elif text_size > 2: self.text = self.text[:3]
+
+            # if self.is_equal_signal(self.text): 
+            #     self.text = ''
             self.valid_to_apply()
     
 class IndexCell(Cell):

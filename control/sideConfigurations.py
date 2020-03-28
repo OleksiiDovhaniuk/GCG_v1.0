@@ -19,6 +19,7 @@ from control.lbl          import Lbl,\
                                  TitleLbl
 
 from design               import Design
+from pandas               import DataFrame
 import file_work as fw
 import os
 
@@ -65,13 +66,21 @@ class SideConf(GreyDefault):
 class SideConfBottom(BoxLayout):
     pass
 
+class SideInputBottom(BoxLayout):
+    show_ttbl  = ObjectProperty(None)
+    switch_tbl = ObjectProperty(None)
+
+    def __init__(self, show_ttbl, switch_tbl, **kwargs):
+        super(SideInputBottom, self).__init__(**kwargs)
+        self.show_ttbl  = show_ttbl
+        self.switch_tbl = switch_tbl
+
 class Algorithm(SideConf):
     saved_configs  = fw.read_configurations()
     active_configs = fw.read_configurations()
 
     inputs                = {}
     layouts_end_condition = {}
-
 
     def __init__(self, **kwargs):
         super(Algorithm, self).__init__(**kwargs)
@@ -246,29 +255,48 @@ class Algorithm(SideConf):
             self.active_configs = self.saved_configs
             fw.save_configurations(self.saved_configs)
 
-class Inputs(SideConf):
-    saved_ttbl = fw.read_truth_table()
+class Input(SideConf):
+    saved_ttbl  = fw.read_truth_table()
+    active_ttbl = fw.read_truth_table()
+    inputs_frame  = DataFrame.from_dict(active_ttbl['inputs'])
+    outputs_frame = DataFrame.from_dict(active_ttbl['outputs']).replace([None], '  X')
+    str_ttbl = {'inputs' : inputs_frame.to_string(index=False), 
+                'outputs': outputs_frame.to_string(index=False)}
 
     def __init__(self, **kwargs):
-        super(Inputs, self).__init__(**kwargs)
+        super(Input, self).__init__(**kwargs)
         self.remove_widget(self.ids.container)
-        bottom = SideConfBottom()
-        self.add_widget(bottom)
+        self.bottom = SideInputBottom(show_ttbl=self.show_ttbl, switch_tbl=self.switch_tbl)
+        self.add_widget(self.bottom)
 
     def show_ttbl(self, *args):
-        content = TruthTable(apply=self.apply, 
-                            cancel=self.dismiss_popup,
-                            truth_table=self.saved_ttbl)
+        content = TruthTable(get_ttbl=self.get_ttbl, 
+                             cancel=self.dismiss_popup,
+                             truth_table=self.active_ttbl)
         self._popup = WhitePopup(title=f'{self.ids.device_name.text} Truth Table',
-                            content=content)
+                                 content=content)
         self._popup.open()
+
+    def switch_tbl(self, *args):
+        btn = self.bottom.ids.switch_btn
+        for key in ['inputs', 'outputs']:
+            if key != btn.text:
+                self.ids.tbl_lbl.text = self.str_ttbl[key]
+                btn.text = key
+                return
     
-    def apply(self, *args):        
-        pass        
+    def get_ttbl(self, truth_table, *args):        
+        self.active_ttbl = truth_table
+        inputs_frame  = DataFrame.from_dict(truth_table['inputs'])
+        outputs_frame = DataFrame.from_dict(truth_table['outputs']).replace([None], '  X')
+        self.str_ttbl = {'inputs' : inputs_frame .to_string(index=False), 
+                         'outputs': outputs_frame.to_string(index=False)}
+        self.refresh_widgets()
 
-    def dismiss_popup(self):
-        self._popup.dismiss()
-
+    def refresh_widgets(self):
+        self.switch_tbl()
+        self.switch_tbl()
+        
 class Plot(SideConf):
     pass
 
@@ -292,7 +320,7 @@ class Results(SideConf):
                         'Schemes'        : [TitleLbl  (title='Schemes'),         
                                             ResultsLbl(text=default_content_text)],
                         'Genotypes'      : [TitleLbl  (title='Genotypes'),       
-                                            ResultsLbl(text     =default_content_text,
+                                            ResultsLbl(text=default_content_text,
                                                        font_size=10)],
                         'Configurations' : [TitleLbl  (title='Configurations'), 
                                             ResultsLbl(text=default_content_text)]}

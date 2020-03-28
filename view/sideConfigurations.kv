@@ -4,15 +4,22 @@
     width: 360
     BoxLayout:
         size_hint_y: None
-        height: 34
-        BoxLayout:
-            size_hint_x: None
-            width: 10
+        height: 26
+        Separator10
         Lbl:
+            font_size: 12
             text: '[color=#133957]' + root.title + '[/color]'
             markup: True
-        ArrowBtn:
-            on_release: root.minimise()
+        BoxLayout:
+            size_hint_x: None
+            orientation: 'vertical'
+            width: 24
+            ArrowBtn:
+                on_release: root.minimise()
+            Separator1
+    LightDefault:
+        size_hint_y: None
+        height: 1
     BoxLayout:
         id: container
         orientation: 'vertical'
@@ -30,34 +37,63 @@
     size_hint_y: None
     height: 52
     padding: 26, 10
-    BoxLayout:
+    BoxLayout
     SaveAsBtn:
         on_release: root.parent.save_conf()
-    BoxLayout:
-        size_hint_x: None
-        width: 10
+    Separator10
     OpenBtn:
         on_release: root.parent.show_load()
 
-<Inputs>:
-    BoxLayout:
-        size_hint_y: None
-        height: 10
-    NameInput:
-        id: device_name
-        text: 'Default Device'
+<SideInputBottom>:
+    size_hint_y: None
+    height: 52
+    padding: 26, 10
+    Btn:
+        id: switch_btn
+        text: 'inputs'
+        on_release: root.switch_tbl()
+    BoxLayout
+    EditBtn:
+        on_release: root.show_ttbl()
     Separator10
+    SaveAsBtn:
+        on_release: root.parent.save_conf()
+    Separator10
+    OpenBtn:
+        on_release: root.parent.show_load()
+
+<Input>:
     BoxLayout:
-        padding: 10, 0
+        orientation: 'vertical'
+        size_hint_y: None
+        height: 80
+        padding: 10, 10
+        Lbl:
+            text: 'Truth Table of'
+            font_size: 18
+            valign: 'middle'
+            halign: 'center'
+        NameInput:
+            id: device_name
+            text: 'Default Device'
+    BoxLayout:
         BoxLayout:
             orientation: 'vertical'
-            size_hint_x: None
-            width: 32
-            EditBtn:
-                on_release: root.show_ttbl()
-            BoxLayout
-        Lbl:
-            # size_hint_x: None
-            text: 'HELLO WORLD!'
-            font_size: 26
+            ScrollView:
+                do_scroll_x: True
+                do_scroll_y: True
+                effect_cls: 'ScrollEffect'
+                GreyDefault:
+                    id: tbl_container
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    size: 340, 240
+                    Lbl:
+                        id: tbl_lbl
+                        size_hint_y: 1
+                        text: root.str_ttbl['inputs']
+                        font_size: 19
+                        halign: 'center'
+        Separator10
+        Separator10
         Separator10
