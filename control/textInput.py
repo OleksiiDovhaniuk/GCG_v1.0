@@ -29,7 +29,14 @@ class NameInput(TxtInput):
             Clock.schedule_once(lambda dt: self.select_all())
 
 class FileInput(TxtInput):
-    pass
+    path = StringProperty('\saves\defaul.txt')
+
+    def show(self, selection, *args):
+        path = selection
+        name = path.split('\\')[-1]
+        
+        self.path = path[:-len(name)]
+        self.text = name
 
 class ConfsInput(FileInput):
     path = StringProperty('saves\confs\default.txt')

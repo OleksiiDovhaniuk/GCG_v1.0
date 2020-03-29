@@ -13,7 +13,7 @@
                 id: file_chooser
                 multiselect: False
                 rootpath: "saves\confs"
-                on_selection: text_input.text = self.selection[0]
+                on_selection: file_input.show(self.selection[0])
                 FlChsrListLayout
                 FileChooserIconLayout
         GreyDefault:
@@ -29,8 +29,8 @@
                     font_size: 18
                     halign: 'right'
                     pos_hint: {'y_center':.5}
-                TxtInput:
-                    id: text_input
+                FileInput:
+                    id: file_input
                     size_hint_y: None
                     height: 32
                     font_size: 16
@@ -71,7 +71,7 @@
                 id: file_chooser
                 multiselect: False
                 rootpath: "saves\confs"
-                on_selection: text_input.text = self.selection[0]
+                on_selection: file_input.show(self.selection[0])
                 FlChsrListLayout
                 FileChooserIconLayout
         GreyDefault:
@@ -87,8 +87,8 @@
                     font_size: 18
                     halign: 'right'
                     pos_hint: {'y_center':.5}
-                TxtInput:
-                    id: text_input
+                FileInput:
+                    id: file_input
                     size_hint_y: None
                     height: 32
                     font_size: 16
@@ -112,7 +112,7 @@
                     text: "Save"
                     on_release:
                         root.save(file_chooser.path,\
-                        text_input.text)
+                        file_input.path + file_input.text)
 
 <TruthTable>:
     GreyDefault:
