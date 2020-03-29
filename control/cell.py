@@ -90,7 +90,9 @@ class TitleCell(TxtInput, HoverBehavior):
         text_size = len(text)
 
         if not self.focus:
-            if text_size == 0 : self.remove_column(self)
+            if text_size == 0 : 
+                self.remove_column(self)
+                return
             elif '=' in text: 
                 index     = text.index('=')
                 if index + 2 == text_size:

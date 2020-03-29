@@ -41,6 +41,7 @@ class TruthTable(Dialog):
     def __init__(self, truth_table, **kwargs):
         super(TruthTable, self).__init__(**kwargs)
         self.truth_table = truth_table
+        self.signals = []
 
         for table in ['inputs', 'outputs']:
             self.create_table(table)
@@ -67,7 +68,7 @@ class TruthTable(Dialog):
 
             self.signals.append(key.replace(' ', ''))
 
-        add_cell_column = AddCell()
+        add_cell_column = AddCell(cell_type=table)
         row.add_widget(add_cell_column)
         key_widgets.append(add_cell_column)
         tbl.add_widget(row)
@@ -90,7 +91,7 @@ class TruthTable(Dialog):
             widgets.append(row_widgets)
 
         row      = TTblRow()
-        add_cell = AddCell()
+        add_cell = AddCell(cell_type=table)
         row.add_widget(add_cell)
         tbl.add_widget(row)
         row_widgets    = [None for _ in range(len(key_widgets))]
@@ -194,6 +195,7 @@ class TruthTable(Dialog):
         for jndex, row in enumerate(cells.iloc[:column_size, 0].values):
             row.remove_widget(cells.iloc[jndex, index])
 
+
         self.cells[table] = self.cells[table].drop(columns=[columns[index]])
         self.resize()
 
@@ -203,8 +205,9 @@ class TruthTable(Dialog):
         columns     = cells.columns
         add_index   = len(columns) - 1
         column_size = len(cells.index) - 2
+        add_cell    = columns[add_index]
         
-        columns[0].remove_widget(columns[add_index])
+        columns[0].remove_widget(add_cell)
         key_cell = TitleCell(index     =add_index,
                         cell_type      =table,
                         remove_column  =self.remove_column,
@@ -214,7 +217,7 @@ class TruthTable(Dialog):
                         write_column   =self.write_column)
         columns[0].add_widget(key_cell)
         key_cell.focus = True
-        columns[0].add_widget(columns[add_index])
+        columns[0].add_widget(add_cell)
 
         column_widgets = []
         for index in range(column_size):
