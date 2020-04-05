@@ -37,6 +37,7 @@ def create_generation(size, genes_number, in_out_number):
     # create empty generation (alet: [0,0])
     generation = [[[[0,0] for _ in range(in_out_number)] \
         for _ in range(genes_number)] for _ in range(size)]
+        
     # fill generation with properet random elements            
     for chromosome in generation:
         for gene in chromosome:
