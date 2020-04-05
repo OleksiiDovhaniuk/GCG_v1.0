@@ -17,6 +17,11 @@ Functions:
 
 """
 import math
+from timeit import default_timer as timer
+
+FREDKIN_DELAY         = 1
+FREDKIN_QUANTUM_COST  = 5
+FREDKIN_INPUTS_NUMBER = 3
 
 def k_from_error(errors):
     """ Factor k based on number of errors in system.
@@ -109,22 +114,23 @@ def fitness_function(errors, c, g, s, coefs):
         0.109
 
     """
-    fitness_function_value = (coefs[0] * k_from_error(errors) + 
+    value = (coefs[0] * k_from_error(errors) + 
     coefs[1] * g_from_c(c) + 
     coefs[2] * h_from_g(g) + 
     coefs[3] * i_from_s(s))
-    return fitness_function_value
+    return value
 
 def fredkin_result(signals):
     """ Simulates Fredkin element action.
 
-    Args: signals (list of int): list like [A, B, C].
+    Args: signals (list of int): list like [C_in, I1, I2].
     
-    Returns: [P, Q, R] = [A, A`B - AC, A`C - AB].
+    Returns: 
+        [C_out, O1, O2] = [C_in, I1 XOR S, I2 XOR S],
+        where S = (I1 XOR I2) AND C.
 
     Note:
-        Input signals should be one dimensional list with 3 elements inside. 
-        A` = NOT (A).
+        Input signals should be one dimensional list with 3 elements inside.
 
     Examples of execution:
         >>> fredkin_result([0, 0, 0])
@@ -145,14 +151,14 @@ def fredkin_result(signals):
         [1, 1, 1]
 
     """
-    A = signals[0]
-    B = signals[1]
-    C = signals[2]
+    C_out = signals[0]
+    O1    = signals[2]
+    O2    = signals[1]
 
-    PQR = [A]
-    if A == 1:
-        PQR.append(C)
-        PQR.append(B)
+    PQR = [C_out]
+    if C_out == 1:
+        PQR.append(O1)
+        PQR.append(O2)
         return PQR
     else:
         return signals
@@ -246,6 +252,41 @@ def errors_number(chromosome, inputs, outputs):
         errors_number.pop(min_ind)
     return errors
 
+def errors_number_(chromosome, inputs, outputs):
+    """ Returns errors number of schemotechnical system.
+
+    Args: 
+        chromosome (3D list): individual one from generation.
+        inputs (2D tuple): input signals from truth table.
+        outputs (2D tuple): output signals from truth table.
+    
+    Returns: errors_number (int): minimal number of errors in current chromosome.
+
+    Note: 
+        Size of inputs and outputs lists is equal. 
+        Number of alets is equal to number of rows in inputs/outputs list.
+        Alet is look like [n (int), m (int)], 
+        where n is logic element index (n >= 0),
+        m index of input on that element (0 <= m < 3). 
+
+    Examples of execution:
+        >>> [errors_number_(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or1]
+        [0, 0, 0, 1]
+        >>> [errors_number_(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or2]
+        [1, 0]
+        >>> [errors_number_(chromosome, ins_sum, outs_sum) \
+            for chromosome in generation_sum]
+        [0, 10, 6, 0]
+
+    """
+    errors = 0
+
+    
+
+    return errors
+
 def delay_time(chromosome, element_delay):
     """ Returns delay value of system in ns.
 
@@ -264,15 +305,16 @@ def delay_time(chromosome, element_delay):
         [12, 15, 18, 12]
 
     """
-    active_colums_number = 0
+    count = 0
+
     for gene in chromosome:
         for alel in gene:
-            if alel != (0, 0):
-                active_colums_number += 1
+            if alel != [0, 0]:
+                count += 1
                 break
-    delay_time = active_colums_number * element_delay
-    return delay_time
-        
+            
+    return count * element_delay
+
 def quantum_cost(chromosome, el_quantum_cost):
     """ Returns quantum value of schemotechnical system.
     
@@ -294,16 +336,12 @@ def quantum_cost(chromosome, el_quantum_cost):
     elements_number = 0
 
     for gene in chromosome:
-        check_list = [0]
-        for alet in gene:
-            if alet[0] not in check_list:
-                check_list.append(alet[0])
-                elements_number += 1
+        elements_number +=\
+            (len(gene) - gene.count([0, 0])) // FREDKIN_INPUTS_NUMBER
 
-    quantum_cost = elements_number * el_quantum_cost
-    return quantum_cost
+    return elements_number * el_quantum_cost
 
-def garbage_outs_number(inputs, outputs):
+def garbage_outs_number(signals):
     """ Returns number of garbage outputs/ extra inputs
 
     Args: 
@@ -315,39 +353,25 @@ def garbage_outs_number(inputs, outputs):
     Note: Size of inputs and outputs lists is equal. 
 
     Examples of execution:
-        >>> garbage_outs_number(ins_or, outs_or)
+        >>> garbage_outs_number([ins_or, outs_or])
         2
-        >>> garbage_outs_number(ins_sum, outs_sum)
+        >>> garbage_outs_number([ins_sum, outs_sum])
         3
     """
+    numbers = []  
 
-    ind = 0
-    for row in inputs:
-        is_constant = True
-        value = row[0]
-        for signal in row[1:]:
-            if signal != value:
-                is_constant = False
-                break
-        if is_constant: ind += 1
-    inputs_number = ind   
+    for signal_type in signals:
+        ind = 0
 
-    ind = 0
-    for row in outputs:
-        is_constant = True
-        value = row[0]
-        for signal in row[1:]:
-            if signal != value:
-                is_constant = False
-                break
-        if is_constant: ind += 1
-    outputs_number = ind    
-    garbage_outs_number = max(inputs_number,outputs_number)
-    if garbage_outs_number < 0:
-        garbage_outs_number = 0
-    return garbage_outs_number
+        for row in signal_type:
+            if row.count(row[0]) == len(row):
+                ind += 1
 
-def generation_result(generation, inputs, outputs, coefs):
+        numbers.append(ind)   
+
+    return max(numbers[0], numbers[1])
+
+def generation_result(generation, signals, coefs):
     """ Returns one dimensional list of fitness function values for current generation.
 
     Args: 
@@ -376,76 +400,134 @@ def generation_result(generation, inputs, outputs, coefs):
             ins_sum, outs_sum, coefs)]
         [0.945, 0.123, 0.169, 0.943]
     """
-    fitness_function_results = []
-    fredkin_delay = 1
-    fredkin_quantum_cost = 5
+    results = []
 
-    for ind, chromosome in enumerate(generation):
-        inputs_befor = inputs
-        errors = errors_number(chromosome, inputs, outputs)
-        inputs_after = inputs
-        c = quantum_cost(chromosome, fredkin_quantum_cost)
-        g = garbage_outs_number(inputs, outputs)
-        s = delay_time(chromosome, fredkin_delay)
-        fitness_function_value = fitness_function(errors, c, g, s, coefs) 
-        fitness_function_results.append(fitness_function_value)
+    for chromosome in generation:
+        e = errors_number(chromosome, signals)
+        c = quantum_cost(chromosome, FREDKIN_QUANTUM_COST)
+        g = garbage_outs_number(signals)
+        s = delay_time(chromosome, FREDKIN_DELAY)
+         
+        results.append(fitness_function(e, c, g, s, coefs))
 
-    return fitness_function_results
+    return results
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod(extraglobs=
-        {'coefs':            (0.9, 0.034, 0.033, 0.033),
+        {'coefs':            [0.9, 0.034, 0.033, 0.033],
 
-         'ins_or':           [(0,0,1,1), (0,1,0,1), (1,1,1,1)],
-         'outs_or':          [(0,1,1,1), (None,None,None,None), (None,None,None,None)],
-         'generation_or1':    [[((1,0), (1,1), (1,2))],
-                               [((1,1), (1,0), (1,2))],
-                               [((1,0), (1,2), (1,1))],
-                               [((1,2), (1,1), (1,0))]],
-         'generation_or2':    [[((0,0), (0,0), (0,0)),
-                                ((1,1), (1,2), (1,0)),
-                                ((0,0), (0,0), (0,0)),
-                                ((0,0), (0,0), (0,0))],
-                               [((0,0), (0,0), (0,0)),
-                                ((1,1), (1,2), (1,0)),
-                                ((0,0), (0,0), (0,0)),
-                                ((1,0), (1,2), (1,1))]],
+         'ins_or':           [[0,0,1,1], [0,1,0,1], [1,1,1,1]],
+         'outs_or':          [[0,1,1,1], [None,None,None,None], [None,None,None,None]],
+         'generation_or1':    [[[[1,0], [1,1], [1,2]]],
+                               [[[1,1], [1,0], [1,2]]],
+                               [[[1,0], [1,2], [1,1]]],
+                               [[[1,2], [1,1], [1,0]]]],
+         'generation_or2':    [[[[0,0], [0,0], [0,0]],
+                                [[1,1], [1,2], [1,0]],
+                                [[0,0], [0,0], [0,0]],
+                                [[0,0], [0,0], [0,0]]],
+                               [[[0,0], [0,0], [0,0]],
+                                [[1,1], [1,2], [1,0]],
+                                [[0,0], [0,0], [0,0]],
+                                [[1,0], [1,2], [1,1]]]],
 
-         'ins_sum':          [(0,0,0,0,1,1,1,1), 
-                                 (0,0,1,1,0,0,1,1),
-                                 (0,1,0,1,0,1,0,1),
-                                 (1,1,1,1,1,1,1,1),
-                                 (0,0,0,0,0,0,0,0),
-                                 (1,1,1,1,1,1,1,1)],
-         'outs_sum':          [(0,1,1,0,1,0,0,1), 
-                                 (0,0,0,1,0,1,1,1),
-                                 (0,0,1,1,1,1,0,0),
-                                 (None,None,None,None,None,None,None,None),
-                                 (None,None,None,None,None,None,None,None),
-                                 (None,None,None,None,None,None,None,None),],
-         'generation_sum':   [[((0,0), (1,0), (0,0), (0,0), (1,2), (1,1)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                 ((1,0), (1,2), (0,0), (0,0), (0,0), (1,1)),
-                                 ((2,2), (1,0), (1,1), (2,1), (2,0), (1,2)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                 ((1,2), (0,0), (1,1), (0,0), (0,0), (1,0))],
-                              [((0,0), (1,0), (1,2), (1,1), (0,0), (0,0)),
-                                 ((1,2), (0,0), (0,0), (0,0), (1,0), (1,1)),
-                                 ((1,2), (2,0), (2,1), (2,2), (1,1), (1,0)),
-                                 ((1,0), (1,1), (1,2), (2,0), (2,1), (2,2)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                 ((2,1), (1,2), (1,0), (2,2), (1,1), (2,0))],
-                              [((0,0), (1,0), (1,2), (0,0), (0,0), (1,1)),
-                                 ((1,0), (0,0), (1,2), (0,0), (0,0), (1,1)),
-                                 ((2,0), (1,2), (1,1), (2,1), (2,2), (1,0)),
-                                 ((1,2), (2,0), (2,1), (1,0), (2,2), (1,1)),
-                                 ((1,2), (2,0), (2,2), (2,1), (1,1), (1,0)),
-                                 ((1,1), (1,2), (0,0), (0,0), (0,0), (1,0))],
-                             [((1,0), (2,1), (2,2), (2,0), (1,2), (1,1)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                 ((0,0), (0,0), (1,0), (0,0), (1,1), (1,2)),
-                                 ((1,0), (2,1), (1,2), (1,1), (2,0), (2,2)),
-                                 ((0,0), (0,0), (0,0), (0,0), (0,0), (0,0)),
-                                 ((1,2), (2,1), (2,2), (1,0), (1,1), (2,0))]]
+         'ins_sum':          [[0,0,0,0,1,1,1,1], 
+                                 [0,0,1,1,0,0,1,1],
+                                 [0,1,0,1,0,1,0,1],
+                                 [1,1,1,1,1,1,1,1],
+                                 [0,0,0,0,0,0,0,0],
+                                 [1,1,1,1,1,1,1,1]],
+         'outs_sum':          [[0,1,1,0,1,0,0,1], 
+                                 [0,0,0,1,0,1,1,1],
+                                 [0,0,1,1,1,1,0,0],
+                                 [None,None,None,None,None,None,None,None],
+                                 [None,None,None,None,None,None,None,None],
+                                 [None,None,None,None,None,None,None,None]],
+         'generation_sum':   [[[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
+                                 [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                                 [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
+                                 [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
+                                 [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                                 [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]],
+                              [[[0,0], [1,0], [1,2], [1,1], [0,0], [0,0]],
+                                 [[1,2], [0,0], [0,0], [0,0], [1,0], [1,1]],
+                                 [[1,2], [2,0], [2,1], [2,2], [1,1], [1,0]],
+                                 [[1,0], [1,1], [1,2], [2,0], [2,1], [2,2]],
+                                 [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                                 [[2,1], [1,2], [1,0], [2,2], [1,1], [2,0]]],
+                              [[[0,0], [1,0], [1,2], [0,0], [0,0], [1,1]],
+                                 [[1,0], [0,0], [1,2], [0,0], [0,0], [1,1]],
+                                 [[2,0], [1,2], [1,1], [2,1], [2,2], [1,0]],
+                                 [[1,2], [2,0], [2,1], [1,0], [2,2], [1,1]],
+                                 [[1,2], [2,0], [2,2], [2,1], [1,1], [1,0]],
+                                 [[1,1], [1,2], [0,0], [0,0], [0,0], [1,0]]],
+                             [[[1,0], [2,1], [2,2], [2,0], [1,2], [1,1]],
+                                 [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                                 [[0,0], [0,0], [1,0], [0,0], [1,1], [1,2]],
+                                 [[1,0], [2,1], [1,2], [1,1], [2,0], [2,2]],
+                                 [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                                 [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]]
          })
+
+ins_or  = [[0,0,1,1], [0,1,0,1], [1,1,1,1]]
+outs_or = [[0,1,1,1], [None,None,None,None], [None,None,None,None]]
+generation_or2 = [[[[0,0], [0,0], [0,0]],
+                   [[1,1], [1,2], [1,0]],
+                   [[0,0], [0,0], [0,0]],
+                   [[0,0], [0,0], [0,0]]],
+
+                  [[[0,0], [0,0], [0,0]],
+                   [[1,1], [1,2], [1,0]],
+                   [[0,0], [0,0], [0,0]],
+                   [[1,0], [1,2], [1,1]]]],
+
+ins_sum  = [[0,0,0,0,1,1,1,1], 
+           [0,0,1,1,0,0,1,1],
+           [0,1,0,1,0,1,0,1],
+           [1,1,1,1,1,1,1,1],
+           [0,0,0,0,0,0,0,0],
+           [1,1,1,1,1,1,1,1]]
+outs_sum = [[0,1,1,0,1,0,0,1], 
+            [0,0,0,1,0,1,1,1],
+            [0,0,1,1,1,1,0,0],
+            [None,None,None,None,None,None,None,None],
+            [None,None,None,None,None,None,None,None],
+            [None,None,None,None,None,None,None,None]]
+generation_sum = [[[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
+                   [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                   [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
+                   [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
+                   [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                   [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]],
+
+                  [[[0,0], [1,0], [1,2], [1,1], [0,0], [0,0]],
+                   [[1,2], [0,0], [0,0], [0,0], [1,0], [1,1]],
+                   [[1,2], [2,0], [2,1], [2,2], [1,1], [1,0]],
+                   [[1,0], [1,1], [1,2], [2,0], [2,1], [2,2]],
+                   [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                   [[2,1], [1,2], [1,0], [2,2], [1,1], [2,0]]],
+
+                  [[[0,0], [1,0], [1,2], [0,0], [0,0], [1,1]],
+                   [[1,0], [0,0], [1,2], [0,0], [0,0], [1,1]],
+                   [[2,0], [1,2], [1,1], [2,1], [2,2], [1,0]],
+                   [[1,2], [2,0], [2,1], [1,0], [2,2], [1,1]],
+                   [[1,2], [2,0], [2,2], [2,1], [1,1], [1,0]],
+                   [[1,1], [1,2], [0,0], [0,0], [0,0], [1,0]]],
+
+                  [[[1,0], [2,1], [2,2], [2,0], [1,2], [1,1]],
+                   [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                   [[0,0], [0,0], [1,0], [0,0], [1,1], [1,2]],
+                   [[1,0], [2,1], [1,2], [1,1], [2,0], [2,2]],
+                   [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                   [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]]
+
+start = timer()
+errors_number(generation_sum[0], ins_sum, outs_sum)
+stop  = timer()
+
+start_ = timer()
+errors_number_(generation_sum[0], ins_sum, outs_sum)
+stop_  = timer()
+
+print(f'{stop-start} VS {stop_-start_}')
