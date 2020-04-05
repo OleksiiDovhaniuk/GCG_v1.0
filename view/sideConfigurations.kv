@@ -39,27 +39,11 @@
     padding: 26, 10
     BoxLayout
     SaveAsBtn:
+        id: save_as_btn
         on_release: root.parent.save_conf()
     Separator10
     OpenBtn:
-        on_release: root.parent.show_load()
-
-<SideInputBottom>:
-    size_hint_y: None
-    height: 52
-    padding: 26, 10
-    Btn:
-        id: switch_btn
-        text: 'inputs'
-        on_release: root.switch_tbl()
-    BoxLayout
-    EditBtn:
-        on_release: root.show_ttbl()
-    Separator10
-    SaveAsBtn:
-        on_release: root.parent.save_conf()
-    Separator10
-    OpenBtn:
+        id: open_btn
         on_release: root.parent.show_load()
 
 <Input>:
@@ -97,3 +81,62 @@
         Separator10
         Separator10
         Separator10
+    BoxLayout:
+        size_hint_y: None
+        height: 52
+        padding: 26, 10
+        Btn:
+            id: switch_btn
+            text: 'inputs'
+            on_release: root.switch_tbl()
+        BoxLayout
+        EditBtn:
+            on_release: root.show_ttbl()
+        Separator10
+        SaveAsBtn:
+            on_release: root.show_save()
+        Separator10
+        OpenBtn:
+            on_release: root.show_load()
+
+<Results>:
+    ScrollView:
+        do_scroll_y: True
+
+        DefaultLayout:
+            id: side_results_container
+            orientation: 'vertical'
+            size_hint_y: None
+            height: 5000
+            padding: 10, 10
+
+            TitleLbl:
+                title: 'Truth Table'
+
+            ResultsLbl:
+                id: ttbl_lbl
+                text: 'no information is present'
+                size_hint_y: None
+
+            TitleLbl:
+                id: results_title
+                title: 'Results'
+
+            DefaultLayout:
+                id: results_container
+                orientation: 'vertical'
+                size_hint_y: None
+                height: results_title.height
+
+                ResultsLbl:
+                    text: 'no information is present'
+
+            TitleLbl:
+                title: 'Configurations'
+
+            ResultsLbl:
+                id: configs_lbl
+                text: 'no information is present'
+                size_hint_y: None
+
+            DefaultLayout

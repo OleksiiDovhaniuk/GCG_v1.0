@@ -66,8 +66,8 @@ def save_configurations(configurations):
     f.write(str(configurations))
     f.close
 
-def save_truth_table(truth_table):
-    f = open(relative_path_truth_table, 'w')
+def save_truth_table(truth_table, path=relative_path_truth_table):
+    f = open(path, 'w')
     truth_table_str = ''
     for key in truth_table['inputs']:
         truth_table_str += f'{key}: {truth_table["inputs"][key].tolist()}\n'
@@ -118,9 +118,9 @@ def list_strs_to_df(list_strs):
     df = DataFrame(data=values_list, columns=keys)
     return df
 
-def read_truth_table():
+def read_truth_table(path=relative_path_truth_table):
     try:
-        f = open (relative_path_truth_table, 'r')
+        f = open(path, 'r')
         if f.mode == 'r':
             truth_table_str = f.read()
             # split

@@ -7,7 +7,8 @@ from kivy.lang            import Builder
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview  import ScrollView
 
-from lbl                  import Lbl
+from control.lbl          import Lbl
+# from lbl          import Lbl
 
 from random               import choice
 
@@ -18,15 +19,21 @@ class Scheme(FloatLayout):
                       ['P', 'Q', 'G1', 'G2', 'G3', 'G4']]
     COLOURS_NUMBER = 6
     GENOTYPE       = [[[2,2], [1,0], [2,0], [2,1], [1,2], [1,1]],
-                      [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                      [[1,0], [1,1], [1,2], [0,0], [0,0], [0,0]],
                       [[1,0], [1,2], [2,0], [2,1], [2,2], [1,1]],
                       [[0,0], [1,0], [1,1], [0,0], [0,0], [1,2]],
-                      [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+                      [[0,0], [1,0], [1,1], [0,0], [0,0], [1,2]],
+                      [[0,0], [1,2], [1,1], [1,0], [0,0], [0,0]],
+                      [[1,0], [1,1], [1,2], [0,0], [0,0], [0,0]],
+                      [[1,0], [1,2], [2,0], [2,1], [2,2], [1,1]],
+                      [[0,0], [1,0], [1,1], [0,0], [0,0], [1,2]],
+                      [[0,0], [1,0], [1,1], [0,0], [0,0], [1,2]],
+                      [[0,0], [1,2], [1,1], [1,0], [0,0], [0,0]],
                       [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]]
     GATE_WIDTH     = 30
     HEIGHT         = 600
 
-    def __init__(self, height, signals, genotype, **kwargs):
+    def __init__(self, height=HEIGHT, signals=SIGNALS, genotype=GENOTYPE, **kwargs):
         super(Scheme, self).__init__(**kwargs) 
         self.size_hint = (None, 1)
         self.draw(height=height, 
@@ -34,7 +41,7 @@ class Scheme(FloatLayout):
                   number=len(signals[0]))
         self.sign(signals)
 
-    def sign(self, signals=SIGNALS):
+    def sign(self, signals):
         padding_x  = .5 * self.padding_x
         lbl_height = self.step_y
         font_size  = .8 * self.step_y
@@ -58,7 +65,7 @@ class Scheme(FloatLayout):
                                 size_hint_y=None,
                                 height     =lbl_height))
     
-    def draw(self, number=SIGNALS_NUMBER, genotype=GENOTYPE, height = HEIGHT):
+    def draw(self, number, genotype, height):
         for gene in genotype:
             NaN_number = gene.count([0, 0])
             if NaN_number == len(gene):
@@ -69,10 +76,10 @@ class Scheme(FloatLayout):
         self.step_y    = step_y    = \
             (height - 2 * padding_y) / (n_steps_y - 1)
         
-        self.width     = width     = ((height - 2 * padding_y)
-            * (number + 1) * (len(genotype) + 1)) / (number)
+        self.padding_x = padding_x = 2.5 * step_y
         n_steps_x      = len(genotype) # n - from number
-        self.padding_x = padding_x = .1 * width
+        self.width     = width     = ((height - 2 * padding_y)
+            * (n_steps_x + n_steps_x/number)) + 2 * padding_x
         step_x         = height - 2 * padding_y
 
         line_width = step_x / 100
@@ -90,7 +97,7 @@ class Scheme(FloatLayout):
         line_coords = [[padding_x, y] for y in reversed(range_y)]
 
         for index, gene in enumerate(genotype):
-            new_x    = line_coords[index][-2] + step_x 
+            new_x    = line_coords[0][-2] + step_x 
             n_unused = 1    # n from number
             jndex    = 0
 
@@ -128,7 +135,7 @@ class Scheme(FloatLayout):
 
         with self.canvas:
             # draw background
-            Color(.9, .9, .9, 1)
+            Color(1, 1, 1, 1)
             Rectangle(size=(width, height), pos=(0,0))
 
             # draw signals-lines

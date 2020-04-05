@@ -30,6 +30,7 @@ class SideConf(GreyDefault):
     theme    = Design().default_theme
     title    = StringProperty('Default Configurations')
     minimise = ObjectProperty(None)
+    rootpath = 'saves\default'
 
     COLOR_DISABLED    = (.8, .8, .8, 1)
     HINT_COLOR_NORMAL = (.4, .4, .4, 1)
@@ -37,8 +38,8 @@ class SideConf(GreyDefault):
 
     def show_save(self):
         content     = Save(save  =self.save, 
-                           cancel=self.dismiss_popup,
-                           data  =self.data)
+                           cancel=self.dismiss_popup)
+        content.ids.file_chooser.rootpath = self.rootpath
         self._popup = WhitePopup(title  ="Save file",
                                  content=content)
         self._popup.open()
@@ -46,6 +47,8 @@ class SideConf(GreyDefault):
     def show_load(self):
         content     = Load(load  =self.load, 
                            cancel=self.dismiss_popup)
+        content.ids.file_chooser.rootpath = self.rootpath
+
         self._popup = WhitePopup(title  ="Open file",
                                  content=content)
         self._popup.open()
@@ -66,18 +69,10 @@ class SideConf(GreyDefault):
 class SideConfBottom(BoxLayout):
     pass
 
-class SideInputBottom(BoxLayout):
-    show_ttbl  = ObjectProperty(None)
-    switch_tbl = ObjectProperty(None)
-
-    def __init__(self, show_ttbl, switch_tbl, **kwargs):
-        super(SideInputBottom, self).__init__(**kwargs)
-        self.show_ttbl  = show_ttbl
-        self.switch_tbl = switch_tbl
-
 class Algorithm(SideConf):
     saved_configs  = fw.read_configurations()
     active_configs = fw.read_configurations()
+    rootpath       = 'saves\confs'
 
     inputs                = {}
     layouts_end_condition = {}
@@ -263,22 +258,22 @@ class Input(SideConf):
     str_ttbl = {'inputs' : inputs_frame.to_string(index=False), 
                 'outputs': outputs_frame.to_string(index=False)}
 
+    rootpath = 'saves\input'
+
     def __init__(self, **kwargs):
         super(Input, self).__init__(**kwargs)
         self.remove_widget(self.ids.container)
-        self.bottom = SideInputBottom(show_ttbl=self.show_ttbl, switch_tbl=self.switch_tbl)
-        self.add_widget(self.bottom)
 
     def show_ttbl(self, *args):
         content = TruthTable(get_ttbl=self.get_ttbl, 
                              cancel=self.dismiss_popup,
                              truth_table=self.active_ttbl)
-        self._popup = WhitePopup(title=f'{self.ids.device_name.text} Truth Table',
+        self._popup = WhitePopup(title=f'Truth Table of {self.ids.device_name.text}',
                                  content=content)
         self._popup.open()
 
     def switch_tbl(self, *args):
-        btn = self.bottom.ids.switch_btn
+        btn = self.ids.switch_btn
         for key in ['inputs', 'outputs']:
             if key != btn.text:
                 self.ids.tbl_lbl.text = self.str_ttbl[key]
@@ -287,15 +282,33 @@ class Input(SideConf):
     
     def get_ttbl(self, truth_table, *args):        
         self.active_ttbl = truth_table
+        self.refresh_widgets()
+
+    def refresh_widgets(self):
+        truth_table = self.active_ttbl
+
         inputs_frame  = DataFrame.from_dict(truth_table['inputs'])
         outputs_frame = DataFrame.from_dict(truth_table['outputs']).replace([None], '  X')
         self.str_ttbl = {'inputs' : inputs_frame .to_string(index=False), 
                          'outputs': outputs_frame.to_string(index=False)}
-        self.refresh_widgets()
 
-    def refresh_widgets(self):
         self.switch_tbl()
         self.switch_tbl()
+
+
+    def load(self, path, filename):
+        self.active_ttbl = fw.read_truth_table(os.path.join(path, filename[0]))
+        self.refresh_widgets()
+        self.dismiss_popup()
+        
+    def save(self, path, filename):  
+        if len(filename.replace(' ','')) == 0:
+            pass
+        else:       
+            print(path)
+            print(filename)
+            fw.save_truth_table(self.active_ttbl, path+filename[1])
+            self.dismiss_popup()
         
 class Plot(SideConf):
     pass
@@ -303,39 +316,9 @@ class Plot(SideConf):
 class Results(SideConf):
     def __init__(self, **kwargs):
         super(Results, self).__init__(**kwargs)
+        self.remove_widget(self.ids.container)
 
-        container = self.ids.container
-        container.clear_widgets()
-
-        self.lines_number  = 8
-        self.lbl_height    = ResultsLbl().font_size
-        scroll_view_height = 2200
-        scroll_view   = ScrollView(do_scroll_y=True)
-
-        container.add_widget(scroll_view)
-
-        default_content_text = 'No Information is Present'
-        self.widgets = {'Truth Table'    : [TitleLbl  (title='Truth Table'),
-                                            ResultsLbl(text=default_content_text)],
-                        'Schemes'        : [TitleLbl  (title='Schemes'),         
-                                            ResultsLbl(text=default_content_text)],
-                        'Genotypes'      : [TitleLbl  (title='Genotypes'),       
-                                            ResultsLbl(text=default_content_text,
-                                                       font_size=10)],
-                        'Configurations' : [TitleLbl  (title='Configurations'), 
-                                            ResultsLbl(text=default_content_text)]}
-
-        self.inner_container = BoxLayout(orientation='vertical',
-                                    size_hint_y=None,
-                                    height     =scroll_view_height)
-        for key in self.widgets:
-            self.inner_container.add_widget(self.widgets[key][0])
-            self.inner_container.add_widget(self.widgets[key][1])
-        self.inner_container.add_widget(BoxLayout())
-        scroll_view.add_widget(self.inner_container)
-
-        bottom = SideConfBottom()
-        self.add_widget(bottom)
+        self.add_widget(SideConfBottom())
 
     def resize_container(self):
-        pass
+        self.ids.side_results_container.height=5000
