@@ -17,6 +17,7 @@ Functions:
 
 """
 import math
+import numpy                     as np
 from timeit import default_timer as timer
 
 FREDKIN_DELAY         = 1
@@ -177,8 +178,8 @@ def errors_number(chromosome, inputs, outputs):
         Size of inputs and outputs lists is equal. 
         Number of alets is equal to number of rows in inputs/outputs list.
         Alet is look like [n (int), m (int)], 
-        where n is logic element index (n >= 0),
-        m index of input on that element (0 <= m < 3). 
+        where n is logic element i (n >= 0),
+        m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
         >>> [errors_number(chromosome, ins_or, outs_or) \
@@ -204,14 +205,14 @@ def errors_number(chromosome, inputs, outputs):
                 negative_inputs_number = -len(inputs[0])
                 # empty path point list, size = 3
                 path_point = [negative_inputs_number for _ in range(3)]
-                # set first signals index in path_point
+                # set first signals i in path_point
                 path_point[alet[1]] = alet_ind
                 # set others signals in path_point
-                index = alet_ind
+                i = alet_ind
                 while sum(path_point) <= 0:
-                    if gene[index][0] == alet[0]:
-                        path_point[gene[index][1]] = index
-                    index += 1
+                    if gene[i][0] == alet[0]:
+                        path_point[gene[i][1]] = i
+                    i += 1
                 signals_path.append(path_point)
 
     # create empty errors number list  (size = outputs number * inputs number)
@@ -226,8 +227,8 @@ def errors_number(chromosome, inputs, outputs):
         for point in signals_path:
             element_signals = [active_signals[point[i]] for i in range(len(point))]
             element_signals = fredkin_result(element_signals)
-            for index, value in enumerate(point):
-                active_signals[value] = element_signals[index]
+            for i, value in enumerate(point):
+                active_signals[value] = element_signals[i]
         # calculate errors 
         for check_result_ind, check_result in enumerate(outs[row_ind]):
             if check_result != None:
@@ -251,6 +252,71 @@ def errors_number(chromosome, inputs, outputs):
         # delete row with current minimum element
         errors_number.pop(min_ind)
     return errors
+
+def errors_number_(chromosome, inputs, outputs, size=8):
+    """ Returns errors number of schemotechnical system.
+
+    Args: 
+        chromosome (3D list): individual one from generation.
+        inputs (2D tuple): input signals from truth table.
+        outputs (2D tuple): output signals from truth table.
+    
+    Returns: errors_number (int): minimal number of errors in current chromosome.
+
+    Note: 
+        Size of inputs and outputs lists is equal. 
+        Number of alets is equal to number of rows in inputs/outputs list.
+        Alet is look like [n (int), m (int)], 
+        where n is logic element i (n >= 0),
+        m i of input on that element (0 <= m < 3). 
+
+    Examples of execution:
+        >>> [errors_number_(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or1]
+        [0, 0, 0, 1]
+        >>> [errors_number_(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or2]
+        [1, 0]
+        >>> [errors_number_(chromosome, ins_sum, outs_sum) \
+            for chromosome in generation_sum]
+        [0, 10, 6, 0]
+
+    """
+    sgn_no  = len(inputs)
+    # gate_no = FREDKIN_INPUTS_NUMBER
+    Is      = list(map(list, zip(*inputs)))
+    Os      = list(map(list, zip(*outputs)))
+    # nan_alet   = np.full((1, sgn_no), None)
+    chromosome = np.array([None, 0,    None, None, 1,    1,
+                           None, None, None, None, None, None,
+                           0,    1,    None, None, None, 1,
+                           1,    0,    1,    None, None, None,
+                           1,    0,    1,    None, None, None,
+                           None, None, None, None, None, None,
+                           None, None, None, None, None, None,
+                           1,    None, 1,    None, None, 0,  ])
+
+    for active_Is in Is:
+        i = 0
+        for start_alet in chromosome[::sgn_no]:
+            gate_Is = [None, None]
+
+            for j, gate_pos in enumerate(chromosome[i: i+sgn_no]):
+                if gate_pos:
+                    if gate_pos == 0:
+                        gate_Is[0] = active_Is[j]
+                        gate_Is[1] = j
+                    else:
+                        gate_Is.append(active_Is[j])
+                        gate_Is.append(j)
+            
+            
+
+        i += sgn_no
+
+    chromosome.shape = (size, sgn_no)
+    print(chromosome,'\n')
+    return 0
 
 def delay_time(chromosome, element_delay):
     """ Returns delay value of system in ns.
@@ -351,8 +417,8 @@ def generation_result(generation, inputs, outputs, coefs):
         Size of inputs and outputs lists is equal. 
         Number of alets is equal to number of rows in inputs/outputs list.
         Alet is look like [n (int), m (int)], 
-        where n is logic element index (n >= 0),
-        m index of input on that element (0 <= m < 3). 
+        where n is logic element i (n >= 0),
+        m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
         >>> [round(result, 3) for result in generation_result(generation_or1, \
@@ -434,3 +500,4 @@ if __name__ == '__main__':
                                [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
                                [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]]
          })
+
