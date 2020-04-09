@@ -10,7 +10,7 @@ Functions:
     quantum_cost(chromosome, el_quantum_cost),
     delay(chromosome, element_delay),
     elements_number(chromosome),
-    errors_number(chromosome, inputs, outputs), 
+    err_list(chromosome, inputs, outputs), 
     fredkin_result(signals), 
     fitness_function(errors, c, g, s, coefs), 
     k_from_error(errors), g_from_c(c), h_from_g(g), i_from_s(s).
@@ -164,7 +164,7 @@ def fredkin_result(signals):
     else:
         return signals
 
-def errors_number(chromosome, inputs, outputs):
+def err_list(chromosome, inputs, outputs):
     """ Returns errors number of schemotechnical system.
 
     Args: 
@@ -172,7 +172,7 @@ def errors_number(chromosome, inputs, outputs):
         inputs (2D tuple): input signals from truth table.
         outputs (2D tuple): output signals from truth table.
     
-    Returns: errors_number (int): minimal number of errors in current chromosome.
+    Returns: err_list (int): minimal number of errors in current chromosome.
 
     Note: 
         Size of inputs and outputs lists is equal. 
@@ -182,13 +182,13 @@ def errors_number(chromosome, inputs, outputs):
         m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> [errors_number(chromosome, ins_or, outs_or) \
+        >>> [err_list(chromosome, ins_or, outs_or) \
             for chromosome in generation_or1]
         [0, 0, 0, 1]
-        >>> [errors_number(chromosome, ins_or, outs_or) \
+        >>> [err_list(chromosome, ins_or, outs_or) \
             for chromosome in generation_or2]
         [1, 0]
-        >>> [errors_number(chromosome, ins_sum, outs_sum) \
+        >>> [err_list(chromosome, ins_sum, outs_sum) \
             for chromosome in generation_sum]
         [0, 10, 6, 0]
 
@@ -216,7 +216,7 @@ def errors_number(chromosome, inputs, outputs):
                 signals_path.append(path_point)
 
     # create empty errors number list  (size = outputs number * inputs number)
-    errors_number = [[0 for _ in inputs] for _ in outputs]
+    err_list = [[0 for _ in inputs] for _ in outputs]
     # copy inputs for local variable for safetiness of global and rows <-> colums
     ins  = list(map(list, zip(*inputs)))
     # copy outputs for local variable for safetiness of global and rows <-> colums
@@ -234,15 +234,15 @@ def errors_number(chromosome, inputs, outputs):
             if check_result != None:
                 for result_ind, result in enumerate(active_signals):
                     if result != check_result:
-                        errors_number[check_result_ind][result_ind] += 1
+                        err_list[check_result_ind][result_ind] += 1
 
     # calculate overall errors number
     errors = 0
-    while errors_number:
+    while err_list:
         # find min value of errors
         min = len(outs[0])
         min_ind = -1
-        for row_ind, row in enumerate(errors_number):
+        for row_ind, row in enumerate(err_list):
             for value in row:
                 if value < min:
                     min = value
@@ -250,10 +250,10 @@ def errors_number(chromosome, inputs, outputs):
         # add current min to overall errors value
         errors += min
         # delete row with current minimum element
-        errors_number.pop(min_ind)
+        err_list.pop(min_ind)
     return errors
 
-def errors_number_(chromosome, inputs, outputs, size=8):
+def err_list_(chromosome, inputs, outputs, size=10):
     """ Returns errors number of schemotechnical system.
 
     Args: 
@@ -261,7 +261,7 @@ def errors_number_(chromosome, inputs, outputs, size=8):
         inputs (2D tuple): input signals from truth table.
         outputs (2D tuple): output signals from truth table.
     
-    Returns: errors_number (int): minimal number of errors in current chromosome.
+    Returns: err_list (int): minimal number of errors in current chromosome.
 
     Note: 
         Size of inputs and outputs lists is equal. 
@@ -271,52 +271,79 @@ def errors_number_(chromosome, inputs, outputs, size=8):
         m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> [errors_number_(chromosome, ins_or, outs_or) \
-            for chromosome in generation_or1]
-        [0, 0, 0, 1]
-        >>> [errors_number_(chromosome, ins_or, outs_or) \
-            for chromosome in generation_or2]
-        [1, 0]
-        >>> [errors_number_(chromosome, ins_sum, outs_sum) \
-            for chromosome in generation_sum]
+        # >>> [err_list_(chromosome, ins_or, outs_or) \
+        #     for chromosome in generation_or1]
+        # [0, 0, 0, 1]
+        # >>> [err_list_(chromosome, ins_or, outs_or) \
+        #     for chromosome in generation_or2]
+        # [1, 0]
+        >>> [err_list_(chromosome, ins_sum, outs_sum) \
+            for chromosome in generation_sum_]
         [0, 10, 6, 0]
 
     """
     sgn_no  = len(inputs)
-    # gate_no = FREDKIN_INPUTS_NUMBER
-    Is      = list(map(list, zip(*inputs)))
-    Os      = list(map(list, zip(*outputs)))
-    # nan_alet   = np.full((1, sgn_no), None)
-    chromosome = np.array([None, 0,    None, None, 1,    1,
-                           None, None, None, None, None, None,
-                           0,    1,    None, None, None, 1,
-                           1,    0,    1,    None, None, None,
-                           1,    0,    1,    None, None, None,
-                           None, None, None, None, None, None,
-                           None, None, None, None, None, None,
-                           1,    None, 1,    None, None, 0,  ])
+    # create empty errors number list  (size = outputs number * inputs number)
+    err_list = [[0 for _ in inputs] for _ in outputs]
+    # copy inputs for local variable for safetiness of global and rows <-> colums
+    Is  = list(map(list, zip(*inputs)))
+    # copy outputs for local variable for safetiness of global and rows <-> colums
+    Os  = list(map(list, zip(*outputs)))
 
-    for active_Is in Is:
-        i = 0
+    # chromosome = np.array([None, 2,    None, None, 1,    1,
+    #                        None, None, None, None, None, None,
+    #                        2,    1,    None, None, None, 1,
+    #                        1,    2,    1,    None, None, None,
+    #                        1,    2,    1,    None, None, None,
+    #                        None, None, None, None, None, None,
+    #                        None, None, None, None, None, None,
+    #                        1,    None, 1,    None, None, 2,  ])
+
+    for i, active_Is in enumerate(Is):
+        j = 0
         for start_alet in chromosome[::sgn_no]:
             gate_Is = [None, None]
 
-            for j, gate_pos in enumerate(chromosome[i: i+sgn_no]):
+            for k, gate_pos in enumerate(chromosome[j: j+sgn_no]):
                 if gate_pos:
-                    if gate_pos == 0:
-                        gate_Is[0] = active_Is[j]
-                        gate_Is[1] = j
+                    if gate_pos == 2:
+                        gate_Is[0] = active_Is[k]
+                        gate_Is[1] = k
                     else:
-                        gate_Is.append(active_Is[j])
-                        gate_Is.append(j)
-            
-            
+                        gate_Is.append(active_Is[k])
+                        gate_Is.append(k)
 
-        i += sgn_no
+            if gate_Is[0]:
+                gare_result = fredkin_result(gate_Is[::2])
+                for k, index in enumerate(gate_Is[1::2]):
+                    active_Is[index] = gare_result[k]
 
-    chromosome.shape = (size, sgn_no)
-    print(chromosome,'\n')
-    return 0
+            j += sgn_no
+
+        for check_result_ind, check_result in enumerate(Os[i]):
+            if check_result:
+                for result_ind, result in enumerate(active_Is):
+                    if result != check_result:
+                        err_list[check_result_ind][result_ind] += 1
+    print(err_list)
+
+    # calculate overall errors number
+    err_no = 0
+    while err_list:
+        # find min value of errors
+        min = len(Os[0])
+        min_ind = -1
+        for row_ind, row in enumerate(err_list):
+            for value in row:
+                if value < min:
+                    min = value
+                    min_ind = row_ind
+        # add current min to overall errors value
+        err_no += min
+        # delete row with current minimum element
+        err_list.pop(min_ind)
+
+    return err_no
 
 def delay_time(chromosome, element_delay):
     """ Returns delay value of system in ns.
@@ -434,7 +461,7 @@ def generation_result(generation, inputs, outputs, coefs):
     results = []
 
     for chromosome in generation:
-        e = errors_number(chromosome, inputs, outputs)
+        e = err_list(chromosome, inputs, outputs)
         c = quantum_cost(chromosome, FREDKIN_QUANTUM_COST)
         g = garbage_outs_number([inputs, outputs])
         s = delay_time(chromosome, FREDKIN_DELAY)
@@ -498,6 +525,51 @@ if __name__ == '__main__':
                                [[0,0], [0,0], [1,0], [0,0], [1,1], [1,2]],
                                [[1,0], [2,1], [1,2], [1,1], [2,0], [2,2]],
                                [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]]
+                               [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]],
+
+        'generation_sum_': [[0, 2, 0, 0, 1, 1,
+                             0, 0, 0, 0, 0, 0,
+                             2, 1, 0, 0, 0, 1,
+                             1, 0, 0, 1, 2, 0,
+                             0, 2, 1, 0, 0, 1,
+                             0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0,
+                             1, 0, 1, 0, 0, 2],
+                             
+                            [0, 2, 1, 1, 0, 0,
+                             0, 0, 0, 0, 0, 0,
+                             1, 0, 0, 0, 2, 1,
+                             1, 0, 0, 0, 1, 2,
+                             0, 2, 1, 1, 0, 0,
+                             2, 1, 1, 0, 0, 0,
+                             0, 0, 0, 2, 1, 1,
+                             1, 0, 0, 1, 0, 2,
+                             0, 0, 0, 0, 0, 0,
+                             0, 1, 2, 0, 1, 0],
+
+                            [0, 2, 1, 0, 0, 1,
+                             2, 0, 1, 0, 0, 1,
+                             2, 0, 0, 1, 1, 0,
+                             0, 1, 1, 0, 0, 2,
+                             1, 0, 0, 2, 0, 1,
+                             0, 2, 1, 0, 1, 0,
+                             1, 0, 0, 0, 1, 2,
+                             0, 0, 0, 0, 0, 0,
+                             0, 2, 1, 1, 0, 0,
+                             1, 1, 0, 0, 0, 2],
+
+                            [2, 0, 0, 0, 1, 1,
+                             0, 1, 1, 2, 0, 0,
+                             0, 0, 2, 0, 1, 1,
+                             0, 0, 0, 0, 0, 0,
+                             2, 0, 1, 1, 0, 0,
+                             0, 1, 0, 0, 2, 1,
+                             0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0,
+                             1, 0, 0, 2, 1, 0,
+                             0, 1, 1, 0, 0, 2]]
+
          })
 
