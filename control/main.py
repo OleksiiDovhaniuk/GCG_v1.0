@@ -1,26 +1,27 @@
+from datetime  import datetime
+from functools import partial
+
 import kivy
+import matplotlib.pyplot as plot
 
-from kivy.lang                  import Builder
-from kivy.uix.screenmanager     import Screen
-from kivy.clock                 import Clock
-from kivy.uix.boxlayout         import BoxLayout
-from kivy.uix.scrollview        import ScrollView
+from kivy.clock                             import Clock
+from kivy.garden.matplotlib.backend_kivyagg import \
+    FigureCanvasKivyAgg as Figure
+from kivy.lang                              import Builder
+from kivy.uix.boxlayout                     import BoxLayout
+from kivy.uix.screenmanager                 import Screen
+from kivy.uix.scrollview                    import ScrollView
 
-from control.sideConfigurations import Algorithm,\
-                                       Input    ,\
-                                       Plot     ,\
-                                       Results
-from control.dropDownMenu       import DropDownMenu
-from control.lbl                import Lbl,\
-                                       ResultsLbl
 from control.btn                import Btn
-from control.scheme             import Scheme
+from control.dropDownMenu       import DropDownMenu
 from control.layout             import Separator10
-
-from process                    import Process
+from control.lbl                import Lbl, ResultsLbl
+from control.scheme             import Scheme
+from control.sideConfigurations import Algorithm, Input, Plot, Results
 from design                     import Design
-from functools                  import partial
-from datetime                   import datetime
+from process                    import Process
+
+engine = KivyEngine()
 
 kivy   .require  ('1.10.1')
 Builder.load_file('view/main.kv')
@@ -130,6 +131,8 @@ class Main(Screen):
         self.ids.status_bar.width = (len(message) + 1) * 10
         self.run_event = Clock.schedule_interval(self.do_loop,  1)
 
+        self.show_plot()
+
     def do_loop(self, *args):
         process = self.process
         process.do_loop()
@@ -148,6 +151,7 @@ class Main(Screen):
 
         self.ids.status_bar.text  = message
         self.ids.status_bar.width = (len(message) + 1) * 10
+        self.refresh_plot()
 
     def pause(self, *args):
         Clock.unschedule(self.run_event)
@@ -206,13 +210,6 @@ class Main(Screen):
 
         if process.have_result: genotypes = process.proper_results
         else: genotypes = process.best_results.iloc[:5, :]
-
-        # for genotype in genotypes['chromosome'].tolist():
-        #     for gene in genotype:
-        #         NaN_number = gene.count([0, 0])
-        #         if NaN_number == len(gene):
-        #             genotype.remove(gene)
-        #         NaN_number = 0
 
         values_list = genotypes['value'].tolist()
         container   = self.side_results.ids.results_container        
@@ -280,3 +277,17 @@ class Main(Screen):
         configs_lbl.height = self.HEIGHT_COEFNT *\
             configs_str.count('\n') * (configs_lbl.font_size + 2)
         self.side_results.resize_container()
+
+    def show_plot(self):
+        plot.plot([0], self.process.maxes)
+        plot.xlabel('Iterations')
+        plot.ylabel('Fitness Function Values')
+        plot.grid()
+        self.ids.plot.add_widget(Figure(plot.gcf()))
+
+    def refresh_plot(self):
+        plot.plot(self.process.iterations, self.process.maxes)
+        self.ids.plot.clear_widgets()
+        self.ids.plot.add_widget(Figure(plot.gcf()))
+
+# C:\Users\wd333\AppData\Local\Programs\Python\Python38\Lib\site-packages

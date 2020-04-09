@@ -1,5 +1,6 @@
 import genetic_algorithm as gntc
 import file_work         as fw
+import matplotlib.pyplot as plot
 
 from fitness_function    import generation_result
 from numpy               import array
@@ -14,17 +15,18 @@ class Process():
         configurations  = fw.read_configurations()
         truth_table     = fw.read_truth_table()
        
-        generation_size       = configurations['generation size'] ['value']
-        chromosome_size       = configurations['chromosome size'] ['value']
-        memorised_number      = configurations['memorised number']['value']
-        alpha                 = configurations['alpha']           ['value']
-        betta                 = configurations['betta']           ['value']
-        gamma                 = configurations['gamma']           ['value']
-        lamda                 = configurations['lambda']          ['value']
-        coefs                 = [alpha, betta, gamma, lamda]
-        inputs                = array(truth_table['inputs'] .values).T.tolist()
-        outputs               = array(truth_table['outputs'].values).T.tolist()
-        have_result           = False
+        generation_size  = configurations['generation size'] ['value']
+        chromosome_size  = configurations['chromosome size'] ['value']
+        memorised_number = configurations['memorised number']['value']
+        alpha            = configurations['alpha']           ['value']
+        betta            = configurations['betta']           ['value']
+        gamma            = configurations['gamma']           ['value']
+        lamda            = configurations['lambda']          ['value']
+        coefs            = [alpha, betta, gamma, lamda]
+        inputs           = array(truth_table['inputs'] .values).T.tolist()
+        outputs          = array(truth_table['outputs'].values).T.tolist()
+        have_result      = False
+
 
         generation = gntc.create_generation(generation_size, 
                                             chromosome_size, 
@@ -86,14 +88,18 @@ class Process():
         
         self.time      = datetime.now() - start_time 
         str_time       = '0' + str(self.time)[:7] 
-        max_value      = round(data[0][1], 6)
-        self.message   = f'Process time {str_time}, the best result: {max_value}'
+        max_value      = data[0][1]
+        self.message   = f'Process time {str_time}, the best result: {round(max_value, 6)}'
         self.flag_time = datetime.now()
         self.int_time  = int(round(self.time.total_seconds(), 0))
     
+        self.iterations = [0]
+        self.maxes      = [max_value]
+        
+
     def do_loop(self):
         best_results          = self.best_results
-        proper_results         = self.proper_results
+        proper_results        = self.proper_results
         ff_results            = self.ff_results
         generation            = self.generation
         generation_size       = self.generation_size
@@ -128,6 +134,8 @@ class Process():
         generation     = gntc.crossover(generation, 
                                         paired_parents, 
                                         crossover_probability)
+        generation     = gntc.mutation (generation, 
+                                        mutation_probability)
         ff_results     = generation_result(generation, 
                                            inputs, 
                                            outputs, 
@@ -184,9 +192,12 @@ class Process():
         self.proper_results = proper_results
         self.iteration     += 1
 
-        self.time         = datetime.now() - (start_time + self.pause_time)
-        str_time          = '0' + str(self.time)[:7] 
-        max_value_rounded = round(best_results['value'].tolist()[0], 6)
-        self.message      = f'Process time {str_time}, the best result: {max_value_rounded}'
+        self.time     = datetime.now() - (start_time + self.pause_time)
+        str_time      = '0' + str(self.time)[:7] 
+        max_value     = best_results['value'].tolist()[0]
+        self.message  = f'Process time {str_time}, the best result: {round(max_value, 6)}'
         self.int_time = int(round(self.time.total_seconds(), 0))
+
+        self.iterations.append(self.iteration + 1)
+        self.maxes.append(max_value)
         
