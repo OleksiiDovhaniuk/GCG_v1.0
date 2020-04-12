@@ -17,12 +17,12 @@ Functions:
 
 """
 import math
-import numpy                     as np
-from timeit import default_timer as timer
+from timeit import timeit
 
-FREDKIN_DELAY         = 1
-FREDKIN_QUANTUM_COST  = 5
+FREDKIN_DELAY = 1
+FREDKIN_QUANTUM_COST = 5
 FREDKIN_INPUTS_NUMBER = 3
+ITERATION_POWER = 100
 
 def k_from_error(errors):
     """ Factor k based on number of errors in system.
@@ -56,7 +56,7 @@ def g_from_c(c):
     if c == 0:
         return 0
     else:
-        x = -((1 - (5 / c))**2)
+        x = -((1 - (FREDKIN_QUANTUM_COST / c))**2)
         g = math.exp(x)
         return g
 
@@ -164,7 +164,7 @@ def fredkin_result(signals):
     else:
         return signals
 
-def err_list(chromosome, inputs, outputs):
+def err_no(chromosome, inputs, outputs):
     """ Returns errors number of schemotechnical system.
 
     Args: 
@@ -172,7 +172,7 @@ def err_list(chromosome, inputs, outputs):
         inputs (2D tuple): input signals from truth table.
         outputs (2D tuple): output signals from truth table.
     
-    Returns: err_list (int): minimal number of errors in current chromosome.
+    Returns: err_no(int): minimal number of errors in current chromosome.
 
     Note: 
         Size of inputs and outputs lists is equal. 
@@ -182,166 +182,66 @@ def err_list(chromosome, inputs, outputs):
         m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> [err_list(chromosome, ins_or, outs_or) \
-            for chromosome in generation_or1]
-        [0, 0, 0, 1]
-        >>> [err_list(chromosome, ins_or, outs_or) \
-            for chromosome in generation_or2]
-        [1, 0]
-        >>> [err_list(chromosome, ins_sum, outs_sum) \
+        >>> [err_no(chromosome, ins_or, outs_or) \
+            for chromosome in generation_or]
+        [0, 0, 1, 1, 0]
+        >>> [err_no(chromosome, ins_sum, outs_sum) \
             for chromosome in generation_sum]
         [0, 10, 6, 0]
 
     """
-    # create list of active signals path
-    signals_path = []
-    # fill up the list
-    for gene in chromosome:
-        check_list = [0]
-        for alet_ind, alet in enumerate(gene):
-            if alet[0] not in check_list:
-                check_list.append(alet[0])
-                # create negative number of inputs for path point default values
-                negative_inputs_number = -len(inputs[0])
-                # empty path point list, size = 3
-                path_point = [negative_inputs_number for _ in range(3)]
-                # set first signals i in path_point
-                path_point[alet[1]] = alet_ind
-                # set others signals in path_point
-                i = alet_ind
-                while sum(path_point) <= 0:
-                    if gene[i][0] == alet[0]:
-                        path_point[gene[i][1]] = i
-                    i += 1
-                signals_path.append(path_point)
+    ins_no = len(inputs)
+    outs_no = len(outputs)
 
-    # create empty errors number list  (size = outputs number * inputs number)
-    err_list = [[0 for _ in inputs] for _ in outputs]
-    # copy inputs for local variable for safetiness of global and rows <-> colums
-    ins  = list(map(list, zip(*inputs)))
-    # copy outputs for local variable for safetiness of global and rows <-> colums
-    outs = list(map(list, zip(*outputs)))
-    # fill up the list 
-    for row_ind, active_signals in enumerate(ins):
-        # find result signals for current truth table line
-        for point in signals_path:
-            element_signals = [active_signals[point[i]] for i in range(len(point))]
-            element_signals = fredkin_result(element_signals)
-            for i, value in enumerate(point):
-                active_signals[value] = element_signals[i]
-        # calculate errors 
-        for check_result_ind, check_result in enumerate(outs[row_ind]):
-            if check_result != None:
-                for result_ind, result in enumerate(active_signals):
-                    if result != check_result:
-                        err_list[check_result_ind][result_ind] += 1
+    # Copy inputs for local variable for safety of global values and switch rows <-> colums.
+    inputs = list(map(list, zip(*inputs)))
+    outputs = list(map(list, zip(*outputs)))
 
-    # calculate overall errors number
-    errors = 0
-    while err_list:
-        # find min value of errors
-        min = len(outs[0])
-        min_ind = -1
-        for row_ind, row in enumerate(err_list):
-            for value in row:
-                if value < min:
-                    min = value
-                    min_ind = row_ind
-        # add current min to overall errors value
-        errors += min
-        # delete row with current minimum element
-        err_list.pop(min_ind)
-    return errors
-
-def err_list_(chromosome, inputs, outputs, size=10):
-    """ Returns errors number of schemotechnical system.
-
-    Args: 
-        chromosome (3D list): individual one from generation.
-        inputs (2D tuple): input signals from truth table.
-        outputs (2D tuple): output signals from truth table.
-    
-    Returns: err_list (int): minimal number of errors in current chromosome.
-
-    Note: 
-        Size of inputs and outputs lists is equal. 
-        Number of alets is equal to number of rows in inputs/outputs list.
-        Alet is look like [n (int), m (int)], 
-        where n is logic element i (n >= 0),
-        m i of input on that element (0 <= m < 3). 
-
-    Examples of execution:
-        # >>> [err_list_(chromosome, ins_or, outs_or) \
-        #     for chromosome in generation_or1]
-        # [0, 0, 0, 1]
-        # >>> [err_list_(chromosome, ins_or, outs_or) \
-        #     for chromosome in generation_or2]
-        # [1, 0]
-        >>> [err_list_(chromosome, ins_sum, outs_sum) \
-            for chromosome in generation_sum_]
-        [0, 10, 6, 0]
-
-    """
-    sgn_no  = len(inputs)
-    # create empty errors number list  (size = outputs number * inputs number)
-    err_list = [[0 for _ in inputs] for _ in outputs]
-    # copy inputs for local variable for safetiness of global and rows <-> colums
-    Is  = list(map(list, zip(*inputs)))
-    # copy outputs for local variable for safetiness of global and rows <-> colums
-    Os  = list(map(list, zip(*outputs)))
-
-    # chromosome = np.array([None, 2,    None, None, 1,    1,
-    #                        None, None, None, None, None, None,
-    #                        2,    1,    None, None, None, 1,
-    #                        1,    2,    1,    None, None, None,
-    #                        1,    2,    1,    None, None, None,
-    #                        None, None, None, None, None, None,
-    #                        None, None, None, None, None, None,
-    #                        1,    None, 1,    None, None, 2,  ])
-
-    for i, active_Is in enumerate(Is):
-        j = 0
-        for start_alet in chromosome[::sgn_no]:
-            gate_Is = [None, None]
-
-            for k, gate_pos in enumerate(chromosome[j: j+sgn_no]):
-                if gate_pos:
-                    if gate_pos == 2:
-                        gate_Is[0] = active_Is[k]
-                        gate_Is[1] = k
-                    else:
-                        gate_Is.append(active_Is[k])
-                        gate_Is.append(k)
-
-            if gate_Is[0]:
-                gare_result = fredkin_result(gate_Is[::2])
-                for k, index in enumerate(gate_Is[1::2]):
-                    active_Is[index] = gare_result[k]
-
-            j += sgn_no
-
-        for check_result_ind, check_result in enumerate(Os[i]):
-            if check_result:
-                for result_ind, result in enumerate(active_Is):
-                    if result != check_result:
-                        err_list[check_result_ind][result_ind] += 1
-    print(err_list)
-
-    # calculate overall errors number
     err_no = 0
+    err_list = [[0] * ins_no for _ in range(outs_no)]
+
+
+    for active_ins, cheking_outs in zip(inputs, outputs):
+
+        for gene in chromosome:
+            to_switch = False 
+            pos1 = pos2 = -1
+
+            for k, gate_pos in enumerate(gene):
+                if gate_pos:
+
+                    if gate_pos == 2:
+                        to_switch = bool(active_ins[k])
+
+                        if not to_switch: 
+                            break
+                        
+                        elif to_switch and (pos2 != -1):
+                            active_ins[pos1], active_ins[pos2]\
+                                = active_ins[pos2], active_ins[pos1]
+                            break
+
+                    elif pos1 == -1:
+                        pos1 = k
+                        
+                    else:
+                        pos2 = k
+
+                        if to_switch: 
+                            active_ins[pos1], active_ins[pos2]\
+                                = active_ins[pos2], active_ins[pos1]
+                            break
+
+        for index in range(outs_no):
+            for jndex in range(ins_no):
+                err_list[index][jndex] += cheking_outs[index] ^ active_ins[jndex] 
+
+    # calculate overall errors number
     while err_list:
-        # find min value of errors
-        min = len(Os[0])
-        min_ind = -1
-        for row_ind, row in enumerate(err_list):
-            for value in row:
-                if value < min:
-                    min = value
-                    min_ind = row_ind
-        # add current min to overall errors value
-        err_no += min
-        # delete row with current minimum element
-        err_list.pop(min_ind)
+        list_mins = [min(row) for row in err_list]
+
+        err_no += min(list_mins)
+        err_list.pop(list_mins.index(min(list_mins)))
 
     return err_no
 
@@ -355,23 +255,20 @@ def delay_time(chromosome, element_delay):
     Returns: delay (float): delay of current chromosome.
 
     Examples of execution:
-        >>> [delay_time(chromosome, 1) for chromosome in generation_or1]
-        [1, 1, 1, 1]
-        >>> [delay_time(chromosome, 2) for chromosome in generation_or2]
-        [2, 4]
+        >>> [delay_time(chromosome, 1) for chromosome in generation_or]
+        [1, 1, 1, 1, 2]
         >>> [delay_time(chromosome, 3) for chromosome in generation_sum]
-        [12, 15, 18, 12]
+        [12, 12, 18, 12]
 
     """
-    count = 0
+    delay_list = []
+    chrm = list(map(list, zip(*chromosome))) # switch rows <-> columns
 
-    for gene in chromosome:
-        for alel in gene:
-            if alel != [0, 0]:
-                count += 1
-                break
-            
-    return count * element_delay
+    for line in chrm:
+        delay_list.append(line.count(1))
+        delay_list[-1] += line.count(2)
+
+    return max(delay_list) * element_delay
 
 def quantum_cost(chromosome, el_quantum_cost):
     """ Returns quantum value of schemotechnical system.
@@ -383,21 +280,18 @@ def quantum_cost(chromosome, el_quantum_cost):
     Returns: quantum_cost (float): quantum cost of current chromosome.
 
     Examples of execution:
-        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or1]
-        [5, 5, 5, 5]
-        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or2]
-        [5, 10]
+        >>> [quantum_cost(chromosome, 5) for chromosome in generation_or]
+        [5, 5, 5, 5, 10]
         >>> [quantum_cost(chromosome, 5) for chromosome in generation_sum]
         [25, 40, 45, 35]
 
     """
-    elements_number = 0
+    element_no = 0
 
     for gene in chromosome:
-        elements_number +=\
-            (len(gene) - gene.count([0, 0])) // FREDKIN_INPUTS_NUMBER
-
-    return elements_number * el_quantum_cost
+       if 2 in gene: element_no +=1
+       
+    return element_no * el_quantum_cost
 
 def garbage_outs_number(signals):
     """ Returns number of garbage outputs/ extra inputs
@@ -416,18 +310,13 @@ def garbage_outs_number(signals):
         >>> garbage_outs_number([ins_sum, outs_sum])
         3
     """
-    numbers = []  
+    align_no = 0 
 
-    for signal_type in signals:
-        ind = 0
+    for row in signals[0]:
+        if row.count(row[0]) == len(row):
+            align_no += 1
 
-        for row in signal_type:
-            if row.count(row[0]) == len(row):
-                ind += 1
-
-        numbers.append(ind)   
-
-    return max(numbers[0], numbers[1])
+    return max  (align_no, len(signals[0]) - len(signals[1]))
 
 def generation_result(generation, inputs, outputs, coefs):
     """ Returns one dimensional list of fitness function values for current generation.
@@ -448,20 +337,17 @@ def generation_result(generation, inputs, outputs, coefs):
         m i of input on that element (0 <= m < 3). 
 
     Examples of execution:
-        >>> [round(result, 3) for result in generation_result(generation_or1, \
+        >>> [round(result, 3) for result in generation_result(generation_or, \
             ins_or, outs_or, coefs)]
-        [0.978, 0.978, 0.978, 0.528]
-        >>> [round(result, 3) for result in generation_result(generation_or2, \
-            ins_or, outs_or, coefs)]
-        [0.528, 0.963]
+        [0.978, 0.978, 0.528, 0.528, 0.963]
         >>> [round(result, 3) for result in generation_result(generation_sum, \
             ins_sum, outs_sum, coefs)]
-        [0.945, 0.123, 0.169, 0.943]
+        [0.945, 0.125, 0.169, 0.943]
     """
     results = []
 
     for chromosome in generation:
-        e = err_list(chromosome, inputs, outputs)
+        e = err_no(chromosome, inputs, outputs)
         c = quantum_cost(chromosome, FREDKIN_QUANTUM_COST)
         g = garbage_outs_number([inputs, outputs])
         s = delay_time(chromosome, FREDKIN_DELAY)
@@ -470,106 +356,190 @@ def generation_result(generation, inputs, outputs, coefs):
 
     return results
 
+
+TEST={
+    'coefs': [0.9, 0.034, 0.033, 0.033],
+
+    'ins_or': [[0, 0, 1, 1],  
+               [0, 1, 0, 1],  
+               [1, 1, 1, 1]],
+
+    'outs_or': [[0, 1, 1, 1]], 
+
+    'generation_or': [[[2, 1, 1]],
+                       
+                      [[0, 0, 0],
+                       [1, 2, 1],
+                       [0, 0, 0]],
+
+                      [[1, 1, 2],
+                       [0, 0, 0],
+                       [0, 0, 0]],
+                       
+                      [[0, 0, 0],
+                       [1, 1, 2]],
+                       
+                      [[0, 0, 0],
+                       [1, 1, 2],
+                       [0, 0, 0],
+                       [2, 1, 1],
+                       [0, 0, 0]]],
+
+    'outs_sum': [[0, 1, 1, 0, 1, 0, 0, 1], 
+                 [0, 0, 0, 1, 0, 1, 1, 1],
+                 [0, 0, 1, 1, 1, 1, 0, 0]],
+
+    'ins_sum': [[0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 1, 1, 0, 0, 1, 1],
+                [0, 1, 0, 1, 0, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1]],
+
+    'big_outs': [[0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1], 
+                 [0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1],
+                 [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1],
+                 [0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1],
+                 [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
+
+    'big_ins': [[1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1],
+                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+
+    # 'outs_sum': [[0, 0, 0, 2, 2, 2],
+    #              [1, 0, 0, 2, 2, 2],
+    #              [1, 0, 1, 2, 2, 2],
+    #              [0, 1, 1, 2, 2, 2],
+    #              [1, 0, 1, 2, 2, 2],
+    #              [0, 1, 1, 2, 2, 2],
+    #              [0, 1, 0, 2, 2, 2],
+    #              [1, 1, 0, 2, 2, 2]],
+
+    # 'ins_sum': [[0, 0, 0, 1, 0, 1],
+    #             [0, 0, 1, 1, 0, 1],
+    #             [0, 1, 0, 1, 0, 1],
+    #             [0, 1, 1, 1, 0, 1],
+    #             [1, 0, 0, 1, 0, 1],
+    #             [1, 0, 1, 1, 0, 1],
+    #             [1, 1, 0, 1, 0, 1],
+    #             [1, 1, 1, 1, 0, 1]],
+
+    'generation_sum': [[[0, 2, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [2, 1, 0, 0, 0, 1],
+                        [1, 0, 0, 1, 2, 0],
+                        [0, 2, 1, 0, 0, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [1, 0, 1, 0, 0, 2]],
+                        
+                       [[0, 2, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 2, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 2, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [2, 1, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 1],
+                        [1, 0, 0, 1, 0, 2],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 1, 2, 0, 1, 0]],
+
+                       [[0, 2, 1, 0, 0, 1],
+                        [2, 0, 1, 0, 0, 1],
+                        [2, 0, 0, 1, 1, 0],
+                        [0, 1, 1, 0, 0, 2],
+                        [1, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 0, 1, 0],
+                        [1, 0, 0, 0, 1, 2],
+                        [0, 2, 1, 1, 0, 0],
+                        [1, 1, 0, 0, 0, 2]],
+
+                       [[2, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 2, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 2, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [2, 0, 1, 1, 0, 0],
+                        [0, 1, 0, 0, 2, 1],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 2, 1, 0],
+                        [0, 1, 1, 0, 0, 2]]],
+
+    'big_generation': [[[0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 2, 1, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 2],
+                        [1, 0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 1, 2, 0, 0],
+                        [2, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 1, 0, 0, 0],
+                        [1, 0, 0, 1, 0, 2, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 2, 1, 1, 0],
+                        [0, 1, 2, 0, 1, 0, 0, 0, 0]],
+                       
+                       [[0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 2, 1, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 2],
+                        [1, 0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 1, 2, 0, 0],
+                        [2, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 1, 0, 0, 0],
+                        [1, 0, 0, 1, 0, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 2],
+                        [1, 0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 1, 2, 0, 0],
+                        [2, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 2],
+                        [1, 0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 1, 2, 0, 0],
+                        [2, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 0, 1, 2],
+                        [1, 0, 0, 0, 1, 2, 0, 0, 0],
+                        [0, 0, 1, 0, 0, 0, 2, 0, 1],
+                        [0, 2, 1, 1, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 1, 1, 2, 0, 0],
+                        [2, 1, 1, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 1, 0, 0, 0],
+                        [1, 0, 0, 1, 0, 2, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 2, 1, 1, 0, 0, 0],
+                        [1, 0, 0, 1, 0, 2, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 2, 1, 1, 0],
+                        [0, 1, 2, 0, 1, 0, 0, 0, 0]]]
+
+    }
+
+def test_err_(): err_no(TEST['big_generation'][1], TEST['big_ins'], TEST['big_outs']) 
+
+print(timeit(test_err_, number=ITERATION_POWER))
+
 if __name__ == '__main__':
     import doctest
-    doctest.testmod(extraglobs=
-        {'coefs':            [0.9, 0.034, 0.033, 0.033],
-
-         'ins_or':           [[0,0,1,1], [0,1,0,1], [1,1,1,1]],
-         'outs_or':          [[0,1,1,1], [None,None,None,None], [None,None,None,None]],
-         'generation_or1':    [[[[1,0], [1,1], [1,2]]],
-                               [[[1,1], [1,0], [1,2]]],
-                               [[[1,0], [1,2], [1,1]]],
-                               [[[1,2], [1,1], [1,0]]]],
-         'generation_or2':    [[[[0,0], [0,0], [0,0]],
-                                [[1,1], [1,2], [1,0]],
-                                [[0,0], [0,0], [0,0]],
-                                [[0,0], [0,0], [0,0]]],
-                               [[[0,0], [0,0], [0,0]],
-                                [[1,1], [1,2], [1,0]],
-                                [[0,0], [0,0], [0,0]],
-                                [[1,0], [1,2], [1,1]]]],
-
-         'ins_sum':          [[0,0,0,0,1,1,1,1], 
-                                 [0,0,1,1,0,0,1,1],
-                                 [0,1,0,1,0,1,0,1],
-                                 [1,1,1,1,1,1,1,1],
-                                 [0,0,0,0,0,0,0,0],
-                                 [1,1,1,1,1,1,1,1]],
-         'outs_sum':          [[0,1,1,0,1,0,0,1], 
-                                 [0,0,0,1,0,1,1,1],
-                                 [0,0,1,1,1,1,0,0],
-                                 [None,None,None,None,None,None,None,None],
-                                 [None,None,None,None,None,None,None,None],
-                                 [None,None,None,None,None,None,None,None]],
-         'generation_sum':   [[[[0,0], [1,0], [0,0], [0,0], [1,2], [1,1]],
-                               [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[1,0], [1,2], [0,0], [0,0], [0,0], [1,1]],
-                               [[2,2], [1,0], [1,1], [2,1], [2,0], [1,2]],
-                               [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[1,2], [0,0], [1,1], [0,0], [0,0], [1,0]]],
-                              [[[0,0], [1,0], [1,2], [1,1], [0,0], [0,0]],
-                               [[1,2], [0,0], [0,0], [0,0], [1,0], [1,1]],
-                               [[1,2], [2,0], [2,1], [2,2], [1,1], [1,0]],
-                               [[1,0], [1,1], [1,2], [2,0], [2,1], [2,2]],
-                               [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[2,1], [1,2], [1,0], [2,2], [1,1], [2,0]]],
-                              [[[0,0], [1,0], [1,2], [0,0], [0,0], [1,1]],
-                               [[1,0], [0,0], [1,2], [0,0], [0,0], [1,1]],
-                               [[2,0], [1,2], [1,1], [2,1], [2,2], [1,0]],
-                               [[1,2], [2,0], [2,1], [1,0], [2,2], [1,1]],
-                               [[1,2], [2,0], [2,2], [2,1], [1,1], [1,0]],
-                               [[1,1], [1,2], [0,0], [0,0], [0,0], [1,0]]],
-                             [[[1,0], [2,1], [2,2], [2,0], [1,2], [1,1]],
-                               [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[0,0], [0,0], [1,0], [0,0], [1,1], [1,2]],
-                               [[1,0], [2,1], [1,2], [1,1], [2,0], [2,2]],
-                               [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
-                               [[1,2], [2,1], [2,2], [1,0], [1,1], [2,0]]]],
-
-        'generation_sum_': [[0, 2, 0, 0, 1, 1,
-                             0, 0, 0, 0, 0, 0,
-                             2, 1, 0, 0, 0, 1,
-                             1, 0, 0, 1, 2, 0,
-                             0, 2, 1, 0, 0, 1,
-                             0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0,
-                             1, 0, 1, 0, 0, 2],
-                             
-                            [0, 2, 1, 1, 0, 0,
-                             0, 0, 0, 0, 0, 0,
-                             1, 0, 0, 0, 2, 1,
-                             1, 0, 0, 0, 1, 2,
-                             0, 2, 1, 1, 0, 0,
-                             2, 1, 1, 0, 0, 0,
-                             0, 0, 0, 2, 1, 1,
-                             1, 0, 0, 1, 0, 2,
-                             0, 0, 0, 0, 0, 0,
-                             0, 1, 2, 0, 1, 0],
-
-                            [0, 2, 1, 0, 0, 1,
-                             2, 0, 1, 0, 0, 1,
-                             2, 0, 0, 1, 1, 0,
-                             0, 1, 1, 0, 0, 2,
-                             1, 0, 0, 2, 0, 1,
-                             0, 2, 1, 0, 1, 0,
-                             1, 0, 0, 0, 1, 2,
-                             0, 0, 0, 0, 0, 0,
-                             0, 2, 1, 1, 0, 0,
-                             1, 1, 0, 0, 0, 2],
-
-                            [2, 0, 0, 0, 1, 1,
-                             0, 1, 1, 2, 0, 0,
-                             0, 0, 2, 0, 1, 1,
-                             0, 0, 0, 0, 0, 0,
-                             2, 0, 1, 1, 0, 0,
-                             0, 1, 0, 0, 2, 1,
-                             0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0,
-                             1, 0, 0, 2, 1, 0,
-                             0, 1, 1, 0, 0, 2]]
-
-         })
-
+    doctest.testmod(extraglobs=TEST)
