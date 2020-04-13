@@ -356,7 +356,6 @@ def generation_result(generation, inputs, outputs, coefs):
 
     return results
 
-
 TEST={
     'coefs': [0.9, 0.034, 0.033, 0.033],
 
