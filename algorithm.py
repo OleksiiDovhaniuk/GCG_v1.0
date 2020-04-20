@@ -1,5 +1,4 @@
 import random 
-from timeit import timeit
 
 
 class Genetic():
@@ -7,11 +6,16 @@ class Genetic():
 
     Each function of the modul represent stage of genetic algorithm.
 
-    Functions: 
-        __init__(sgn_no)
-        create_generation(size, gene_no),
+    Args: 
+        sgn_no (int): number of inputs/outputs signals coresponding
+            the intputed truth table.
+
+    Methods: 
+        create(size, gene_no),
         selection(values),
+        paar_crossover(a, b, generation, crossovered_generation, probability),
         point2_crossover(generation, indeces, probability),
+        chrm_mutation(chromosom),
         mutation(generation, mutation_probability)
 
     """
@@ -47,8 +51,9 @@ class Genetic():
         self.genes = genes
         self.index = 1
 
-    def create_generation(self, size, gene_no):
+    def create(self, size, gene_no):
         """ Create generation of chromosom for work with genetic algorithm.
+        Filling generation with approperet quazy random elements.
 
         Args:
             size (int): number of chromosomes.
@@ -58,13 +63,15 @@ class Genetic():
         Returns:
             generation (3D list): quazy random generated 3 dimensional list.
 
-        Note: 
-            Number of alleles in gene equals number of inputs/outputs in truth table.
-            Allele is int digit: 0, 1 or 2, 
-            where: 
-                0 - no gate input;
+        Note.1: Number of alleles in gene equals number of inputs/outputs in truth table.
+
+        Note.2: 
+            Allele is int digit: 0, 1 or 2, where: 
+                0 - NaN gate input;
                 1 - switching gate input;
-                2 - control gate input. 
+                2 - control gate input.
+
+        Note.3: There is muximum one elementary element per gene.
 
         """
         generation = []
@@ -72,8 +79,6 @@ class Genetic():
         index = self.index
         empty_coef = self.EMPTY_COEF
 
-        # Filling generation with quazy approperet random elements.
-        # Note: There is muximum one elementary element per gene.  
         for _ in range(size):
             chromosome = []
 
@@ -97,7 +102,6 @@ class Genetic():
 
         self.index = index
         return generation
-
 
     def selection(self, values):
         """ Chooses and pair parents for creating future generation.
@@ -150,7 +154,7 @@ class Genetic():
         empty_coef = self.EMPTY_COEF
 
         for paar in indeces[:-1]:
-            self.cossover_paar(paar[0], paar[1],\
+            self.paar_crossover(paar[0], paar[1],\
                 generation, crossovered_generation, probability)
 
         if len(indeces[-1]) == 1:
@@ -161,13 +165,13 @@ class Genetic():
 
             crossovered_generation.append(new_chrm)
         else:
-            self.cossover_paar(indeces[-1][0], indeces[-1][1],\
+            self.paar_crossover(indeces[-1][0], indeces[-1][1],\
                 generation, crossovered_generation, probability)
 
         self.index = index
         return crossovered_generation
 
-    def cossover_paar(self, a, b, generation, crossovered_generation, probability):
+    def paar_crossover(self, a, b, generation, crossovered_generation, probability):
         """ Crossover paar of parents chromosome.
 
         Args:
@@ -255,33 +259,3 @@ class Genetic():
                 mutated_generation.append(new_chromosome)
 
         return mutated_generation
-
-# if __name__ == '__main__':
-#     import doctest
-#     doctest.testmod(extraglobs={'size': 12,
-#                                 'gene_no': 5,
-#                                 'sgn_no': 6,
-#                                 'values': [.8, .85, .25, .8, .85, .25, .8, .85, .25],
-#                                 'crossover_probability': .5,
-#                                 'mutation_probability':  1
-#                             })
-
-
-# def test(): create_generation(40000, 20, 12) 
-
-# print(timeit(test, number=1))
-
-# size = 9000
-# gene_no = 5
-# sgn_no = 6
-# values = [.8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5,
-#         .8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5,
-#         .8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5, .8, .85, .5]
-# crossover_probability = .5
-# mutation_probability =  1
-
-# gntc = Genetic(sgn_no)
-# generation = gntc.create_generation(size, gene_no)
-# indeces = gntc.selection(values)
-# generation = gntc.point2_crossover(generation, indeces, crossover_probability)
-# generation = gntc.mutation(generation, mutation_probability)
