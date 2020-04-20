@@ -2,7 +2,7 @@ import random
 
 
 class Genetic():
-    """ Contain all ginetic algorithm stages
+    """ Contains all ginetic algorithm stages.
 
     Each function of the modul represent stage of genetic algorithm.
 
@@ -22,15 +22,15 @@ class Genetic():
     EMPTY_COEF = .3
 
     def __init__(self, sgn_no, control_range=(1,1)):
-        """ Creating list of all existing genes for current number of signals.
+        """ Creating list of all existing genes for the inputed values.
 
         Args: 
             sgn_no (int): number of inputs/outputs in truth table.
             control_range=(1,1): tuple of two integer digits (n, m), where
-                0 < n <= m and n - min number of control gates in thescheme,
+                0 < n <= m and n - min number of control gates in the scheme,
                 m - max number of control gates in the scheme 
-                (Note: when only one number is needed n = m and m should be
-                less than sgn_no - 1). 
+                (Note: when only one number is needed n = m and m for any 
+                inputed value less than sgn_no - 1).    
 
         Examples of execution:
             >>> Genetic(0).genes
