@@ -21,33 +21,55 @@ class Genetic():
     """
     EMPTY_COEF = .3
 
-    def __init__(self, sgn_no):
+    def __init__(self, sgn_no, control_range=(1,1)):
         """ Creating list of all existing genes for current number of signals.
 
         Args: 
             sgn_no (int): number of inputs/outputs in truth table.
+            control_range=(1,1): tuple of two integer digits (n, m), where
+                0 < n <= m and n - min number of control gates in thescheme,
+                m - max number of control gates in the scheme 
+                (Note: when only one number is needed n = m and m should be
+                less than sgn_no - 1). 
+
+        Examples of execution:
+            >>> Genetic(0).genes
+            [[0, 0]]
+            >>> Genetic(1).genes
+            [[0, 0]]
+            >>> len(Genetic(6).genes)
+            61
+            >>> [x in Genetic(6).genes for x in ganes_6]
+            [True, True, True, False, False, False, False]
+            >>> len(Genetic(5, (1, 1)).genes)
+            31
+            >>> [x in Genetic(5, (1, 1)).genes for x in ganes_5_11]
+            [True, True, True, False, False, False, False, False]
+            >>> len(Genetic(4, (2, 6)).genes)
+            7
+            >>> [x in Genetic(4, (2, 6)).genes for x in ganes_4_26]
+            [True, False, True, False, False, False, False]
 
         """
-        element = [0 for _ in range(sgn_no)]
-        genes = [element]
+        genes = [[0, 0]]
+        max_num = 2 ** sgn_no - 1
 
-        for i in range(sgn_no):
-            element[i] = 2
+        for control in range(max_num):
+            once_no = '{0:b}'.format(control).count('1')
 
-            for j in range(sgn_no):
-                if not element[j]: 
-                    element[j] = 1
+            if (
+                control_range[0] <= once_no <= control_range[1]
+                and
+                once_no < sgn_no - 1
+            ):
+                for switch in range(max_num):
+                    if (
+                        '{0:b}'.format(switch).count('1') == 2
+                        and
+                        control & switch == 0
+                    ): 
+                        genes.append([control, switch])
 
-                    for k in range(j, sgn_no):
-                        if not element[k]:
-                            element[k] = 1
-                            genes.append(element.copy())
-                            element[k] = 0
-
-                    element[j] = 0
-
-            element[i] = 0
-        
         self.genes = genes
         self.index = 1
 
@@ -72,7 +94,7 @@ class Genetic():
                 2 - control gate input.
 
         Note.3: There is muximum one elementary element per gene.
-
+        
         """
         generation = []
         genes = self.genes.copy()
@@ -259,3 +281,23 @@ class Genetic():
                 mutated_generation.append(new_chromosome)
 
         return mutated_generation
+
+__test_values__ = {
+    'ganes_6': [
+        [0, 0], [16, 3], [2, 5], [0, 3],
+        [16, 17], [63, 63], [32, 1],
+    ],
+    'ganes_5_11': [
+        [0, 0], [16, 3], [2, 5], [0, 3],
+        [16, 17], [1, 1], [32, 1], [1, 48],
+    ],
+    'ganes_4_26': [
+        [0, 0], [1, 6], [9, 6], [0, 3],
+        [16, 17], [1, 1], [32, 1],
+    ],
+     
+}
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod(extraglobs=__test_values__)
