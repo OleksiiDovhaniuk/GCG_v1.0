@@ -1,19 +1,19 @@
-""" Calculate fitness function value
-
-This module contains functions for work and 
-calculation the fitness function of current 
-genetic algorithm.
+""" This module contains the calculation functions 
+for the fitness function components and as a result 
+evaluetion function for inputed generation called 
+"calculate(generation, inputs, outputs, coefs)".
 
 Functions: 
     calculate(generation, inputs, outputs, coefs),
     garbage_outs_number(inputs, outputs),
     quantum_cost(chromosome, el_quantum_cost),
     delay_time(chromosome, element_delay),
-    elements_number(chromosome),
     err_no(chromosome, sgn_no inputs, outputs), 
-    fredkin_result(signals), 
     fitness_function(errors, c, g, s, coefs), 
-    k_from_error(errors), g_from_c(c), h_from_g(g), i_from_s(s).
+    k_from_error(errors), 
+    g_from_c(c), 
+    h_from_g(g), 
+    i_from_s(s).
 
 """
 import math
@@ -123,23 +123,20 @@ def fitness_function(errors, c, g, s, coefs):
     return value
 
 def err_no(chromosome, sgn_no, inputs, outputs):
-    """`[Warning]: description needs to be reconsidered!` 
-    Returns errors number of schemotechnical system.
+    """Returns errors number of the scheme (or chromosome, or genotype).
 
     Args: 
-        chromosome (3D list): individual one from generation;
+        chromosome (3D list): one individual from the  generation;
         sgn_no (int);
         inputs (tuple of ints): input signals from truth table,
             decimal representations of hexidicimal digits, which 
             represent `column` in the truth table;
-        outputs (tuple of ints): output signals from truth table,
-            decimal representations of hexidicimal digits, which 
-            represent `row` in the truth table.
+        outputs (2D tuple): output signals from truth table,
+            binary representations of columns in the truth table.
     
-    Returns: err_no(int): minimal number of errors in current chromosome.
+    Returns: err_no(int): minimal number of errors in the chromosome.
 
     Note: 
-        Sizes of inputs and outputs tuples is equal. 
         Gene is look like [n (int), m (int)], 
         where n, m hexidicimal digits; n (in binar view) 
         represents positions of control gates and
@@ -186,12 +183,11 @@ def err_no(chromosome, sgn_no, inputs, outputs):
     return err_no
         
 def delay_time(chromosome, sgn_no,  element_delay):
-    """`[Warning]: description needs to be reconsidered!` 
-    Returns delay value of system in ns.
+    """ Calculates delay value of system in units of element delay.
 
     Args: 
-        chromosome (3D list): individual of generation;
-        element_delay (float): logic gate delay in nano secunds;
+        chromosome (2D list): one individual of the generation;
+        element_delay (float): logic gate delay;
         sgn_no (int).
 
     Returns: delay (float): delay of current chromosome.
@@ -216,14 +212,13 @@ def delay_time(chromosome, sgn_no,  element_delay):
     return max(delay_list) * element_delay
 
 def quantum_cost(chromosome, el_quantum_cost):
-    """`[Warning]: description needs to be reconsidered!` 
-    Returns quantum value of schemotechnical system.
+    """ Calculates quantum cost of the scheme (or chromosome, or genotype).
     
     Args: 
-        chromosome (3D list): individual of generation.
-        el_quantum_cost (int): logic gate quantum cost.
+        chromosome (2D list): individual of generation.
+        el_quantum_cost (float): logic gate quantum cost.
     
-    Returns: quantum_cost (int): quantum cost of current chromosome.
+    Returns: quantum_cost (float): quantum cost of the chromosome.
 
     Examples of execution:
         >>> [quantum_cost(chromosome, 5) for chromosome in generation_or]
@@ -240,18 +235,15 @@ def quantum_cost(chromosome, el_quantum_cost):
     return element_no * el_quantum_cost
 
 def garbage_outs_number(sgn_no, inputs, outputs):
-    """`[Warning]: description needs to be reconsidered!` 
-    Returns number of garbage outputs/ extra inputs
+    """ Calculates number of garbage outputs/ extra inputs.
 
     Args: 
         sgn_no (int): number of signals;
-        inputs (tuple of ints): input signals from truth table;
-        outputs (2D tuple): output signals from truth table.
+        inputs (tuple of ints): hexadecimal representation of
+            input signals from truth table;
+        outputs (2D tuple): binary representation output 
+            signals from truth table.
     
-    Returns: elements_number (int): number of logic gates.
-
-    Note: Size of inputs and outputs lists is equal. 
-
     Examples of execution:
         >>> garbage_outs_number(no_or, ins_or, outs_or)
         2
@@ -263,8 +255,7 @@ def garbage_outs_number(sgn_no, inputs, outputs):
     return max(sgn_no-align_no, sgn_no-len(outputs[0]))
 
 def calculate(generation, sgn_no, inputs, outputs, coefs):
-    """ `[Warning]: description needs to be reconsidered!` 
-    Returns one dimensional list of fitness function values for current generation.
+    """ Calculates fitness function values for the inputed generation.
 
     Args: 
         generation (3D list): current generation;
@@ -273,14 +264,7 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
         outputs (2D tuple): output signals from truth table;
         coefs (tuple of ints): fitness function coeficients in order: α, ß, y, δ
     
-    Returns: calculate (list): fitness function values for each chromosome.
-
-    Note: 
-        Size of inputs and outputs lists is equal. 
-        Number of alets is equal to number of rows in inputs/outputs list.
-        Alet is look like [n (int), m (int)], 
-        where n is logic element i (n >= 0),
-        m i of input on that element (0 <= m < 3). 
+    Returns(list of ints): evaluation values of the inputed generation.
 
     Examples of execution:
         >>> [round(result, 3) for result in calculate(generation_or, no_or,\
@@ -302,7 +286,7 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
 
     return results
 
-__values__ = {
+__test_values__ = {
     'coefs': [0.9, 0.034, 0.033, 0.033],
     'no_or': 3,
     'no_sum': 6,
@@ -534,9 +518,4 @@ __values__ = {
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod(extraglobs=__values__)
-
-def test_err():
-    err_no(__values__['generation_sum'][0], __values__['no_sum'], __values__['ins_sum'], __values__['outs_sum'])
-
-print(timeit(test_err, number=ITERATION_POWER))
+    doctest.testmod(extraglobs=__test_values__)
