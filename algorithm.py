@@ -6,9 +6,13 @@ class Genetic():
 
     Each function of the modul represent stage of genetic algorithm.
 
-    Args: 
-        sgn_no (int): number of inputs/outputs signals coresponding
-            the intputed truth table.
+   Args: 
+        sgn_no (int): number of inputs/outputs in truth table.
+        control_range=(1,1): tuple of two integer digits (n, m), where
+            0 < n <= m and n - min number of control gates in the scheme,
+            m - max number of control gates in the scheme 
+            (Note: when only one number is needed n = m and m for any 
+            inputed value less than sgn_no - 1).    
 
     Methods: 
         create(size, gene_no),
@@ -158,81 +162,83 @@ class Genetic():
 
         return parent_indeces
 
-    def point2_crossover(self, generation, indeces, probability):
-        """ Crossover the parents in generation to get new generation.
+    def point2_crossover(self, generation, parents, probability):
+        """ Crossovers the parents in generation to get new generation.
 
         Args: 
-            generation (3D list of ints).
-            indeces (list of floats): list of parents indeces.
+            generation (3D list of ints);
+            parents (list of ints): list of parents indeces;
+            probability (float): crossover probability.
         
         Returns: crossovered_generation (3D list of ints): 
             new generation after crossover.
 
         """
-        crossovered_generation = []
-        chrm_size = len(generation[0])
-        genes = self.genes.copy()
-        index = self.index
-        empty_coef = self.EMPTY_COEF
+        new_generation = []
 
-        for paar in indeces[:-1]:
-            self.paar_crossover(paar[0], paar[1],\
-                generation, crossovered_generation, probability)
+        for paar in parents[:-1]:
+            self.paar_crossover(
+                generation[paar[0]], 
+                generation[paar[1]], 
+                new_generation, 
+                probability
+            )
+        if len(parents[-1]) == 1:
+            new_chrm = generation[parents[-1][0]].copy()
 
-        if len(indeces[-1]) == 1:
-            new_chrm = generation[indeces[-1][0]].copy()
-
-            while new_chrm in crossovered_generation:
+            while new_chrm in new_generation:
                 new_chrm = self.chrm_mutation(new_chrm)
 
-            crossovered_generation.append(new_chrm)
+            new_generation.append(new_chrm)
         else:
-            self.paar_crossover(indeces[-1][0], indeces[-1][1],\
-                generation, crossovered_generation, probability)
+            self.paar_crossover(
+                generation[parents[-1][0]], 
+                generation[parents[-1][1]], 
+                new_generation, 
+                probability
+            )
 
-        self.index = index
-        return crossovered_generation
+        return new_generation
 
-    def paar_crossover(self, a, b, generation, crossovered_generation, probability):
-        """ Crossover paar of parents chromosome.
+    def paar_crossover(self, a, b, new_generation, probability):
+        """ Crossover the paar of the parents chromosome.
 
         Args:
-             generation (3D list of ints)
-             crossovered_generation (3D list of ints) - mutable
-             a (int) - an index of the first chromosome
-             b (int) - an index of the second chromosome
-             probability (float) - crossover probaility
+            a (2D list): first chromosome;
+            b (2D list): second chromosome;
+            new_generation (3D list of ints): mutable;
+            probability (float): crossover probaility.
         
-        Note: New children chromosomes are unique for crossovered generation
+        Note: New children chromosomes are unique for crossovered generation.
 
         """
         # Initiating child chromosomes
-        new_ab = generation[a].copy()
-        new_ba = generation[b].copy()
+        new_ab = a.copy()
+        new_ba = b.copy()
         size = len(new_ab)
 
         if random.random() < probability:
             crossover_len = random.randint(1, size-1)
-            point_a = random.randint(0, size-crossover_len-1)
-            point_b = random.randint(0, size-crossover_len-1)
+            point_a = random.randint(0, size-crossover_len)
+            point_b = random.randint(0, size-crossover_len)
 
             new_ab[point_a : point_a+crossover_len]\
-                = generation[b][point_b : point_b+crossover_len].copy()
+                = b[point_b : point_b+crossover_len].copy()
 
             new_ba[point_b : point_b+crossover_len]\
-                = generation[a][point_a : point_a+crossover_len].copy()
+                = a[point_a : point_a+crossover_len].copy()
         
-        while new_ab in crossovered_generation:
+        while new_ab in new_generation:
             new_ab = self.chrm_mutation(new_ab)
             
-        while new_ba in crossovered_generation:
+        while new_ba in new_generation:
             new_ba = self.chrm_mutation(new_ba)
 
-        crossovered_generation.append(new_ab.copy())
-        crossovered_generation.append(new_ba.copy())
+        new_generation.append(new_ab.copy())
+        new_generation.append(new_ba.copy())
 
     def chrm_mutation(self, chromosom):
-        """ Mutating a singl chromosom.
+        """ Mutation of the single chromosom.
 
         Args: chromosom (2D list of ints)
 
@@ -256,13 +262,13 @@ class Genetic():
         """ Mutate the chromosomes in generation.
 
         Args: 
-            generation (3D list of ints).
-            probability (float).
+            generation (3D list of ints);
+            probability (float): mutation probability.
         
         Returns: mutated generation (3D list)
 
         Note: 
-            Mutation probability in range (0, 1]. 
+            The pobability in range (0, 1];
             Usually probability is at least 10-times smaller
             than crossover_probability.
 
@@ -276,7 +282,6 @@ class Genetic():
 
                 while new_chromosome in mutated_generation:
                     new_chromosome = self.chrm_mutation(new_chromosome)
-                    index +=1
 
                 mutated_generation.append(new_chromosome)
 
