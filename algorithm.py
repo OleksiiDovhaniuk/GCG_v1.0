@@ -6,7 +6,7 @@ class Genetic():
 
     Each function of the modul represent stage of genetic algorithm.
 
-   Args: 
+    Args: 
         sgn_no (int): number of inputs/outputs in truth table.
         control_range=(1,1): tuple of two integer digits (n, m), where
             0 < n <= m and n - min number of control gates in the scheme,
@@ -211,6 +211,12 @@ class Genetic():
         
         Note: New children chromosomes are unique for crossovered generation.
 
+        Examples of execution:
+            >>> gntc1.paar_crossover(chrm11, chrm12, gnrtn1, crss_prb1)
+            >>> gnrtn1[0].extend(gnrtn1[1])
+            >>> [chrm in gnrtn1[0] for chrm in chrm_list1]
+            [True, True, True, True, True, True, True, True, False, False, False, False]
+
         """
         # Initiating child chromosomes
         new_ab = a.copy()
@@ -300,7 +306,17 @@ __test_values__ = {
         [0, 0], [1, 6], [9, 6], [0, 3],
         [16, 17], [1, 1], [32, 1],
     ],
-     
+
+    'gntc1': Genetic(6),
+    'chrm11': [[1, 6], [32, 3], [8, 3], [4, 33]],
+    'chrm12': [[1, 34], [32, 6], [8, 6], [4, 3]],
+    'gnrtn1': [],
+    'crss_prb1': 1,
+    'chrm_list1': [
+        [1, 6], [32, 3], [8, 3], [4, 33],
+        [1, 34], [32, 6], [8, 6], [4, 3],
+        [1, 20], [32, 12], [8, 36], [4, 9]
+    ],
 }
 
 if __name__ == '__main__':
