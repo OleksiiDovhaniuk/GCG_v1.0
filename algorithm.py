@@ -56,7 +56,7 @@ class Genetic():
 
         """
         genes = [[0, 0]]
-        max_num = 2 ** sgn_no - 1
+        max_num = int(2 ** sgn_no - 1)
 
         for control in range(max_num):
             once_no = '{0:b}'.format(control).count('1')
