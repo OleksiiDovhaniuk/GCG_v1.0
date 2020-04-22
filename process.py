@@ -1,203 +1,249 @@
-import genetic_algorithm as gntc
-import file_work         as fw
-import matplotlib.pyplot as plot
+from datetime import datetime
 
-from fitness_function    import generation_result
-from numpy               import array
-from datetime            import datetime
-from pandas              import DataFrame
+from pandas import DataFrame
+
+import file_work as fw
+from algorithm import Genetic
+from fitness_function import calculate
+
+
+class Result():
+    """A class represents the result of the algorithm process.
+
+    Instances:
+        chromosome (2d list of ints): shape = gene_no * 2
+        value (float): fitness function value accordinly;
+        time (float): time spended for element search;
+        is_proper (bool).
+    
+    """
+    def __init__(self, chromosome, value=None, time=None, is_proper=True):
+        self.chromosome = chromosome
+        self.value = value
+        self.time = time
+        self.is_proper = bool(is_proper)
+
+    def __str__(self):
+        if self.is_proper: 
+            str_res = f'Proper genotype:'
+        else: 
+            str_res = 'Genotype:'
+
+        for gene in self.chromosome:
+            str_res += f'{gene}, '
+        
+        str_res += f'\nValue {round(self.value)};\n'
+        str_res += f'Search time {self.time}.'
+
+        return str_res
 
 class Process():
-    def __init__(self):
-        start_time      = self.start_time = datetime.now()
-        self.pause_time = start_time - start_time
+    """The class initialies and handles the Genetic Algorithm
+    calculation process; also prepares data for GUI 
+    representation. The data for the class are pulled from
+    the files. 
 
-        configurations  = fw.read_configurations()
-        truth_table     = fw.read_truth_table()
-       
-        generation_size  = configurations['generation size'] ['value']
-        chromosome_size  = configurations['chromosome size'] ['value']
-        memorised_number = configurations['memorised number']['value']
-        alpha            = configurations['alpha']           ['value']
-        betta            = configurations['betta']           ['value']
-        gamma            = configurations['gamma']           ['value']
-        lamda            = configurations['lambda']          ['value']
-        coefs            = [alpha, betta, gamma, lamda]
-        inputs           = array(truth_table['inputs'] .values).T.tolist()
-        outputs          = array(truth_table['outputs'].values).T.tolist()
-        have_result      = False
-
-
-        generation = gntc.create_generation(generation_size, 
-                                            chromosome_size, 
-                                            len(inputs))
-        # ff: fitness function
-        ff_results = generation_result(generation, 
-                                    inputs, 
-                                    outputs, 
-                                    coefs) # [alpha, betta, gamma, lambda]
-
-        columns = ['chromosome', # DataFrame columns
-                   'value',      # fitness function value
-                   'time',]      # search time
-
-        data    = []             # DataFrame data 
-
-        self.time = datetime.now() - (start_time + self.pause_time)
-        # add best N (N = memorised_number) chromosome to the DataFrame data of the best results 
-        for _ in range(memorised_number):
-            max_ff    = -1
-            index_max = -1
-            for index, value in enumerate(ff_results):
-                if value > max_ff:
-                    index_max = index 
-                    max_ff    = value
-            data.append([generation[index_max], max_ff, self.time])
-
-            generation.pop(index_max)
-            ff_results.pop(index_max)
-
-        # serach for the appropiate chromosomes
-        index = 0
-        value = data[index][1]
-        data_proper = [] # DataFrame data of proper chromosomes
-        while value > alpha:
-            data_proper.append(data[index])
-            have_result = True
-            index += 1
-
-
-        self.generation_size       = configurations['generation size']      ['value']
-        self.chromosome_size       = configurations['chromosome size']      ['value']
-        self.crossover_probability = configurations['crossover probability']['value']
-        self.mutation_probability  = configurations['mutation probability'] ['value']
-        self.info_delay            = 1
-        self.iteration             = 0
-        self.configurations        = configurations
-        self.truth_table           = truth_table
-        self.memorised_number      = memorised_number
-        self.inputs                = inputs
-        self.outputs               = outputs
-        self.coefs                 = coefs
-        self.ff_results            = ff_results # ff: fitness function
-        self.generation            = generation
-        self.best_results          = DataFrame(columns=columns, data=data)
-        self.proper_results        = DataFrame(columns=columns, data=data_proper)
-        self.have_result           = have_result
-        self.columns               = columns
-        
-        self.time      = datetime.now() - start_time 
-        str_time       = '0' + str(self.time)[:7] 
-        max_value      = data[0][1]
-        self.message   = f'Process time {str_time}, the best result: {round(max_value, 6)}'
-        self.flag_time = datetime.now()
-        self.int_time  = int(round(self.time.total_seconds(), 0))
+    Methods:
+        create_chunk(step_size),
+        end_loop(),
+        do_loop(),
+        do_chunk(step_size),
+        regulate(x, p).
     
-        self.iterations = [0]
-        self.maxes      = [max_value]
+    """
+    DELTA = (.016, .04)
+    _creation_step = 100
+    _loop_step = 100
+
+    def __init__(self):
+        """ First of all, pulls configurations and the truth table
+        from the responsible files. Afterwords, creats 
+        genetic material for the work with genetic algorithm. 
+
+        """
+        self.start_time = datetime.now()
+        self.pause_time = 0
+        self.have_result = False
+
+        self.configs = configs = fw.read_configs()
+        self.coefs = [
+            configs.loc['alpha', 'value'],
+            configs.loc['betta', 'value'],
+            configs.loc['gamma', 'value'],
+            configs.loc['lambda', 'value']
+            ]
+
+        truth_table = fw.read_ttbl()
+        self.inputs = truth_table['inputs'].copy()
+        self.outputs = truth_table['outputs'].copy()
+        self.gntc = Genetic(configs.loc['gene size', 'value'])
+        self.results = []
+        self.bests = []
+
+        # Y axes of the plot:
+        self.maxs = [] 
+        self.mins = []
+        self.avgs = []
+        self.iterations = []  # X axes of the plot
+    
+    def create_chunk(self, step_size=_creation_step):
+        """The method generats chunks of the generation and 
+        appends it to the existing part of the generation. 
+        Size of this chunk equals step_size.
+
+        Args: 
+            step_size (int): by default step_size = _creation_step.
+                It is better to do not change the argument manualy.
+
+        Returns: 
+            True if it is the last chunk of the generation,
+            False - otherwise.
+        """
+        start = datetime.now()
+
+        current_size = len(self.generation)
+        size = self.configs['generation size']['value']
+        is_last = False
+
+        inputs = self.inputs
+        outputs = self.outputs
+        coefs = self.coefs
         
+        if current_size + step_size > size:
+            chunk = self.gntc.create(chunk, size-current_size, self.gene_no)
+            is_last = True
+        else:
+            chunk = self.gntc.create(step_size, self.gene_no)
+        
+        values = calculate(chunk, inputs, outputs, coefs)
+        time = datetime.now() - self.start_time - self.pause_time
+
+        for chromosome, value in zip(chunk, values):
+            if value > self.configs['alpha']['value']:
+                self.results.append(Result(chromosome, value, time, True))
+            else:
+                self.results.append(Result(chromosome, value, time))
+
+        _creation_step = self.regulate(_creation_step, start-datetime.now())
+        return is_last
+
+    def end_loop(self):
+        """The method finishs the iteration of the Genetic Algorithm.
+        Prepare data for use in upper classes of the program
+        
+        """
+        bests_no = self.configs['memorised number']['value']
+        size = self.configs['generation size']['value']
+        results = self.results = sorted(self.results, key=self.results.value)[-size:]
+
+        if self.bests:
+            self.bests.extand(results[-bests_no:].copy())
+            self.bests = sorted(self.bests,  key=self.best.value)[-bests_no:]
+        else: 
+            self.bests= results[-bests_no:].copy()
+
+        self.maxs.append(results[-1].value)
+        self.mins.append(results[0].value)
+        self.avgs.append(sum([result.values for result in results]) / len(results))
+        for _ in range(size):
+            self.index.append(self.index[-1]+1)
 
     def do_loop(self):
-        best_results          = self.best_results
-        proper_results        = self.proper_results
-        ff_results            = self.ff_results
-        generation            = self.generation
-        generation_size       = self.generation_size
-        crossover_probability = self.crossover_probability
-        mutation_probability  = self.mutation_probability
-        inputs                = self.inputs
-        outputs               = self.outputs
-        coefs                 = self.coefs
-        alpha                 = self.coefs[0]
-        start_time            = self.start_time
-        memorised_number      = self.memorised_number
-        configurations        = self.configurations
-        truth_table           = self.truth_table
-        have_result           = self.have_result
-        columns               = self.columns
+        """This method begins the iteration of the Genetic Algorithm.
+        Steps: selection, crossver and mutation are implemented here.
 
+        """
+        gntc = self.gntc
+        generation = [result.chromosome for result in self.results]
+        generation.extend([best.chromosome for best in self.bests])
+        values = [result.value for result in self.results]  # fitness function values
+        values.extend([best.value for best in self.bests])
+        crossover_prob = self.configs['crossover probability']['values']
+        mutation_prob = self.configs['mutation probability']['values']
 
-        # restore "stolen" chromosome back to generation
-        ff_results.extend(best_results['value'].tolist())
-        generation.extend(best_results['chromosome'].tolist())
-        while len(generation) > generation_size:
-            min_ff    = 99
-            index_min = -1
-            for index, value in enumerate(ff_results):
-                if value < min_ff: index_min = index 
-
-            generation.pop(index_min)
-            ff_results.pop(index_min)
+        parents = gntc.selection(values)
+        generation = gntc.point2_crossover(generation, values, crossover_prob)
+        self.generation = gntc.mutation(generation, mutation_prob)
         
-        # body of genetic algorithm process
-        paired_parents = gntc.roulette_selection(ff_results)
-        generation     = gntc.crossover(generation, 
-                                        paired_parents, 
-                                        crossover_probability)
-        generation     = gntc.mutation (generation, 
-                                        mutation_probability)
-        ff_results     = generation_result(generation, 
-                                           inputs, 
-                                           outputs, 
-                                           coefs)
+        self.results = []
 
-        # updating dictionary of the best chromosomes
-        self.time = datetime.now() - (start_time + self.pause_time)
-        top       = len(best_results.index) - 1
-        count     = 0
-        for index, value in enumerate(ff_results):
-            if (value >= alpha and 
-                generation[index] not in proper_results['chromosome'].tolist()):
+    def do_chunk(self, step_size=_loop_step):
+        """The method creates chunk of new results list from existing
+        generation.
 
-                have_result    = True
-                proper_results = proper_results.append([value, 
-                                                      generation[index], 
-                                                      self.time])
+        Args:
+            step_size (int): by default step_size = _loop_step.
+                It is better to do not change the argument manualy.
+        """
+        start = datetime.now()
 
-            if (value > best_results['value'].tolist()[top] and 
-                count < memorised_number):
-                
-                best_results = best_results.drop([top])
-                data         = best_results.values.tolist()
-                data.append([generation[index], value, self.time])
-                best_results = DataFrame(columns=columns,
-                                         data=data)
-                best_results = best_results.sort_values(by='value', 
-                                                        ascending=False)
+        size = len(self.generation)
+        top = len(self.results)
+        is_last = False
 
-                generation.pop(index)
-                ff_results.pop(index)
+        inputs = self.inputs
+        outputs = self.outputs
+        coefs = self.coefs
 
-                count += 1
-
-        # save results to a folder in new txt-file
-        if have_result:
-            proper_results = proper_results.sort_values(by='value',
-                                                        ascending=False)
-            fw.autosave('Complete Proper',
-                        proper_results, 
-                        configurations, 
-                        truth_table, 
-                        start_time)
+        if top + step_size > size:
+            chunk = self.generation[top:]
+            is_last = True
         else:
-            fw.autosave('Complete Best',
-                        best_results, 
-                        configurations, 
-                        truth_table, 
-                        start_time)
-
-        self.best_results   = best_results
-        self.ff_results     = ff_results
-        self.generation     = generation
-        self.proper_results = proper_results
-        self.iteration     += 1
-
-        self.time     = datetime.now() - (start_time + self.pause_time)
-        str_time      = '0' + str(self.time)[:7] 
-        max_value     = best_results['value'].tolist()[0]
-        self.message  = f'Process time {str_time}, the best result: {round(max_value, 6)}'
-        self.int_time = int(round(self.time.total_seconds(), 0))
-
-        self.iterations.append(self.iteration + 1)
-        self.maxes.append(max_value)
+            chunk = self.gntc.create(step_size, self.gene_no)
         
+        values = calculate(chunk, inputs, outputs, coefs)
+        time = datetime.now() - self.start_time - self.pause_time
+
+        for chromosome, value in zip(chunk, values):
+            if value > self.configs['alpha']['value']:
+                self.results.append(Result(chromosome, value, time, True))
+            else:
+                self.results.append(Result(chromosome, value, time))
+        
+        _loop_step = self.regulate(_loop_step, start-datetime.now())
+        return is_last
+
+    def regulate(self, x, p):
+        """ Change inputed x in order to fit it into 
+        range - DELTA with function: x = x * (1 - A),
+        where A = (2 * p - DELTA[0] - DELTA[1]) / (2 * p)
+
+        Args:
+            x (float): in result cannot be less than 1;
+            p (float): it is time point in the 
+                same unit (seconds) with DELTA, 
+                when x can be initialised in other units.   
+        
+        Examples of execution:
+        >>> prcs.regulate(1, .1)
+        1
+        >>> prcs.regulate(100, .1)
+        28
+        >>> prcs.regulate(28, .001)
+        784
+        >>> prcs.regulate(76, .04)
+        76
+        >>> prcs.regulate(16, .016)
+        16
+        """
+        
+        if (
+            p < self.DELTA[0]
+            or
+            p > self.DELTA[1]
+        ):
+            if p == 0: p = 0.00001
+            A = (2 * p - self.DELTA[0] - self.DELTA[1]) / (2 * p)
+
+            x = int(x * (1 - A))
+        
+        if x == 0: 
+            return 1
+        else: 
+            return x
+
+__test_values__ = {'prcs': Process()}
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod(extraglobs=__test_values__)
