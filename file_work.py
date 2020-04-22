@@ -1,211 +1,178 @@
-"""The module responses for saving/reading from files.
+"""The module responses for saving/reading in/from files.
 
     Constans:
-        CONFIG_PATH (str),
-        TTBL_PATH (str),
+        DEFAULT_PATH (str),
         AUTOSAVE_PATH (str),
-        MESSAGES_PATH (str),
-        DEFAULT_CONFIGS: pandas` DataFrame, 
-        DEFAILT_TTBL: dictionary of two pandas` DataFrames.
-
+        DEFAULT_DATA (nested dictionary).
+        
     Variables:
-        _max_autosaves_no (int)
+        _max_autosaves_no (int),
+        _autosave_names (list of strs).
 
     Functions:
-        save_configs(configs, path)
-        save_ttbl(truth_table, path)
-        read_configs(path)
-        read_ttbl(path)
+        save(data, path, indent),
+        read(path),
+        autosave(data).
 """
 import datetime
+import json
 import os
 import os.path
 
-from pandas import DataFrame, read_csv
 
+DEFAULT_PATH = "saves/data.json"
+AUTOSAVE_PATH = "saves/autosaves.json"
+DEFAULT_DATA ={
+    'Algorithm Configurations':{
+        'name': 'Genetic',
+        'configurations':{
+            'generation size':{
+                'value': 400,
+                'type': int,
+                'min_value': 'memorised number',
+                'max_value': 9999,
+                'is active': True,
+                'group': 'root'
+            },
+            'chromosome size':{
+                'value': 7,
+                'type': int,
+                'min_value': 2,
+                'max_value': 99,
+                'is active': True,
+                'group': 'root'
+            },
+            'gene size':{
+                'value': 6,
+                'type': int,
+                'min_value': 2,
+                'max_value': 99,
+                'is active': True,
+                'group': 'root'
+            },
+            'crossover probability':{
+                'value': .2,
+                'type': float,
+                'min_value': 0,
+                'max_value': 1,
+                'is active': True,
+                'group': 'root'
+            },
+            'mutation probability':{
+                'value': .02,
+                'type': float,
+                'min_value': 0,
+                'max_value': 1,
+                'is active': True,
+                'group': 'root'
+            },
+            'fitness function coeficients':{
+                'value': [.91, .03, .03, .03],
+                'type': list,
+                'min_value': 0,
+                'max_value': 1,
+                'is active': True,
+                'group': 'root'
+            },
+            'process time':{
+                'value': 600,
+                'type': int,
+                'min_value': 1,
+                'max_value': 99999999999,
+                'is active': True,
+                'group': 'process limits'
+            },
+            'iterations limit':{
+                'value': 1000,
+                'type': int,
+                'min_value': 1,
+                'max_value': 99999999999,
+                'is active': False,
+                'group': 'process limits'
+            },
+        },
+    },
+    'Truth Table':{
+        'inputs': {
+            'X': '00001111', 
+            'Y': '00110011', 
+            'C1': '01010101', 
+        },
+        'outputs': {
+            'S': '01101001', 
+            'C2': '00010111', 
+            'P': '00111100',
+        },
+    },
+    'Results':{
 
-CONFIG_PATH = "saves/configurations.csv"
-TTBL_PATH = "saves/"
-AUTOSAVE_PATH = "saves/autosaves/"
-MESSAGES_PATH = "res/messages/"
+    },
+    'Plot Configurations':{
 
-DEFAULT_CONFIGS = DataFrame( 
-    columns=['value','type','range','active'],
-    index=[
-        'generation size', 
-        'chromosome size',
-        'gene size',
-        'crossover probability',
-        'mutation probability',
-        'alpha',
-        'betta',
-        'gamma',
-        'lambda',
-        'progress time',
-        'iterations limit'
-        ], 
-    data=[
-        [400, int, ('memorised number', 9999), None],
-        [7, int, (2, 99), None],
-        [6, int, (2, 99), None],
-        [.2, float, (0, 1), None],
-        [.02, float, (0, 1), None],
-        [.91, float, (0, 1), None],
-        [.03, float, (0, 1), None],
-        [.03, float, (0, 1), None],
-        [.03, float, (0, 1), None],
-        [600, int, (1, 99999999999), True],
-        [1000, int, (1, 99999999999), False],
-    ])
-
-DEFAULT_TTBL = {
-    'inputs': 
-        DataFrame(index=['X', 'Y', 'C1'], 
-            data=[[0, 0, 0, 0, 1, 1, 1, 1],
-                  [0, 0, 1, 1, 0, 0 ,1, 1],
-                  [0, 1, 0, 1, 0, 1, 0, 1]]),
-
-    'outputs': DataFrame(index=['S', 'C2', 'P'],
-            data=[[0, 1, 1, 0, 1, 0, 0, 1],
-                  [0, 0, 0, 1, 0, 1, 1, 1],
-                  [0, 0, 1, 1, 1, 1, 0, 0]])
+    },
 }
 
 _max_autosaves_no = 20
+_autosave_names = []
 
-def save_configs(configs, path=CONFIG_PATH):
-    """Function saves configurations into CSV file.
+def save(data, path=DEFAULT_PATH, indent=4):
+    """ Function saves  configurations` data from .json file.
 
     Args: 
-        configs: pandas` DataFrame;
-        path (str).
+        data: nested dictionary;
+        path (str);
+        indent (int).
 
     """
-    configs.to_csv(f'{path}.csv', index=False)
+    try:
+        f = open(path, 'w+')
+        f.write(json.dumps(data, sort_keys=False, indent=indent))
+        f.close()
 
-def save_ttbl(truth_table, path=TTBL_PATH):
-    """Function saves the truth table into CSV files.
-
-    Args:
-        truth_table: dctionary of two pandas` DataFrames;
-        path (str).
-
-    """
-    for key in truth_table:
-        truth_table[key].to_csv(f'{path}/{key}.csv', index=False)
+    except IOError as e:
+        print(e)
+    
    
-def read_configs(path=CONFIG_PATH):
-    """Function reads the configurations from CSV file.
+def read(path=DEFAULT_PATH):
+    """ Function reads the configurations` data from .json file.
 
     Args: path (str).
 
     """
     try:
-        return read_csv(path)
+        f = open(path, 'r')
+        if f.mode == 'r':
+            return json.loads(f.read)
 
     except IOError as e:
-        print(f'Error: pandas cannot read {path}.\n{e.strerror}')
-        return DEFAULT_CONFIGS
+        print(e)
+        return DEFAULT_DATA
 
-def read_ttbl(path=TTBL_PATH):
-    """Function reads the truth table the folder.
-    The inputs from <CONFIG_PATH>/inputs.csv and
-    the outputs from <CONFIG_PATH>/outputs.csv.
+    except TypeError as e:
+        print(e)
+        return DEFAULT_DATA
 
-    Args: path (str).
+    
+def autosave(data):
+    """ Adds data to autosaves.json file.
+
+    Note: 
+        if number of autosaves is bigger than `_max_autosaves_no`
+        the function delets the oldest save.
+
+    Args: 
+        data: nested dictionary;
+        path (str).
 
     """
-    truth_table = {}
+    autosaves = read(AUTOSAVE_PATH)
 
-    for key in ('inputs', 'outputs'):
-        try:
-            truth_table[key] = read_csv(f'{path}/{key}.csv.')
-
-        except IOError as e:
-            print(f'Error: pandas cannot read {path}/{key}.csv.\n{e.strerror}')
-            return DEFAULT_TTBL
+    key = str(datetime.now())
+    _autosave_names.append(key)
+    autosaves[key] = data
     
-    return truth_table
-            
-
-# def clear_autosaves():
-#     """ Function removes outdated autosaves` folders,
-#     if the number of the autosaves is more then _max_autosaves_no.
-
-#     """
-#     folders_no = 0
-#     for name in os.listdir(AUTOSAVE_PATH):
-#         if os.path.isdir(f'{AUTOSAVE_PATH}/{name}'):
-#             folders_no += 1
-
-#     for name in os.listdir(AUTOSAVE_PATH):
-#         if folders_no >= _max_autosaves_no:
-#             if os.path.isdir(f'{AUTOSAVE_PATH}/{name}'):
-#                 try:
-#                     os.rmdir(f'{AUTOSAVE_PATH}/{name}')
-#                 except OSError as e:
-#                     print(f'Error: {AUTOSAVE_PATH}/{name} : {e.strerror}.')
-#                 else:
-#                     print (f'{name} is successfully removed.')
-
-# def autosave(truth_table, results, configs, time, status):
-#     """ Function automaticaly saves all nesesser information for
-#     a user.
-
-#     Args: 
-#         truth_table: dictionary of two pandas` DataFrames
-#         results: list of Results
-#         configs: pandas` DataFrame 
-#         time: process time
-#         status: one of ['toDo', 'doing' , 'finish']
-    
-#     """
-#     clear_autosaves()
-#     save_time = str(datetime)
-
-#     try:
-#         os.mkdir(AUTOSAVE_PATH)
-#     except OSError as e:
-#         print (f'Eroor:{e.strerror}')
-#     else:
-#         print (f'{save_time}{status} successfully created.')
-    
-
-# class Configuration():
-#     """A class represents configuration unit.
-
-#     Instances:
-#         title (str): name of the configuration;
-#         value (any);
-#         gap (list of ints/floats): for exhample [a, b] 
-#             means that a <= value <= b;
-#         status (bool).
-    
-#     """
-#     def __init__(self, title, value, gap, status=True):
-#         self.title = title
-#         self.value = value
-#         self.gap = gap
-#         self.status = status
-
-#     def _str__(self):
-#         return f'{self.title}, '\
-#                 + f'{value}, '\
-#                 + f'{type(value)}, '\
-#                 + f'{gap[0]}, '\
-#                 + f'{gap[1]}, '\
-#                 + f'{status}\n'
-
-# (
-#     Configuration('generation size', 400, ('memorised number', 9999)),
-#     Configuration('chromosome size', 7, (2, 99)),
-#     Configuration('gene size', 6, (2, 99)),
-#     Configuration('crossover probability', .2, (0, 1)),
-#     Configuration('mutation probability', .02, (0, 1)),
-#     Configuration('alpha', .91, (0, 1)),
-#     Configuration('betta', .03, (0, 1)),
-#     Configuration('gamma', .03, (0, 1)),
-#     Configuration('lambda', .03, (0, 1)),
-#     Configuration('process time', 600, (1, 99999999999)),
-#     Configuration('iterations limit', 1000, (1, 99999999999, False))
-#     )
+    while len(autosaves > _max_autosaves_no):
+        del autosaves[_autosave_names[0]]
+        _autosave_names.pop(0)
+        
+    save(autosaves, AUTOSAVE_PATH, 5)
