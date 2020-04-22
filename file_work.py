@@ -14,6 +14,8 @@
     Functions:
         save_configs(configs, path)
         save_ttbl(truth_table, path)
+        read_configs(path)
+        read_ttbl(path)
 """
 import datetime
 import os
@@ -28,7 +30,7 @@ AUTOSAVE_PATH = "saves/autosaves/"
 MESSAGES_PATH = "res/messages/"
 
 DEFAULT_CONFIGS = DataFrame( 
-    column=['value','type','range','active'],
+    columns=['value','type','range','active'],
     index=[
         'generation size', 
         'chromosome size',
@@ -43,7 +45,7 @@ DEFAULT_CONFIGS = DataFrame(
         'iterations limit'
         ], 
     data=[
-        [400, int, ('memorised number', 9999), 'active', 'main'],
+        [400, int, ('memorised number', 9999), None],
         [7, int, (2, 99), None],
         [6, int, (2, 99), None],
         [.2, float, (0, 1), None],
@@ -82,7 +84,7 @@ def save_configs(configs, path=CONFIG_PATH):
     configs.to_csv(f'{path}.csv', index=False)
 
 def save_ttbl(truth_table, path=TTBL_PATH):
-    """Function saves the truth table into CSV file.
+    """Function saves the truth table into CSV files.
 
     Args:
         truth_table: dctionary of two pandas` DataFrames;
@@ -103,9 +105,9 @@ def read_configs(path=CONFIG_PATH):
 
     except IOError as e:
         print(f'Error: pandas cannot read {path}.\n{e.strerror}')
-        return DEFAULT_CONFIGS()
+        return DEFAULT_CONFIGS
 
-def read_truth_table(path=CONFIG_PATH):
+def read_ttbl(path=TTBL_PATH):
     """Function reads the truth table the folder.
     The inputs from <CONFIG_PATH>/inputs.csv and
     the outputs from <CONFIG_PATH>/outputs.csv.
@@ -121,7 +123,7 @@ def read_truth_table(path=CONFIG_PATH):
 
         except IOError as e:
             print(f'Error: pandas cannot read {path}/{key}.csv.\n{e.strerror}')
-            return DEFAULT_CONFIGS()
+            return DEFAULT_TTBL
     
     return truth_table
             
