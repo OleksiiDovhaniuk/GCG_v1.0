@@ -1,0 +1,109 @@
+{
+    "Algorithm": {
+        "name": "Genetic",
+        "configurations": {
+            "generation size": {
+                "value": 400,
+                "type": "int",
+                "min": "memorised number",
+                "max": 9999,
+                "is active": true,
+                "group": "root"
+            },
+            "chromosome size": {
+                "value": 7,
+                "type": "int",
+                "min": 2,
+                "max": 99,
+                "is active": true,
+                "group": "root"
+            },
+            "gene size": {
+                "value": 6,
+                "type": "int",
+                "min": 2,
+                "max": 99,
+                "is active": true,
+                "group": "root"
+            },
+            "memorised number": {
+                "value": 5,
+                "type": "int",
+                "min": 2,
+                "max": "generation size",
+                "is active": true,
+                "group": "root"
+            },
+            "control gates": {
+                "value": [
+                    1,
+                    1
+                ],
+                "type": "list of ints",
+                "min": 1,
+                "max": "gene size",
+                "is active": true,
+                "group": "root"
+            },
+            "crossover probability": {
+                "value": 0.2,
+                "type": "float",
+                "min": 0,
+                "max": 1,
+                "is active": true,
+                "group": "root"
+            },
+            "mutation probability": {
+                "value": 0.02,
+                "type": "float",
+                "min": 0,
+                "max": 1,
+                "is active": true,
+                "group": "root"
+            },
+            "fitness function coeficients": {
+                "value": [
+                    0.91,
+                    0.03,
+                    0.03,
+                    0.03
+                ],
+                "type": "list of float",
+                "min": 0,
+                "max": 1,
+                "is active": true,
+                "group": "root"
+            },
+            "process time": {
+                "value": 600,
+                "type": "int",
+                "min": 1,
+                "max": 99999999999,
+                "is active": true,
+                "group": "process limits"
+            },
+            "iterations limit": {
+                "value": 1000,
+                "type": "int",
+                "min": 1,
+                "max": 99999999999,
+                "is active": false,
+                "group": "process limits"
+            }
+        }
+    },
+    "Truth Table": {
+        "inputs": {
+            "X": "00001111",
+            "Y": "00110011",
+            "C1": "01010101"
+        },
+        "outputs": {
+            "S": "01101001",
+            "C2": "00010111",
+            "P": "00111100"
+        }
+    },
+    "Results": {},
+    "Plot Configurations": {}
+}
