@@ -22,6 +22,11 @@ class Genetic():
         chrm_mutation(chromosom),
         mutation(generation, mutation_probability)
 
+    Examples of execution:
+        >>> Genetic(6).EMPTY_COEF
+        0.3
+        >>> Genetic(6).index
+        1
     """
     EMPTY_COEF = .3
 
@@ -37,6 +42,12 @@ class Genetic():
                 inputed value less than sgn_no - 1).    
 
         Examples of execution:
+            >>> ganes_6 = [[0, 0], [16, 3], [2, 5], [0, 3],\
+                    [16, 17], [63, 63], [32, 1]]
+            >>> ganes_5_11 = [[0, 0], [16, 3], [2, 5], [0, 3],\
+                    [16, 17], [1, 1], [32, 1], [1, 48]]
+            >>> ganes_4_26 = [[0, 0], [1, 6], [9, 6], [0, 3],\
+                    [16, 17], [1, 1], [32, 1]]
             >>> Genetic(0).genes
             [[0, 0]]
             >>> Genetic(1).genes
@@ -79,26 +90,25 @@ class Genetic():
 
     def create(self, size, gene_no):
         """ Create generation of chromosom for work with genetic algorithm.
-        Filling generation with approperet quazy random elements.
+        Filling generation with approperet semi random elements.
 
         Args:
             size (int): number of chromosomes.
             gene_no (int): number of genes in chromosome.
             
-        
         Returns:
-            generation (3D list): quazy random generated 3 dimensional list.
-
-        Note.1: Number of alleles in gene equals number of inputs/outputs in truth table.
-
-        Note.2: 
-            Allele is int digit: 0, 1 or 2, where: 
-                0 - NaN gate input;
-                1 - switching gate input;
-                2 - control gate input.
-
-        Note.3: There is muximum one elementary element per gene.
+            generation (3D list): semi random generated 3 dimensional list.
         
+        Examples of execution:
+            >>> gntc = Genetic(4, (2, 6))
+            >>> g = gntc.create(3, 10000)
+            >>> len(g)
+            3
+            >>> len(g[2])
+            10000
+            >>> [gene in g[1] for gene in gntc.genes]
+            [True, True, True, True, True, True, True]
+
         """
         generation = []
         genes = self.genes.copy()
@@ -136,6 +146,19 @@ class Genetic():
         
         Returns: paired_parents (list of floats): list of parents indeсes.
 
+        Examples of execution:
+            >>> gntc = Genetic(6)
+            >>> parents_indeces = gntc.selection([0, 0, 1, 0, 1, 1, 0])
+            >>> len(parents_indeces)
+            4
+            >>> len(parents_indeces[1])
+            2
+            >>> len(parents_indeces[-1])
+            1
+            >>> flattened = [val for sublist in parents_indeces for val in sublist] 
+            >>> [index in flattened for index in [0, 1, 2, 3, 4, 5, 6]]
+            [False, False, True, False, True, True, False]
+
         """
         size = len(values)
         indeces = [i for i in range(size)]
@@ -169,9 +192,23 @@ class Genetic():
             generation (3D list of ints);
             parents (list of ints): list of parents indeces;
             probability (float): crossover probability.
-        
-        Returns: crossovered_generation (3D list of ints): 
-            new generation after crossover.
+
+        Examples of execution:
+            >>> gntc = Genetic(6)
+            >>> gnrtn = [[[1, 6], [0, 0]],\
+                         [[32, 3], [16, 3]],\
+                         [[0, 0], [16, 6]],\
+                         [[8, 3], [8, 33]],\
+                         [[16, 36], [1, 36]]]
+            >>> indeces = [[0, 3], [2, 4], [2]]
+            >>> gntc.point2_crossover(gnrtn, indeces, 1)
+            >>> new_gnrtn = [[[1, 6], [8, 33]],\
+                             [[0, 0], [8, 3]],\
+                             [[0, 0], [1, 36]],\
+                             [[16, 36], [16, 6]],\
+                             [[0, 0], [16, 6]]]
+            >>> [chrm in new_gnrtn for chrm in gnrtn]
+            [True, True, True, True, True]
 
         """
         new_generation = []
@@ -198,7 +235,7 @@ class Genetic():
                 probability
             )
 
-        return new_generation
+        generation = [chrm for chrm in new_generation]
 
     def paar_crossover(self, a, b, new_generation, probability):
         """ Crossover the paar of the parents chromosome.
@@ -212,9 +249,16 @@ class Genetic():
         Note: New children chromosomes are unique for crossovered generation.
 
         Examples of execution:
-            >>> gntc1.paar_crossover(chrm11, chrm12, gnrtn1, crss_prb1)
-            >>> gnrtn1[0].extend(gnrtn1[1])
-            >>> [chrm in gnrtn1[0] for chrm in chrm_list1]
+            >>> gntc = Genetic(6)
+            >>> chrm11 = [[1, 6], [32, 3], [8, 3], [4, 33]]
+            >>> chrm12 = [[1, 34], [32, 6], [8, 6], [4, 3]]
+            >>> gnrtn = []
+            >>> gntc.paar_crossover(chrm11, chrm12, gnrtn, 1)
+            >>> gnrtn[0].extend(gnrtn[1])
+            >>> chrm_list1 = [[1, 6], [32, 3], [8, 3], [4, 33],\
+                    [1, 34], [32, 6], [8, 6], [4, 3],\
+                    [1, 20], [32, 12], [8, 36], [4, 9]]
+            >>> [chrm in gnrtn[0] for chrm in chrm_list1]
             [True, True, True, True, True, True, True, True, False, False, False, False]
 
         """
@@ -243,26 +287,45 @@ class Genetic():
         new_generation.append(new_ab.copy())
         new_generation.append(new_ba.copy())
 
-    def chrm_mutation(self, chromosom):
-        """ Mutation of the single chromosom.
+    def chrm_mutation(self, chromosome):
+        """ Mutation of the single chromosome.
 
-        Args: chromosom (2D list of ints)
+        Args: chromosome (2D list of ints)
 
         Returns: mutated chromosome (2d list of ints)
+
+        Examples of execution:
+            >>> gntc = Genetic(6)
+            >>> chrm1 = [[16, 3], [1, 6], [0, 0]]
+            >>> chrm2 = [[16, 3], [1, 6], [0, 0]]
+            >>> chrm1 == chrm2
+            True
+            >>> mutated_chrm = gntc.chrm_mutation(chrm1)
+            >>> chrm1 == chrm2
+            True
+            >>> mutated_chrm == chrm1
+            False
+            >>> len(mutated_chrm)
+            3
+            >>> [len(gene) == 2 for gene in mutated_chrm]
+            [True, True, True]
         
         """
+        chrm = [[c, s] for c, s in chromosome]
         genes = self.genes.copy()
         index = self.index
-        top = len(chromosom) - 1
+        top = len(chromosome) - 1
+ 
+        while chrm == chromosome:
+            if random.random() > self.EMPTY_COEF:
+                chrm[random.randint(0, top)] = genes[index]
+                index = (index % (len(genes) - 1)) + 1
 
-        if random.random() > self.EMPTY_COEF:
-            chromosom[random.randint(0, top)] = genes[index]
-            index = (index % (len(genes) - 1)) + 1
-        else:
-            chromosom[random.randint(0, top)] = genes[0]
+            else:
+                chrm[random.randint(0, top)] = genes[0]
 
         self.index = index
-        return chromosom
+        return chrm
 
     def mutation(self, generation, probability):
         """ Mutate the chromosomes in generation.
@@ -270,55 +333,40 @@ class Genetic():
         Args: 
             generation (3D list of ints);
             probability (float): mutation probability.
-        
-        Returns: mutated generation (3D list)
 
         Note: 
-            The pobability in range (0, 1];
-            Usually probability is at least 10-times smaller
-            than crossover_probability.
+            The pobability in range (0, 1].
+            Usually mutation probability is at least 
+            10-times smaller than crossover probability.
+
+        Examples of execution:
+            >>> gntc = Genetic(6)
+            >>> gnrtn = [[[1,6], [32, 3]], [[8, 6], [16, 10]]]
+            >>> gnrtn_copy = [[[1,6], [32, 3]], [[8, 6], [16, 10]]]
+            >>> gnrtn == gnrtn_copy
+            True
+            >>> gntc.mutation(gnrtn, 1)
+            >>> gnrtn == gnrtn_copy
+            False
+            >>> [chrm in gnrtn_copy[0] for chrm in gnrtn[0]]
+            [False, False]
+            >>> [chrm in gnrtn_copy[1] for chrm in gnrtn[1]]
+            [False, False]
+            >>> len(gnrtn) == len(gnrtn_copy)
+            True
+
 
         """
-        mutated_generation = generation.copy()
-
-        for chromosome in mutated_generation:
+        for chromosome in generation:
             if random.random() < probability:
                 new_chromosome = self.chrm_mutation(chromosome.copy())
-                mutated_generation.remove(chromosome)
+                generation.remove(chromosome)
 
-                while new_chromosome in mutated_generation:
+                while new_chromosome in generation:
                     new_chromosome = self.chrm_mutation(new_chromosome)
 
-                mutated_generation.append(new_chromosome)
-
-        return mutated_generation
-
-__test_values__ = {
-    'ganes_6': [
-        [0, 0], [16, 3], [2, 5], [0, 3],
-        [16, 17], [63, 63], [32, 1],
-    ],
-    'ganes_5_11': [
-        [0, 0], [16, 3], [2, 5], [0, 3],
-        [16, 17], [1, 1], [32, 1], [1, 48],
-    ],
-    'ganes_4_26': [
-        [0, 0], [1, 6], [9, 6], [0, 3],
-        [16, 17], [1, 1], [32, 1],
-    ],
-
-    'gntc1': Genetic(6),
-    'chrm11': [[1, 6], [32, 3], [8, 3], [4, 33]],
-    'chrm12': [[1, 34], [32, 6], [8, 6], [4, 3]],
-    'gnrtn1': [],
-    'crss_prb1': 1,
-    'chrm_list1': [
-        [1, 6], [32, 3], [8, 3], [4, 33],
-        [1, 34], [32, 6], [8, 6], [4, 3],
-        [1, 20], [32, 12], [8, 36], [4, 9]
-    ],
-}
+                generation.append(new_chromosome)
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod(extraglobs=__test_values__)
+    doctest.testmod()
