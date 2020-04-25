@@ -18,7 +18,7 @@ class Genetic():
         create(size, gene_no),
         selection(values),
         paar_crossover(a, b, generation, crossovered_generation, probability),
-        point2_crossover(generation, indeces, probability),
+        crossover(generation, indeces, probability),
         chrm_mutation(chromosom),
         mutation(generation, mutation_probability)
 
@@ -185,8 +185,9 @@ class Genetic():
 
         return parent_indeces
 
-    def point2_crossover(self, generation, parents, probability):
+    def crossover(self, generation, parents, probability):
         """ Crossovers the parents in generation to get new generation.
+        Here 2 point crossover is used.
 
         Args: 
             generation (3D list of ints);
@@ -197,18 +198,17 @@ class Genetic():
             >>> gntc = Genetic(6)
             >>> gnrtn = [[[1, 6], [0, 0]],\
                          [[32, 3], [16, 3]],\
-                         [[0, 0], [16, 6]],\
+                         [[4, 24], [16, 6]],\
                          [[8, 3], [8, 33]],\
                          [[16, 36], [1, 36]]]
             >>> indeces = [[0, 3], [2, 4], [2]]
-            >>> gntc.point2_crossover(gnrtn, indeces, 1)
-            >>> new_gnrtn = [[[1, 6], [8, 33]],\
-                             [[0, 0], [8, 3]],\
-                             [[0, 0], [1, 36]],\
-                             [[16, 36], [16, 6]],\
-                             [[0, 0], [16, 6]]]
-            >>> [chrm in new_gnrtn for chrm in gnrtn]
-            [True, True, True, True, True]
+            >>> new_gnrtn = gntc.crossover(gnrtn, indeces, 1)
+            >>> variety = [[1, 6], [0, 0], [32, 3], [16, 3], [4, 24],\
+                [16, 6], [8, 3], [8, 33], [16, 36], [1,36]]
+            >>> [chrm in gnrtn for chrm in new_gnrtn]
+            [False, False, False, False, True]
+            >>> [[gene in variety for gene in chrm] for chrm in new_gnrtn]
+            [[True, True], [True, True], [True, True], [True, True], [True, True]]
 
         """
         new_generation = []
@@ -235,7 +235,7 @@ class Genetic():
                 probability
             )
 
-        generation = [chrm for chrm in new_generation]
+        return new_generation
 
     def paar_crossover(self, a, b, new_generation, probability):
         """ Crossover the paar of the parents chromosome.
