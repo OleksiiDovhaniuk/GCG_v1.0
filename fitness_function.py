@@ -143,12 +143,35 @@ def err_no(chromosome, sgn_no, inputs, outputs):
         m (in binar view) represents switching gates. 
 
     Examples of execution:
+        >>> gnrtn_copy = [[[gene[0], gene[1]] for gene in chrm] for chrm in generation_or]
+        >>> ins_copy = [portion for portion in ins_or]
+        >>> outs_copy = [[s for s in portion] for portion in outs_or]
         >>> [err_no(chromosome, no_or, ins_or, outs_or)\
             for chromosome in generation_or]
         [0, 0, 1, 1, 0]
+        >>> gnrtn_copy == generation_or
+        True
+        >>> [chrm_copy == chrm for chrm_copy, chrm in zip(gnrtn_copy, generation_or)]
+        [True, True, True, True, True]
+        >>> ins_copy == ins_or
+        True
+        >>> outs_copy == outs_or
+        True
+
+        >>> gnrtn_copy = [[[gene[0], gene[1]] for gene in chrm] for chrm in generation_sum]
+        >>> ins_copy = [portion for portion in ins_sum]
+        >>> outs_copy = [[s for s in portion] for portion in outs_sum]
         >>> [err_no(chromosome, no_sum, ins_sum, outs_sum) \
             for chromosome in generation_sum]
         [0, 10, 6, 0]
+        >>> gnrtn_copy == generation_sum
+        True
+        >>> [chrm_copy == chrm for chrm_copy, chrm in zip(gnrtn_copy, generation_sum)]
+        [True, True, True, True]
+        >>> ins_copy == ins_sum
+        True
+        >>> outs_copy == outs_sum
+        True
 
     """
     err_no = 0
@@ -520,3 +543,22 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod(extraglobs=__test_values__)
 
+
+# def f1():
+#     err_no(
+#         __test_values__['generation_sum'][3], 
+#         __test_values__['no_sum'], 
+#         __test_values__['ins_sum'],
+#         __test_values__['outs_sum']
+#     )
+
+# def f2():
+#     err_no(
+#         __test_values__['generation_sum'][3], 
+#         __test_values__['no_sum'], 
+#         __test_values__['ins_sum'],
+#         __test_values__['outs_sum']
+#     )
+# n = 1000
+# print(f'Without GPU: {timeit(f1, number=n)}')
+# print(f'With GPU: {timeit(f2, number=n)}')
