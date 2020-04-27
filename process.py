@@ -16,8 +16,26 @@ class Result():
         time (float): time spended for element search;
         is_proper (bool).
     
+    Examples of execution:
+        >>> r1 = Result([[4, 33], [0, 0]])
+        >>> r1.chromosome
+        [[4, 33], [0, 0]]
+        >>> r1.value
+        >>> r1.time
+        >>> r1.is_proper
+        False
+        >>> r2 = Result([[4, 33], [0, 0]], .5433322391, 43, True)
+        >>> r2.chromosome
+        [[4, 33], [0, 0]]
+        >>> r2.value
+        0.5433322391
+        >>> r2.time
+        43
+        >>> r2.is_proper
+        True
+
     """
-    def __init__(self, chromosome, value=None, time=None, is_proper=True):
+    def __init__(self, chromosome, value=None, time=None, is_proper=False):
         self.chromosome = chromosome
         self.value = value
         self.time = time
@@ -32,8 +50,12 @@ class Result():
         for gene in self.chromosome:
             str_res += f'{gene}, '
         
-        str_res += f'\nValue {round(self.value)};\n'
-        str_res += f'Search time {self.time}.'
+        if self.value:
+            str_res += f'\nValue: {round(self.value, 5)};'
+        else:
+            str_res += f'\nValue: None;'
+
+        str_res += f'\nSearch time: {self.time}.'
 
         return str_res
 
@@ -49,6 +71,15 @@ class Process():
         do_loop(),
         do_chunk(step_size),
         regulate(x, p).
+
+    Examples of execution:
+        >>> p = Process()
+        >>> p.DELTA
+        (0.016, 0.04)
+        >>> p._creation_step
+        100
+        >>> p._loop_step
+        100
     
     """
     DELTA = (.016, .04)
@@ -60,23 +91,38 @@ class Process():
         from the responsible files. Afterwords, creats 
         genetic material for the work with genetic algorithm. 
 
+        Examples of execution:
+            >>> p = Process()
+            >>> p.pause_time = 0
+            >>> p.have_result = False
+            >>> p.results
+            []
+            >>> p.bests
+            []
+            >>> p.maxs
+            []
+            >>> p.mins
+            []
+            >>> p.avgs
+            []
+            >>> p.iterations
+            []
+
         """
         self.start_time = datetime.now()
         self.pause_time = 0
         self.have_result = False
 
-        self.configs = configs = fw.read_configs()
-        self.coefs = [
-            configs.loc['alpha', 'value'],
-            configs.loc['betta', 'value'],
-            configs.loc['gamma', 'value'],
-            configs.loc['lambda', 'value']
-            ]
+        self.configs = configs = fw.read()['Algorithm']['configurations']
+        self.coefs = configs['fitness function coeficients']
 
-        truth_table = fw.read_ttbl()
-        self.inputs = truth_table['inputs'].copy()
-        self.outputs = truth_table['outputs'].copy()
-        self.gntc = Genetic(configs.loc['gene size', 'value'])
+        t_tbl =   fw.read()['Truth Table']
+        self.inputs = prep_ins(
+            t_tbl['inputs'],
+            configs['gene size']['value']
+        )
+        self.outputs = prep_outs(t_tbl['outputs'])
+        self.gntc = Genetic(configs['gene size']['value'])
         self.results = []
         self.bests = []
 
@@ -98,6 +144,34 @@ class Process():
         Returns: 
             True if it is the last chunk of the generation,
             False - otherwise.
+
+        Examples of execution:
+            >>> p = Process()
+
+            >>> p.create_chunk()
+            False
+            >>> len(p.results)
+            100
+            >>> chrms = [res.chromosome for res in p.results]
+            >>> [gene in p.gntc.genes for gene in chrms[0][:5]]
+            [True, True, True, True, True]
+            >>> [gene in p.gntc.genes for gene in chrms[49][:5]]
+            [True, True, True, True, True]
+            >>> [gene in p.gntc.genes for gene in chrms[99][:5]]
+            [True, True, True, True, True]
+
+            >>> p.create_chunk(5)
+            False
+            >>> len(p.results)
+            5
+            >>> chrms = [res.chromosome for res in p.results]
+            >>> [gene in p.gntc.genes for gene in chrms[0][:5]]
+            [True, True, True, True, True]
+            >>> [gene in p.gntc.genes for gene in chrms[2][:5]]
+            [True, True, True, True, True]
+            >>> [gene in p.gntc.genes for gene in chrms[4][:5]]
+            [True, True, True, True, True]
+
         """
         start = datetime.now()
 
@@ -105,21 +179,17 @@ class Process():
         size = self.configs['generation size']['value']
         is_last = False
 
-        inputs = self.inputs
-        outputs = self.outputs
-        coefs = self.coefs
-        
         if current_size + step_size > size:
             chunk = self.gntc.create(chunk, size-current_size, self.gene_no)
             is_last = True
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
         
-        values = calculate(chunk, inputs, outputs, coefs)
+        values = calculate(chunk, self.inputs, self.outputs, self.coefs)
         time = datetime.now() - self.start_time - self.pause_time
 
         for chromosome, value in zip(chunk, values):
-            if value > self.configs['alpha']['value']:
+            if value > self.coefs[0]:
                 self.results.append(Result(chromosome, value, time, True))
             else:
                 self.results.append(Result(chromosome, value, time))
@@ -215,16 +285,16 @@ class Process():
                 when x can be initialised in other units.   
         
         Examples of execution:
-        >>> prcs.regulate(1, .1)
-        1
-        >>> prcs.regulate(100, .1)
-        28
-        >>> prcs.regulate(28, .001)
-        784
-        >>> prcs.regulate(76, .04)
-        76
-        >>> prcs.regulate(16, .016)
-        16
+            >>> prcs.regulate(1, .1)
+            1
+            >>> prcs.regulate(100, .1)
+            28
+            >>> prcs.regulate(28, .001)
+            784
+            >>> prcs.regulate(76, .04)
+            76
+            >>> prcs.regulate(16, .016)
+            16
         """
         
         if (
@@ -241,6 +311,82 @@ class Process():
             return 1
         else: 
             return x
+
+def prep_ins( inputs, sgn_no):
+    """ Interprets input signals of the truth table
+    into view that can be used by fitness_function module.
+
+    Args: 
+        inputs (dictionary);
+        sgn_no int.
+
+    Returns: list of ints.
+
+    Examples of execution:
+        >>> ins = {\
+            'X':  '00001111',\
+            'Y':  '00110011',\
+            'C1': '01010101',\
+        }
+        >>> prep_ins(ins, 1)
+        [0, 0, 0, 0, 1, 1, 1, 1]
+        >>> prep_ins(ins, 2)
+        [0, 0, 1, 1, 2, 2, 3, 3]
+        >>> prep_ins(ins, 3)
+        [0, 1, 2, 3, 4, 5, 6, 7]
+        >>> prep_ins(ins, 4)
+        [1, 3, 5, 7, 9, 11, 13, 15]
+        >>> prep_ins(ins, 5)
+        [2, 6, 10, 14, 18, 22, 26, 30]
+        >>> prep_ins(ins, 6)
+        [5, 13, 21, 29, 37, 45, 53, 61]
+
+    """
+    ins = [inputs[signal] for signal in inputs]
+    size = len(ins[0])
+    bynery_list = [''] * size
+
+    for i in range(size):
+        for j in range(sgn_no):
+            try:
+                bynery_list[i] += ins[j][i]
+
+            except IndexError:
+                bynery_list[i] += str(j % 2)
+
+    return [int(binary, 2) for binary in bynery_list]
+
+def prep_outs(outputs):
+    """Interprets output signals of the truth table
+    into view that can be used by fitness_function module.
+
+    Args: 
+        outputs (dictionary);
+
+    Returns: nested list of ints` lists [0 or 1].
+
+    Examples of execution:
+        >>> outs = {\
+            'X':  '01101001',\
+            'Y':  '00010111',\
+            'C1': '00111100',\
+        }
+        >>> prep_outs(outs)
+        [[0, 0, 0],\
+ [1, 0, 0],\
+ [1, 0, 1],\
+ [0, 1, 1],\
+ [1, 0, 1],\
+ [0, 1, 1],\
+ [0, 1, 0],\
+ [1, 1, 0]]
+
+    """
+    outs = [outputs[signal] for signal in outputs]
+
+    return [[int(signal[i]) for signal in outs]\
+        for i in range(len(outs[0]))]
+        
 
 __test_values__ = {'prcs': Process()}
 
