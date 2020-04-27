@@ -194,6 +194,8 @@ class Genetic():
             parents (list of ints): list of parents indeces;
             probability (float): crossover probability.
 
+        Returns: new generation (3D list of ints).
+
         Examples of execution:
             >>> gntc = Genetic(6)
             >>> gnrtn = [[[1, 6], [0, 0]],\
