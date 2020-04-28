@@ -107,7 +107,7 @@ class Process():
             []
             >>> p.avgs
             []
-            >>> p.iterations
+            >>> p.indeces
             []
 
         """
@@ -185,7 +185,7 @@ class Process():
         is_last = False
 
         if current_size + step_size > size:
-            chunk = self.gntc.create(chunk, size-current_size, self.gene_no)
+            chunk = self.gntc.create(size-current_size, self.gene_no)
             is_last = True
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
@@ -214,7 +214,7 @@ class Process():
         
         Examples of execution:
             >>> p = Process()
-            >>> p.configs['memorised number']['value'] = 3
+            >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
             True
@@ -231,7 +231,7 @@ class Process():
             True
             >>> p.results[98].value <= p.results[99].value
             True
-            >>> p.bests[0] < p.bests[2] < p.bests[4]
+            >>> p.bests[0].value < p.bests[2].value < p.bests[4].value
             True
             >>> p.maxs[-1] > p.avgs[-1] > p.mins[-1] 
             True
@@ -241,7 +241,7 @@ class Process():
         """
         bests_no = self.configs['memorised number']['value']
         size = self.configs['generation size']['value']
-        results = self.results = sorted(self.results, key=self.results.value)[-size:]
+        results = self.results = sorted(self.results, key=lambda result: result.value)[-size:]
 
         if self.bests:
             self.bests.extand(results[-bests_no:].copy())
@@ -251,7 +251,7 @@ class Process():
 
         self.maxs.append(results[-1].value)
         self.mins.append(results[0].value)
-        self.avgs.append(sum([result.values for result in results]) / len(results))
+        self.avgs.append(sum([result.value for result in results]) / len(results))
         if self.indeces:
             self.indeces.append(self.indeces[-1]+1)
         else: 
