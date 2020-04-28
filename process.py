@@ -300,6 +300,30 @@ class Process():
         Args:
             step_size (int): by default step_size = _loop_step.
                 It is better to do not change the argument manualy.
+
+        Examples of execution:
+            >>> p = Process()
+            >>> p.configs['memorised number']['value'] = 5
+            >>> p.configs['generation size']['value'] = 100
+            >>> p.create_chunk(999)
+            True
+            >>> p.end_loop()
+            >>> p.do_loop()
+            >>> len(p.results)
+            0
+            >>> p.do_chunk(10)
+            False
+            >>> len(p.results)
+            10
+            >>> p.do_chunk(50)
+            False
+            >>> len(p.results)
+            60
+            >>> p.do_chunk(99)
+            True
+            >>> len(p.results)
+            105
+
         """
         start = datetime.now()
 
@@ -307,26 +331,28 @@ class Process():
         top = len(self.results)
         is_last = False
 
-        inputs = self.inputs
-        outputs = self.outputs
-        coefs = self.coefs
-
         if top + step_size > size:
             chunk = self.generation[top:]
             is_last = True
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
         
-        values = calculate(chunk, inputs, outputs, coefs)
+        values = calculate(
+            chunk, 
+            self.gene_size,
+            self.inputs, 
+            self.outputs, 
+            self.coefs
+        )
         time = datetime.now() - self.start_time - self.pause_time
 
         for chromosome, value in zip(chunk, values):
-            if value > self.configs['alpha']['value']:
+            if value > self.coefs[0]:
                 self.results.append(Result(chromosome, value, time, True))
             else:
                 self.results.append(Result(chromosome, value, time))
         
-        _loop_step = self.regulate(_loop_step, start-datetime.now())
+        self._loop_step = self.regulate(self._loop_step, (start-datetime.now()).total_seconds())
         return is_last
 
     def regulate(self, x, p):
