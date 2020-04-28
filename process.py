@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime
 
 from pandas import DataFrame
@@ -223,15 +224,15 @@ class Process():
             5
             >>> p.results[0].value <= p.results[1].value 
             True
-            >>> p.results[1].value < p.results[49].value 
+            >>> p.results[1].value <= p.results[49].value 
             True
             >>> p.results[49].value <= p.results[50].value
             True
-            >>> p.results[50].value < p.results[98].value
+            >>> p.results[50].value <= p.results[98].value
             True
             >>> p.results[98].value <= p.results[99].value
             True
-            >>> p.bests[0].value < p.bests[2].value < p.bests[4].value
+            >>> p.bests[0].value <= p.bests[2].value <= p.bests[4].value
             True
             >>> p.maxs[-1] > p.avgs[-1] > p.mins[-1] 
             True
@@ -261,18 +262,34 @@ class Process():
         """This method begins the iteration of the Genetic Algorithm.
         Steps: selection, crossver and mutation are implemented here.
 
+        Examples of execution:
+            >>> p = Process()
+            >>> p.configs['memorised number']['value'] = 5
+            >>> p.configs['generation size']['value'] = 100
+            >>> p.create_chunk(999)
+            True
+            >>> p.end_loop()
+            >>> len(p.results)
+            100
+            >>> p.do_loop()
+            >>> p.results
+            []
+            >>> len(p.generation)
+            105
+
         """
         gntc = self.gntc
         generation = [result.chromosome for result in self.results]
         generation.extend([best.chromosome for best in self.bests])
         values = [result.value for result in self.results]  # fitness function values
         values.extend([best.value for best in self.bests])
-        crossover_prob = self.configs['crossover probability']['values']
-        mutation_prob = self.configs['mutation probability']['values']
+        crossover_prob = self.configs['crossover probability']['value']
+        mutation_prob = self.configs['mutation probability']['value']
+
 
         parents = gntc.selection(values)
-        generation = gntc.point2_crossover(generation, values, crossover_prob)
-        self.generation = gntc.mutation(generation, mutation_prob)
+        self.generation = gntc.crossover(generation, parents, crossover_prob)
+        gntc.mutation(self.generation, mutation_prob)
         
         self.results = []
 
