@@ -95,6 +95,8 @@ class Process():
             >>> p = Process()
             >>> p.pause_time = 0
             >>> p.have_result = False
+            >>> p.generation
+            []
             >>> p.results
             []
             >>> p.bests
@@ -110,11 +112,11 @@ class Process():
 
         """
         self.start_time = datetime.now()
-        self.pause_time = 0
+        self.pause_time = datetime.now() - datetime.now()
         self.have_result = False
 
         self.configs = configs = fw.read()['Algorithm']['configurations']
-        self.coefs = configs['fitness function coeficients']
+        self.coefs = configs['fitness function coeficients']['value']
 
         t_tbl =   fw.read()['Truth Table']
         self.inputs = prep_ins(
@@ -122,7 +124,10 @@ class Process():
             configs['gene size']['value']
         )
         self.outputs = prep_outs(t_tbl['outputs'])
+        self.gene_no = configs['chromosome size']['value']
+        self.gene_size = configs['gene size']['value']
         self.gntc = Genetic(configs['gene size']['value'])
+        self.generation = []
         self.results = []
         self.bests = []
 
@@ -130,7 +135,7 @@ class Process():
         self.maxs = [] 
         self.mins = []
         self.avgs = []
-        self.iterations = []  # X axes of the plot
+        self.indeces = []  # X axes of the plot
     
     def create_chunk(self, step_size=_creation_step):
         """The method generats chunks of the generation and 
@@ -163,13 +168,13 @@ class Process():
             >>> p.create_chunk(5)
             False
             >>> len(p.results)
-            5
+            105
             >>> chrms = [res.chromosome for res in p.results]
-            >>> [gene in p.gntc.genes for gene in chrms[0][:5]]
+            >>> [gene in p.gntc.genes for gene in chrms[100][:5]]
             [True, True, True, True, True]
-            >>> [gene in p.gntc.genes for gene in chrms[2][:5]]
+            >>> [gene in p.gntc.genes for gene in chrms[102][:5]]
             [True, True, True, True, True]
-            >>> [gene in p.gntc.genes for gene in chrms[4][:5]]
+            >>> [gene in p.gntc.genes for gene in chrms[104][:5]]
             [True, True, True, True, True]
 
         """
@@ -185,7 +190,13 @@ class Process():
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
         
-        values = calculate(chunk, self.inputs, self.outputs, self.coefs)
+        values = calculate(
+            chunk,
+            self.gene_size, 
+            self.inputs, 
+            self.outputs, 
+            self.coefs
+        )
         time = datetime.now() - self.start_time - self.pause_time
 
         for chromosome, value in zip(chunk, values):
@@ -194,13 +205,39 @@ class Process():
             else:
                 self.results.append(Result(chromosome, value, time))
 
-        _creation_step = self.regulate(_creation_step, start-datetime.now())
+        _creation_step = self.regulate(self._creation_step, (start-datetime.now()).total_seconds())
         return is_last
 
     def end_loop(self):
         """The method finishs the iteration of the Genetic Algorithm.
         Prepare data for use in upper classes of the program
         
+        Examples of execution:
+            >>> p = Process()
+            >>> p.configs['memorised number']['value'] = 3
+            >>> p.configs['generation size']['value'] = 100
+            >>> p.create_chunk(999)
+            True
+            >>> p.end_loop()
+            >>> len(p.bests)
+            5
+            >>> p.results[0].value <= p.results[1].value 
+            True
+            >>> p.results[1].value < p.results[49].value 
+            True
+            >>> p.results[49].value <= p.results[50].value
+            True
+            >>> p.results[50].value < p.results[98].value
+            True
+            >>> p.results[98].value <= p.results[99].value
+            True
+            >>> p.bests[0] < p.bests[2] < p.bests[4]
+            True
+            >>> p.maxs[-1] > p.avgs[-1] > p.mins[-1] 
+            True
+            >>> p.indeces[-1]
+            0
+
         """
         bests_no = self.configs['memorised number']['value']
         size = self.configs['generation size']['value']
@@ -215,8 +252,10 @@ class Process():
         self.maxs.append(results[-1].value)
         self.mins.append(results[0].value)
         self.avgs.append(sum([result.values for result in results]) / len(results))
-        for _ in range(size):
-            self.index.append(self.index[-1]+1)
+        if self.indeces:
+            self.indeces.append(self.indeces[-1]+1)
+        else: 
+            self.indeces.append(0)
 
     def do_loop(self):
         """This method begins the iteration of the Genetic Algorithm.
