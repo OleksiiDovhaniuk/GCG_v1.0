@@ -12,7 +12,7 @@ from fitness_function import calculate
 
 
 class Result():
-    """A class represents the result of the algorithm process.
+    """ A class represents the result of the algorithm process.
 
     Instances:
         chromosome (2d list of ints): shape = gene_no * 2
@@ -47,24 +47,27 @@ class Result():
 
     def __str__(self):
         if self.is_proper: 
-            str_res = f'Proper genotype:'
+            str_res = f'Proper genotype:\n'
         else: 
-            str_res = 'Genotype:'
+            str_res = 'Genotype:\n'
 
-        for gene in self.chromosome:
-            str_res += f'{gene}, '
+        for index, gene in enumerate(self.chromosome):
+            if (index + 1) % 3 == 0:
+                str_res += f'{gene}\n'
+            else:
+                str_res += f'{gene}, '
         
         if self.value:
-            str_res += f'\nValue: {round(self.value, 5)};'
+            str_res += f'\nValue: {round(self.value, 5)}, '
         else:
-            str_res += f'\nValue: None;'
+            str_res += f'\nValue: None, '
 
-        str_res += f'\nSearch time: {self.time}.'
+        str_res += f'Search Time: {self.time.total_seconds()}.'
 
         return str_res
 
 class Process():
-    """The class initialies and handles the Genetic Algorithm
+    """ The class initialies and handles the Genetic Algorithm
     calculation process; also prepares data for GUI 
     representation. The data for the class are pulled from
     the files. 
@@ -72,8 +75,8 @@ class Process():
     Methods:
         create_chunk(step_size),
         end_loop(),
-        do_loop(),
-        do_chunk(step_size),
+        crossover_chunk(),
+        calc_chunk(step_size),
         regulate(x, p).
 
     Examples of execution:
@@ -82,16 +85,20 @@ class Process():
         (0.016, 0.04)
         >>> p._creation_step
         100
-        >>> p._loop_step
+        >>> p._calc_step
         100
     
     """
     DELTA = (.016, .04)
     _creation_step = 100
-    _loop_step = 100
+    _calc_step = 100
+    _crossover_step = 100
+    _mutation_step = 100
     _creating = False
     _ending = False
-    _doing = False
+    _beginning = False
+    _crossing = False
+    _mutating = False
     _calculating = False
 
     def __init__(self):
@@ -138,6 +145,7 @@ class Process():
         self.gene_no = configs['chromosome size']['value']
         self.gene_size = configs['gene size']['value']
         self.gntc = Genetic(configs['gene size']['value'])
+        self.new_generation = []
         self.generation = []
         self.results = []
         self.bests = []
@@ -152,7 +160,7 @@ class Process():
         self.percent = 0
     
     def create_chunk(self, step_size=_creation_step):
-        """The method generats chunks of the generation and 
+        """ The method generats chunks of the generation and 
         appends it to the existing part of the generation. 
         Size of this chunk equals step_size.
 
@@ -192,7 +200,6 @@ class Process():
         """
         start = datetime.now()
 
-        step_size = self._creation_step
         current_size = len(self.results)
         size = self.configs['generation size']['value']
 
@@ -221,7 +228,7 @@ class Process():
         self._creation_step = self.regulate(self._creation_step, (datetime.now()-start).total_seconds())
 
     def end_loop(self):
-        """The method finishs the iteration of the Genetic Algorithm.
+        """ The method finishs the iteration of the Genetic Algorithm.
         Prepare data for use in upper classes of the program
         
         Examples of execution:
@@ -269,80 +276,210 @@ class Process():
             self.indeces.append(self.indeces[-1]+1)
         else: 
             self.indeces.append(0)
-        
-        self._ending = False
-        self._doing = True
-        self.iter += self.iter
-        
 
-    def do_loop(self):
-        """This method begins the iteration of the Genetic Algorithm.
+        self._ending = False
+        self._beginning = True
+        self.iter += self.iter
+
+    def begin_loop(self):
+        """ This method begins the iteration of the Genetic Algorithm.
+        It initialises selection method of the Genetic() class.
+
+        Examples of execution:
+
+        """
+        self.generation = [result.chromosome for result in self.results]
+        self.generation.extend([best.chromosome for best in self.bests])
+        self.new_generation = []
+        values = [result.value for result in self.results]  # fitness function values
+        values.extend([best.value for best in self.bests])
+        self.parents = self.gntc.selection(values)
+        self._beginning = False
+        self._crossing = True
+        
+    def crossover_chunk(self, step=_crossover_step):
+        """ This method begins the iteration of the Genetic Algorithm.
         Steps: selection, crossver and mutation are implemented here.
 
         Examples of execution:
             >>> p = Process()
+            >>> p._creating
+            True
             >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
-            >>> p._creating
-            False
+            >>> (p._creating, p._ending)
+            (False, True)
             >>> p.end_loop()
-            >>> len(p.results)
+            >>> (p._ending, p._beginning)
+            (False, True)
+            >>> p.begin_loop()
+            >>> (p._beginning, p._crossing) 
+            (False, True)
+            >>> p.crossover_chunk(0)
+            >>> (p._crossing, p._mutating) 
+            (True, False)
+            >>> len(p.new_generation)
+            0
+            >>> p.crossover_chunk(10)
+            >>> (p._crossing, p._mutating) 
+            (True, False)
+            >>> len(p.new_generation)
+            10
+            >>> p.crossover_chunk(50)
+            >>> (p._crossing, p._mutating) 
+            (True, False)
+            >>> len(p.new_generation)
+            60
+            >>> p.crossover_chunk(999)
+            >>> (p._crossing, p._mutating) 
+            (False, True)
+            >>> len(p.new_generation)
             100
-            >>> p.do_loop()
-            >>> p.results
-            []
-            >>> len(p.generation)
-            105
 
         """
-        gntc = self.gntc
-        generation = [result.chromosome for result in self.results]
-        generation.extend([best.chromosome for best in self.bests])
-        values = [result.value for result in self.results]  # fitness function values
-        values.extend([best.value for best in self.bests])
-        crossover_prob = self.configs['crossover probability']['value']
-        mutation_prob = self.configs['mutation probability']['value']
+        start = datetime.now()
+
+        top = len(self.new_generation)
+        if step % 2 != 0:
+            step += 1
+
+        if top + step > len(self.generation):
+            self.new_generation.append(
+                self.gntc.crossover(
+                    self.generation, 
+                    self.parents[top:], 
+                    self.configs['crossover probability']['value']
+                )
+            )
+            self.generation = []
+            self._crossing = False
+            self._mutating = True
+        else:
+            self.new_generation.append(
+                self.gntc.crossover(
+                    self.generation, 
+                    self.parents[top: top+step], 
+                    self.configs['crossover probability']['value']
+                )
+            )
+
+        self._crossover_step = self.regulate(
+            self._crossover_step, 
+            (datetime.now()-start).total_seconds()
+        )
+
+    def mutate_chunk(self, step=_mutation_step):
+        """ Method mutates chunk of generation which has length step.
+
+        Args:
+            step [int] by default step=_mutation_step.
+
+        Examples of execution:
+            >>> p = Process()
+            >>> p._creating
+            True
+            >>> p.configs['memorised number']['value'] = 5
+            >>> p.configs['generation size']['value'] = 100
+            >>> p.create_chunk(999)
+            >>> (p._creating, p._ending)
+            (False, True)
+            >>> p.end_loop()
+            >>> (p._ending, p._beginning)
+            (False, True)
+            >>> p.begin_loop()
+            >>> (p._beginning, p._crossing) 
+            (False, True)
+            >>> p.crossover_chunk(999)
+            >>> (p._crossing, p._mutating) 
+            (False, True)
+            >>> p.mutate_chunk(0)
+            >>> (p._mutating, p._calculating) 
+            (True, False)
+            >>> len(p.generation)
+            0
+            >>> p.mutate_chunk(10)
+            >>> (p._mutating, p._calculating) 
+            (True, False)
+            >>> len(p.generation)
+            10
+            >>> p.mutate_chunk(50)
+            >>> (p._mutating, p._calculating) 
+            (True, False)
+            >>> len(p.generation)
+            60
+            >>> p.mutate_chunk(999)
+            >>> (p._mutating, p._calculating) 
+            (False, True)
 
 
-        parents = gntc.selection(values)
-        self.generation = gntc.crossover(generation, parents, crossover_prob)
-        gntc.mutation(self.generation, mutation_prob)
+        """
+        start = datetime.now()
+
+        top = len(self.generation)
         
-        self.results = []
-        self._doing = False
-        self._calculating = True
+        if top + step > len(self.new_generation):
+            self.generation = self.gntc.mutation(
+                self.new_generation[top:],
+                self.configs['mutation probability']['value']
+            )
+            self.results = []
+            self.new_generation = []
+            self._mutating = False
+            self._calculating = True
+        else:
+            self.generation = self.gntc.mutation(
+                self.new_generation[top: top+step],
+                self.configs['mutation probability']['value']
+            )
 
-    def do_chunk(self, step_size=_loop_step):
-        """The method creates chunk of new results list from existing
+        self._mutation_step = self.regulate(
+            self._mutation_step, 
+            (datetime.now()-start).total_seconds()
+        )
+
+    def calc_chunk(self, step=_calc_step):
+        """ The method creates chunk of new results list from existing
         generation.
 
         Args:
-            step_size (int): by default step_size = _loop_step.
+            step (int): by default step = _calc_step.
                 It is better to do not change the argument manualy.
 
         Examples of execution:
             >>> p = Process()
+            >>> p._creating
+            True
             >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
-            >>> p._creating
-            False
+            >>> (p._creating, p._ending)
+            (False, True)
             >>> p.end_loop()
-            >>> p.do_loop()
+            >>> (p._ending, ._beginning)
+            (False, True)
+            >>> p.begin_loop()
+            >>> (p._beginning, p._crossing) 
+            (False, True)
+            >>> p.crossover_chunk(999)
+            >>> (p._crossing, p._mutating) 
+            (False, True)
+            >>> p.mutate_chunk(999)
+            >>> (p._mutating, p._calculating) 
+            (False, True)
             >>> len(p.results)
             0
-            >>> p.do_chunk(10)
+            >>> p.calc_chunk(10)
             >>> p._calculating
             True
             >>> len(p.results)
             10
-            >>> p.do_chunk(50)
+            >>> p.calc_chunk(50)
             >>> p._calculating
             True
             >>> len(p.results)
             60
-            >>> p.do_chunk(99)
+            >>> p.calc_chunk(99)
             >>> p._calculating
             False
             >>> len(p.results)
@@ -351,17 +488,16 @@ class Process():
         """
         start = datetime.now()
 
-        step_size = self._loop_step
         size = len(self.generation)
         top = len(self.results)
         is_last = False
 
-        if top + step_size > size:
+        if top + step > size:
             chunk = self.generation[top:]
             self._calculating = False
             self._ending = True
         else:
-            chunk = self.gntc.create(step_size, self.gene_no)
+            chunk = self.gntc.create(step, self.gene_no)
         
         values = calculate(
             chunk, 
@@ -373,12 +509,9 @@ class Process():
         time = datetime.now() - self.start_time - self.pause_time
 
         for chromosome, value in zip(chunk, values):
-            if value > self.coefs[0]:
-                self.results.append(Result(chromosome, value, time, True))
-            else:
-                self.results.append(Result(chromosome, value, time))
+            self.results.append(Result(chromosome, value, time, value>self.coefs[0]))
         
-        self._loop_step = self.regulate(self._loop_step, (datetime.now()- start).total_seconds())
+        self._calc_step = self.regulate(self._calc_step, (datetime.now()- start).total_seconds())
         
     def regulate(self, x, p):
         """ Change inputed x in order to fit it into 
@@ -440,14 +573,12 @@ class Process():
             or
             (iter_info['is active'] and self.iter < iter_info['value'])
         ):
-            if self._creating: 
-                self.create_chunk()
-            elif self._ending:
-                self.end_loop()
-            elif self._doing:
-                self.do_loop()
-            elif self._calculating:
-                self.do_chunk()
+            if self._creating: self.create_chunk(self._creation_step)
+            elif self._ending: self.end_loop()
+            elif self._beginning: self.begin_loop()
+            elif self._crossing: self.crossover_chunk(self._crossover_step)
+            elif self._mutating: self.mutate_chunk(self._mutation_step)
+            elif self._calculating: self.calc_chunk(self._calc_step)
             return True
             
         else:
@@ -498,7 +629,7 @@ def prep_ins( inputs, sgn_no):
     return [int(binary, 2) for binary in bynery_list]
 
 def prep_outs(outputs):
-    """Interprets output signals of the truth table
+    """ Interprets output signals of the truth table
     into view that can be used by fitness_function module.
 
     Args: 
