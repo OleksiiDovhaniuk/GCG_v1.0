@@ -19,7 +19,7 @@
                 "group": "root"
             },
             "gene size": {
-                "value": 4,
+                "value": 6,
                 "type": "int",
                 "min": 2,
                 "max": 99,

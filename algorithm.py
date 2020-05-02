@@ -229,6 +229,8 @@ class Genetic():
                          [[16, 36], [1, 36]]]
             >>> indeces = [0, 3, 2, 4, 2]
             >>> new_gnrtn = gntc.crossover(gnrtn, indeces, 1)
+            >>> len(new_gnrtn)
+            5
             >>> variety = [[1, 6], [0, 0], [32, 3], [16, 3], [4, 24],\
                 [16, 6], [8, 3], [8, 33], [16, 36], [1,36]]
             >>> [chrm in gnrtn for chrm in new_gnrtn]

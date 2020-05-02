@@ -4,8 +4,6 @@ from datetime import (
     timedelta,
 )
 
-from pandas import DataFrame
-
 import file_work as fw
 from algorithm import Genetic
 from fitness_function import calculate
@@ -75,8 +73,10 @@ class Process():
     Methods:
         create_chunk(step_size),
         end_loop(),
-        crossover_chunk(),
-        calc_chunk(step_size),
+        begin_loop(),
+        crossover_chunk(step),
+        mutate_chunk(step),
+        calc_chunk(step),
         regulate(x, p).
 
     Examples of execution:
@@ -286,7 +286,22 @@ class Process():
         It initialises selection method of the Genetic() class.
 
         Examples of execution:
-
+            >>> p = Process()
+            >>> p._creating
+            True
+            >>> p.configs['memorised number']['value'] = 5
+            >>> p.configs['generation size']['value'] = 100
+            >>> p.create_chunk(999)
+            >>> (p._creating, p._ending)
+            (False, True)
+            >>> p.end_loop()
+            >>> (p._ending, p._beginning)
+            (False, True)
+            >>> p.begin_loop()
+            >>> (p._beginning, p._crossing) 
+            (False, True)
+            >>> len(p.parents)
+            105
         """
         self.generation = [result.chromosome for result in self.results]
         self.generation.extend([best.chromosome for best in self.bests])
@@ -314,16 +329,14 @@ class Process():
             >>> (p._ending, p._beginning)
             (False, True)
             >>> p.begin_loop()
-            >>> (p._beginning, p._crossing) 
-            (False, True)
-            >>> p.crossover_chunk(0)
-            >>> (p._crossing, p._mutating) 
-            (True, False)
-            >>> len(p.new_generation)
-            0
+            >>> (p._beginning, p._crossing, len(p.generation)==105, len(p.parents)==105) 
+            (False, True, True, True)
+            >>> gnrtn = deepcopy(p.generation)
             >>> p.crossover_chunk(10)
             >>> (p._crossing, p._mutating) 
             (True, False)
+            >>> gnrtn == p.generation
+            True
             >>> len(p.new_generation)
             10
             >>> p.crossover_chunk(50)
@@ -335,7 +348,7 @@ class Process():
             >>> (p._crossing, p._mutating) 
             (False, True)
             >>> len(p.new_generation)
-            100
+            105
 
         """
         start = datetime.now()
@@ -345,7 +358,7 @@ class Process():
             step += 1
 
         if top + step > len(self.generation):
-            self.new_generation.append(
+            self.new_generation.extend(
                 self.gntc.crossover(
                     self.generation, 
                     self.parents[top:], 
@@ -356,7 +369,7 @@ class Process():
             self._crossing = False
             self._mutating = True
         else:
-            self.new_generation.append(
+            self.new_generation.extend(
                 self.gntc.crossover(
                     self.generation, 
                     self.parents[top: top+step], 
@@ -419,18 +432,22 @@ class Process():
         top = len(self.generation)
         
         if top + step > len(self.new_generation):
-            self.generation = self.gntc.mutation(
-                self.new_generation[top:],
-                self.configs['mutation probability']['value']
+            self.generation.extend(
+                self.gntc.mutation(
+                    self.new_generation[top:],
+                    self.configs['mutation probability']['value']
+                )
             )
             self.results = []
             self.new_generation = []
             self._mutating = False
             self._calculating = True
         else:
-            self.generation = self.gntc.mutation(
-                self.new_generation[top: top+step],
-                self.configs['mutation probability']['value']
+            self.generation.extend(
+                self.gntc.mutation(
+                    self.new_generation[top: top+step],
+                    self.configs['mutation probability']['value']
+                )
             )
 
         self._mutation_step = self.regulate(
@@ -456,7 +473,7 @@ class Process():
             >>> (p._creating, p._ending)
             (False, True)
             >>> p.end_loop()
-            >>> (p._ending, ._beginning)
+            >>> (p._ending, p._beginning)
             (False, True)
             >>> p.begin_loop()
             >>> (p._beginning, p._crossing) 
@@ -536,16 +553,20 @@ class Process():
             >>> prcs.regulate(16, .016)
             16
         """
-        
+
         if (
             p < self.DELTA[0]
             or
             p > self.DELTA[1]
         ):
             if p == 0: p = 0.00001
-            A = (2 * p - self.DELTA[0] - self.DELTA[1]) / (2 * p)
+            try:
+                A = (2 * p - self.DELTA[0] - self.DELTA[1]) / (2 * p)
 
-            x = int(x * (1 - A))
+                x = int(x * (1 - A))
+
+            except OverflowError:
+                x = 100
         
         if x == 0: 
             return 1
