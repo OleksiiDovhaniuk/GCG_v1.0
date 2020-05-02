@@ -31,7 +31,7 @@ DEFAULT_DATA ={
                 'value': 400,
                 'type': 'int',
                 'min': 'memorised number',
-                'max': 9999,
+                'max': 99999999999,
                 'is active': True,
                 'group': 'root'
             },

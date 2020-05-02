@@ -14,8 +14,8 @@ class TxtInput(TextInput):
 
 class AlgorithmConfigsInput(TxtInput):
     valid_range = ObjectProperty([0, 9999])
-    push_value  = ObjectProperty(None)
-    key         = StringProperty('')
+    push_value = ObjectProperty(None)
+    key = StringProperty('')
 
     def on_focus(self, *args):
         if not self.focus:
@@ -43,11 +43,10 @@ class FileInput(TxtInput):
         self.text = name
 
     def on_focus(self, *args):
-        text      = self.text.replace('.txt', '')
+        text = self.text.replace('.txt', '')
         text_size = len(text)
         if not self.focus:
             if text_size == 0:
                 self.text = 'default.txt'
-            
         else:
             pass

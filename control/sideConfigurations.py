@@ -1,56 +1,47 @@
-from kivy.factory         import Factory
-from kivy.lang            import Builder
-from kivy.uix.boxlayout   import BoxLayout
-from kivy.uix.scrollview  import ScrollView
-from kivy.uix.scatter     import Scatter
-from kivy.properties      import ObjectProperty,\
-                                 StringProperty
-
-from control.dialog       import TruthTable
-from control.layout       import LayoutConf,\
-                                 GreyDefault
-from control.textInput    import AlgorithmConfigsInput
-from control.radioButton  import RbtEndCondition
-from control.popup        import WhitePopup
-from control.dialog       import Load,\
-                                 Save
-from control.lbl          import Lbl,\
-                                 ResultsLbl,\
-                                 TitleLbl
-
-from design               import Design
-from pandas               import DataFrame
-import file_work as fw
 import os
+from copy import deepcopy
+
+from kivy.factory import Factory
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scatter import Scatter
+from kivy.uix.scrollview import ScrollView
+from pandas import DataFrame
+
+import file_work as fw
+from control.dialog import Load, Save, TruthTable
+from control.layout import GreyDefault, LayoutConf
+from control.lbl import Lbl, ResultsLbl, TitleLbl
+from control.popup import WhitePopup
+from control.radioButton import RbtEndCondition
+from control.textInput import AlgorithmConfigsInput
+from design import Design
 
 
 Builder.load_file('view/sideConfigurations.kv')
 
 class SideConf(GreyDefault):
-    theme    = Design().default_theme
-    title    = StringProperty('Default Configurations')
+    theme = Design().default_theme
+    title = StringProperty('Default Configurations')
     minimise = ObjectProperty(None)
     rootpath = 'saves\default'
 
-    COLOR_DISABLED    = (.8, .8, .8, 1)
+    COLOR_DISABLED = (.8, .8, .8, 1)
     HINT_COLOR_NORMAL = (.4, .4, .4, 1)
-    COLOR_NORMAL      = (0, 0, 0, 1)
+    COLOR_NORMAL = (0, 0, 0, 1)
 
     def show_save(self):
-        content     = Save(save  =self.save, 
-                           cancel=self.dismiss_popup)
+        content = Save(save=self.save, cancel=self.dismiss_popup)
         content.ids.file_chooser.rootpath = self.rootpath
-        self._popup = WhitePopup(title  ="Save file",
-                                 content=content)
+        self._popup = WhitePopup(title  ="Save file", content=content)
         self._popup.open()
 
     def show_load(self):
-        content     = Load(load  =self.load, 
-                           cancel=self.dismiss_popup)
+        content = Load(load=self.load, cancel=self.dismiss_popup)
         content.ids.file_chooser.rootpath = self.rootpath
 
-        self._popup = WhitePopup(title  ="Open file",
-                                 content=content)
+        self._popup = WhitePopup(title="Open file", content=content)
         self._popup.open()
 
     def save(self, path, filename):        
@@ -70,11 +61,11 @@ class SideConfBottom(BoxLayout):
     pass
 
 class Algorithm(SideConf):
-    saved_configs  = fw.read_configurations()
-    active_configs = fw.read_configurations()
-    rootpath       = 'saves\confs'
+    saved_configs = fw.read()['Algorithm']['configurations']
+    active_configs = deepcopy(saved_configs)
+    rootpath = 'saves\confs'
 
-    inputs                = {}
+    inputs = {}
     layouts_end_condition = {}
 
     def __init__(self, **kwargs):
@@ -85,38 +76,46 @@ class Algorithm(SideConf):
         self.add_widget(bottom)
 
         for key in saved_configs:
-            layout     = LayoutConf()
-            label      = Lbl(text=key)
-            radio_btn  = None
+            layout = LayoutConf()
+            label = Lbl(text=key)
+            radio_btn = None
             text_input = AlgorithmConfigsInput(
-                key         =     key,
-                hint_text   =  f'{saved_configs[key]["value"]}',
-                input_filter=     saved_configs[key]['type'],
-                valid_range =     saved_configs[key]['range'],
-                push_value  =self.update_config)
+                key=key,
+                hint_text=f'{saved_configs[key]["value"]}',
+                input_filter=saved_configs[key]['type'],
+                valid_range=(
+                    saved_configs[key]['min'],
+                    saved_configs[key]['max']
+                ),
+                push_value=self.update_config
+            )
 
             if key in ['process time', 'iterations limit']:
-                radio_btn = RbtEndCondition(active=saved_configs[key]['active'])
+                radio_btn = RbtEndCondition(active=saved_configs[key]['is active'])
                 if not radio_btn.active:
                     label.color         = self.COLOR_DISABLED
                     text_input.disabled = True
                 layout.add_widget(radio_btn)
-                self.layouts_end_condition.update({key: {
+                self.layouts_end_condition.update({
+                    key: {
+                        'Layout'     : layout,
+                        'Label'      : label,
+                        'RadioButton': radio_btn,
+                        'TextInput'  : text_input
+                    }
+                })
+            else:
+                layout.add_widget(BoxLayout(size_hint=(None, None), size=(40, 40)))
+            layout.add_widget(label)
+
+            self.inputs.update({
+                key: {
                     'Layout'     : layout,
                     'Label'      : label,
                     'RadioButton': radio_btn,
-                    'TextInput'  : text_input}})
-            else:
-                layout.add_widget(BoxLayout(
-                    size_hint=(None, None),
-                    size     =(40, 40)))
-            layout.add_widget(label)
-
-            self.inputs.update({key: {
-                'Layout'     : layout,
-                'Label'      : label,
-                'RadioButton': radio_btn,
-                'TextInput'  : text_input}})
+                    'TextInput'  : text_input
+                }
+            })
             layout.add_widget(text_input)
             self.ids.container.add_widget(layout) 
 
@@ -131,17 +130,17 @@ class Algorithm(SideConf):
 
         if  instance.active:
             for key in layouts:
-                label           = layouts[key]['Label']
-                text_input      = layouts[key]['TextInput']
+                label = layouts[key]['Label']
+                text_input = layouts[key]['TextInput']
                 is_r_btn_active = layouts[key]['RadioButton'].active
                 if is_r_btn_active:
-                    label.color                = self.COLOR_NORMAL
+                    label.color = self.COLOR_NORMAL
                     text_input.hint_text_color = self.HINT_COLOR_NORMAL
-                    configs[key]['active'] = True
+                    configs[key]['is active'] = True
                 else:
-                    label     .color           = self.COLOR_DISABLED
+                    label.color = self.COLOR_DISABLED
                     text_input.hint_text_color = self.COLOR_DISABLED
-                    configs[key]['active'] = False
+                    configs[key]['is active'] = False
 
                 text_input.disabled = not is_r_btn_active
 
@@ -172,35 +171,35 @@ class Algorithm(SideConf):
         self.dismiss_popup()
 
     def refresh_widgets(self):
-        saved_conf  = self.saved_conf  = self.active_configs
-        inputs      = self.inputs
+        saved_conf = self.saved_conf = self.active_configs
+        inputs = self.inputs
 
         for key in inputs:
-            lbl                 = inputs[key]['Label']
-            btn                 = inputs[key]['RadioButton']
-            txt_input           = inputs[key]['TextInput']
-            txt_input.text      = ''
+            lbl = inputs[key]['Label']
+            btn = inputs[key]['RadioButton']
+            txt_input = inputs[key]['TextInput']
+            txt_input.text = ''
             txt_input.hint_text = f'{saved_conf[key]["value"]}'
             if btn: 
-                btn.active         = saved_conf[key]['active']
+                btn.active = saved_conf[key]['is active']
                 txt_input.disabled = not btn.active
                 if btn.active:
-                    lbl      .color           = self.COLOR_NORMAL
+                    lbl.color = self.COLOR_NORMAL
                     txt_input.hint_text_color = self.HINT_COLOR_NORMAL
                 else:
-                    lbl      .color           = self.COLOR_DISABLED
+                    lbl.color = self.COLOR_DISABLED
                     txt_input.hint_text_color = self.COLOR_DISABLED
 
     def update_config(self, instence):
         layouts_end_condition = self.layouts_end_condition
-        active_configs        = self.active_configs
+        active_configs = self.active_configs
 
-        range_min   = instence.valid_range[0]
-        range_max   = instence.valid_range[1]
-        key         = instence.key
-        txt         = instence.text
-        valig       = True
-        range_paar  = []
+        range_min = instence.valid_range[0]
+        range_max = instence.valid_range[1]
+        key = instence.key
+        txt = instence.text
+        valig = True
+        range_paar = []
 
         try:
             min_value = float(range_min)
@@ -234,29 +233,30 @@ class Algorithm(SideConf):
 
         if  min_value <= txt_float <=  max_value:
             try:
-                txt_int = int(txt)
-                active_configs[key]['value'] = str(txt_int)
+                active_configs[key]['value'] = int(txt)
             except ValueError:
-                active_configs[key]['value'] = str(txt_float)
+                active_configs[key]['value'] = txt_float
         else:
             valig = False
             instence.text = ''
             print(f'Value in "{key}" is out of range') 
 
+        data = fw.read()
         if valig: 
-            self.active_configs = active_configs
-            fw.save_configurations(active_configs)
+            data['Algorithm']['configurations'] = self.active_configs = active_configs
         else: 
-            self.active_configs = self.saved_configs
-            fw.save_configurations(self.saved_configs)
+            data['Algorithm']['configurations'] = self.active_configs = self.saved_configs
+        fw.save(data)
 
 class Input(SideConf):
-    saved_ttbl  = fw.read_truth_table()
-    active_ttbl = fw.read_truth_table()
-    inputs_frame  = DataFrame.from_dict(active_ttbl['inputs'])
-    outputs_frame = DataFrame.from_dict(active_ttbl['outputs']).replace([None], '  X')
-    str_ttbl = {'inputs' : inputs_frame.to_string(index=False), 
-                'outputs': outputs_frame.to_string(index=False)}
+    saved_ttbl = fw.read()['Truth Table']
+    active_ttbl = deepcopy(saved_ttbl)
+    # inputs_frame = DataFrame.from_dict(active_ttbl['inputs'])
+    # outputs_frame = DataFrame.from_dict(active_ttbl['outputs']).replace([None], '  X')
+    # str_ttbl = {
+    #     'inputs' : inputs_frame.to_string(index=False), 
+    #     'outputs': outputs_frame.to_string(index=False)
+    # }
 
     rootpath = 'saves\input'
 
@@ -276,7 +276,7 @@ class Input(SideConf):
         btn = self.ids.switch_btn
         for key in ['inputs', 'outputs']:
             if key != btn.text:
-                self.ids.tbl_lbl.text = self.str_ttbl[key]
+                self.ids.tbl_lbl.text = str(self.active_ttbl[key])
                 btn.text = key
                 return
     
@@ -287,10 +287,12 @@ class Input(SideConf):
     def refresh_widgets(self):
         truth_table = self.active_ttbl
 
-        inputs_frame  = DataFrame.from_dict(truth_table['inputs'])
-        outputs_frame = DataFrame.from_dict(truth_table['outputs']).replace([None], '  X')
-        self.str_ttbl = {'inputs' : inputs_frame .to_string(index=False), 
-                         'outputs': outputs_frame.to_string(index=False)}
+        # inputs_frame = DataFrame.from_dict(truth_table['inputs'])
+        # outputs_frame = DataFrame.from_dict(truth_table['outputs']).replace([None], '  X')
+        # self.str_ttbl = {
+        #     'inputs' : inputs_frame .to_string(index=False), 
+        #     'outputs': outputs_frame.to_string(index=False)
+        # }
 
         self.switch_tbl()
         self.switch_tbl()

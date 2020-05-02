@@ -1,22 +1,23 @@
-from kivy.properties        import StringProperty, ObjectProperty
-from kivy.lang              import Builder
-from kivy.clock             import Clock
-from kivy.uix.textinput     import TextInput
+import string
 
+from kivy.clock import Clock
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.textinput import TextInput
+from pandas import DataFrame
+
+from control.btn import Btn
 from control.hoverBehaviour import HoverBehavior
-from control.textInput      import TxtInput
-from control.btn            import Btn
+from control.textInput import TxtInput
+from design import Design
 
-from pandas                 import DataFrame
-from design                 import Design
-import string 
 
 Builder.load_file('view/cell.kv')
 
 class Cell(Btn):
     cell_type = StringProperty('inputs')
-    text      = StringProperty('0')
-    theme     = Design().default_theme
+    text = StringProperty('0')
+    theme = Design().default_theme
 
     def __init__(self, **kwargs):
         super(Cell, self).__init__(**kwargs)
@@ -37,16 +38,19 @@ class EmptyCell(Cell):
     pass
 
 class TitleCell(TxtInput, HoverBehavior):
-    cell_type       = StringProperty('inputs')
-    reserved_title  = StringProperty('def.')
-    remove_column   = ObjectProperty(None)
-    valid_to_apply  = ObjectProperty(None)
+    cell_type = StringProperty('inputs')
+    reserved_title = StringProperty('def.')
+    remove_column = ObjectProperty(None)
+    valid_to_apply = ObjectProperty(None)
     is_equal_signal = ObjectProperty(None)
-    erase_signal    = ObjectProperty(None)
-    write_column    = ObjectProperty(None)
-    index           = ObjectProperty(None)
-    PROPER_VALUES   = {'inputs': ['0', '1'],
-                    'outputs': ['0', '1', '*']}
+    erase_signal = ObjectProperty(None)
+    write_column = ObjectProperty(None)
+    index = ObjectProperty(None)
+
+    PROPER_VALUES = {
+        'inputs': ['0', '1'],
+        'outputs': ['0', '1', '*']
+    }
     
     def __init__ (self, **kwargs):
         super(TitleCell, self).__init__(**kwargs)
@@ -86,7 +90,7 @@ class TitleCell(TxtInput, HoverBehavior):
         return super(TitleCell, self).insert_text(s, from_undo=from_undo)
 
     def on_focus(self, *args):
-        text      = self.text
+        text = self.text
         text_size = len(text)
 
         if not self.focus:
@@ -94,7 +98,7 @@ class TitleCell(TxtInput, HoverBehavior):
                 self.remove_column(self)
                 return
             elif '=' in text: 
-                index     = text.index('=')
+                index = text.index('=')
                 if index + 2 == text_size:
                     value = text[index+1]
                     if value == '*': value = 'X'

@@ -1,5 +1,8 @@
 from copy import deepcopy
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 from pandas import DataFrame
 
@@ -86,6 +89,10 @@ class Process():
     DELTA = (.016, .04)
     _creation_step = 100
     _loop_step = 100
+    _creating = False
+    _ending = False
+    _doing = False
+    _calculating = False
 
     def __init__(self):
         """ First of all, pulls configurations and the truth table
@@ -94,8 +101,10 @@ class Process():
 
         Examples of execution:
             >>> p = Process()
-            >>> p.pause_time = 0
-            >>> p.have_result = False
+            >>> p.pause_time
+            datetime.timedelta(0)
+            >>> p.have_result 
+            False
             >>> p.generation
             []
             >>> p.results
@@ -113,8 +122,9 @@ class Process():
 
         """
         self.start_time = datetime.now()
-        self.pause_time = datetime.now() - datetime.now()
+        self.pause_time = timedelta()
         self.have_result = False
+        self.iter = 0
 
         self.configs = configs = fw.read()['Algorithm']['configurations']
         self.coefs = configs['fitness function coeficients']['value']
@@ -137,6 +147,9 @@ class Process():
         self.mins = []
         self.avgs = []
         self.indeces = []  # X axes of the plot
+
+        self._creating = True
+        self.percent = 0
     
     def create_chunk(self, step_size=_creation_step):
         """The method generats chunks of the generation and 
@@ -147,15 +160,12 @@ class Process():
             step_size (int): by default step_size = _creation_step.
                 It is better to do not change the argument manualy.
 
-        Returns: 
-            True if it is the last chunk of the generation,
-            False - otherwise.
-
         Examples of execution:
             >>> p = Process()
 
             >>> p.create_chunk()
-            False
+            >>> p._creating
+            True
             >>> len(p.results)
             100
             >>> chrms = [res.chromosome for res in p.results]
@@ -167,7 +177,8 @@ class Process():
             [True, True, True, True, True]
 
             >>> p.create_chunk(5)
-            False
+            >>> p._creating
+            True
             >>> len(p.results)
             105
             >>> chrms = [res.chromosome for res in p.results]
@@ -181,13 +192,14 @@ class Process():
         """
         start = datetime.now()
 
-        current_size = len(self.generation)
+        step_size = self._creation_step
+        current_size = len(self.results)
         size = self.configs['generation size']['value']
-        is_last = False
 
         if current_size + step_size > size:
             chunk = self.gntc.create(size-current_size, self.gene_no)
-            is_last = True
+            self._creating = False
+            self._ending = True
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
         
@@ -206,8 +218,7 @@ class Process():
             else:
                 self.results.append(Result(chromosome, value, time))
 
-        _creation_step = self.regulate(self._creation_step, (start-datetime.now()).total_seconds())
-        return is_last
+        self._creation_step = self.regulate(self._creation_step, (datetime.now()-start).total_seconds())
 
     def end_loop(self):
         """The method finishs the iteration of the Genetic Algorithm.
@@ -218,7 +229,8 @@ class Process():
             >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
-            True
+            >>> p._creating
+            False
             >>> p.end_loop()
             >>> len(p.bests)
             5
@@ -245,8 +257,8 @@ class Process():
         results = self.results = sorted(self.results, key=lambda result: result.value)[-size:]
 
         if self.bests:
-            self.bests.extand(results[-bests_no:].copy())
-            self.bests = sorted(self.bests,  key=self.best.value)[-bests_no:]
+            self.bests.extend(results[-bests_no:].copy())
+            self.bests = sorted(self.bests, key=lambda best: best.value)[-bests_no:]
         else: 
             self.bests= results[-bests_no:].copy()
 
@@ -257,6 +269,11 @@ class Process():
             self.indeces.append(self.indeces[-1]+1)
         else: 
             self.indeces.append(0)
+        
+        self._ending = False
+        self._doing = True
+        self.iter += self.iter
+        
 
     def do_loop(self):
         """This method begins the iteration of the Genetic Algorithm.
@@ -267,7 +284,8 @@ class Process():
             >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
-            True
+            >>> p._creating
+            False
             >>> p.end_loop()
             >>> len(p.results)
             100
@@ -292,6 +310,8 @@ class Process():
         gntc.mutation(self.generation, mutation_prob)
         
         self.results = []
+        self._doing = False
+        self._calculating = True
 
     def do_chunk(self, step_size=_loop_step):
         """The method creates chunk of new results list from existing
@@ -306,34 +326,40 @@ class Process():
             >>> p.configs['memorised number']['value'] = 5
             >>> p.configs['generation size']['value'] = 100
             >>> p.create_chunk(999)
-            True
+            >>> p._creating
+            False
             >>> p.end_loop()
             >>> p.do_loop()
             >>> len(p.results)
             0
             >>> p.do_chunk(10)
-            False
+            >>> p._calculating
+            True
             >>> len(p.results)
             10
             >>> p.do_chunk(50)
-            False
+            >>> p._calculating
+            True
             >>> len(p.results)
             60
             >>> p.do_chunk(99)
-            True
+            >>> p._calculating
+            False
             >>> len(p.results)
             105
 
         """
         start = datetime.now()
 
+        step_size = self._loop_step
         size = len(self.generation)
         top = len(self.results)
         is_last = False
 
         if top + step_size > size:
             chunk = self.generation[top:]
-            is_last = True
+            self._calculating = False
+            self._ending = True
         else:
             chunk = self.gntc.create(step_size, self.gene_no)
         
@@ -352,9 +378,8 @@ class Process():
             else:
                 self.results.append(Result(chromosome, value, time))
         
-        self._loop_step = self.regulate(self._loop_step, (start-datetime.now()).total_seconds())
-        return is_last
-
+        self._loop_step = self.regulate(self._loop_step, (datetime.now()- start).total_seconds())
+        
     def regulate(self, x, p):
         """ Change inputed x in order to fit it into 
         range - DELTA with function: x = x * (1 - A),
@@ -393,6 +418,40 @@ class Process():
             return 1
         else: 
             return x
+
+    def process(self):
+        """ Process the algorithm. The method regulates witch stage should
+        proceed next and also when to stop process.
+
+        """
+        time_info = self.configs['process time']
+        iter_info = self.configs['iterations limit']
+        total_seconds = (datetime.now() - self.start_time - self.pause_time).total_seconds()
+        
+        if time_info['is active']:
+            self.percent = int(total_seconds / time_info['value']  * 100)
+            if self.percent > 100: 
+                self.percent = 100
+        elif iter_info['is active']:
+            self.percent = int(self.iter / iter_info['value'] * 100)
+
+        if (
+            (time_info['is active'] and total_seconds< time_info['value'])
+            or
+            (iter_info['is active'] and self.iter < iter_info['value'])
+        ):
+            if self._creating: 
+                self.create_chunk()
+            elif self._ending:
+                self.end_loop()
+            elif self._doing:
+                self.do_loop()
+            elif self._calculating:
+                self.do_chunk()
+            return True
+            
+        else:
+            return False
 
 def prep_ins( inputs, sgn_no):
     """ Interprets input signals of the truth table

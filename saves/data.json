@@ -3,10 +3,10 @@
         "name": "Genetic",
         "configurations": {
             "generation size": {
-                "value": 400,
+                "value": 9999,
                 "type": "int",
                 "min": "memorised number",
-                "max": 9999,
+                "max": 99999999999,
                 "is active": true,
                 "group": "root"
             },
@@ -75,7 +75,7 @@
                 "group": "root"
             },
             "process time": {
-                "value": 600,
+                "value": 60,
                 "type": "int",
                 "min": 1,
                 "max": 99999999999,
@@ -83,7 +83,7 @@
                 "group": "process limits"
             },
             "iterations limit": {
-                "value": 1000,
+                "value": 10,
                 "type": "int",
                 "min": 1,
                 "max": 99999999999,
