@@ -18,6 +18,7 @@ Functions:
 """
 import math
 from timeit import timeit
+from copy import deepcopy
 
 
 FREDKIN_DELAY = 1
@@ -173,10 +174,14 @@ def err_no(chromosome, sgn_no, inputs, outputs):
         >>> outs_copy == outs_sum
         True
 
+        >>> [err_no(chromosome, no_sum, ins_sum, outs_sum) \
+            for chromosome in test_from_res1]
+        [0, 0, 0]
+
     """
     err_no = 0
     active_ins = inputs.copy()
-    once = (2 ** sgn_no) - 1
+    chromosome = [gene for gene in chromosome if gene != [0, 0]]
     outs_no = len(outputs[0])
     err_list = [[0] * sgn_no for _ in range(outs_no)]
 
@@ -186,18 +191,13 @@ def err_no(chromosome, sgn_no, inputs, outputs):
                 if '{0:b}'.format(switch & ins).count('1') == 1:
                     ins = ins ^ switch
 
-        for sgn, errs in zip(outs, err_list):
-            if sgn:
-                err_segment = once ^ ins
-            else:
-                err_segment = ins
-            segment_str = '{0:b}'.format(err_segment)[::-1]
-
-            for i in range(sgn_no):
-                try:
-                    errs[-i-1] += int(segment_str[i])
-                except IndexError:
-                    pass
+        str_ins = '{0:b}'.format(ins)
+        while len(str_ins) < sgn_no:
+            str_ins = '0' + str_ins
+            
+        for i in range(len(outs)):
+            for j in range(sgn_no):
+                err_list[i][j] += outs[i] ^ int(str_ins[j])
 
     min_list = sorted([min(row) for row in err_list])
     for min_value in min_list[:outs_no]:
@@ -290,12 +290,61 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
     Returns(list of ints): evaluation values of the inputed generation.
 
     Examples of execution:
+        >>> gnrtn_copy = deepcopy(generation_or)
+        >>> gnrtn_copy == generation_or
+        True
+        >>> no_copy = no_or
+        >>> no_copy == no_or
+        True
+        >>> ins_copy = deepcopy(ins_or)
+        >>> ins_copy == ins_or
+        True
+        >>> outs_copy = deepcopy(outs_or)
+        >>> outs_copy == outs_or
+        True
+        >>> coefs_copy = coefs.copy()
+        >>> coefs_copy == coefs
+        True
         >>> [round(result, 3) for result in calculate(generation_or, no_or,\
             ins_or, outs_or, coefs)]
         [0.978, 0.978, 0.528, 0.528, 0.963]
+        >>> gnrtn_copy == generation_or
+        True
+        >>> no_copy == no_or
+        True
+        >>> ins_copy == ins_or
+        True
+        >>> ins_copy == ins_or
+        True
+        >>> coefs_copy == coefs
+        True
+
+        >>> gnrtn_copy = deepcopy(generation_sum)
+        >>> gnrtn_copy == generation_sum
+        True
+        >>> no_copy = no_sum
+        >>> no_copy == no_sum
+        True
+        >>> ins_copy = deepcopy(ins_sum)
+        >>> ins_copy == ins_sum
+        True
+        >>> outs_copy = deepcopy(outs_sum)
+        >>> outs_copy == outs_sum
+        True
         >>> [round(result, 3) for result in calculate(generation_sum, no_sum,\
             ins_sum, outs_sum, coefs)]
         [0.945, 0.123, 0.169, 0.943]
+        >>> gnrtn_copy == generation_sum
+        True
+        >>> no_copy == no_sum
+        True
+        >>> ins_copy == ins_sum
+        True
+        >>> outs_copy == outs_sum
+        True
+        >>> coefs_copy == coefs
+        True
+
     """
     results = []
 
@@ -354,6 +403,11 @@ __test_values__ = {
         [[0,0], [1,6], [0,0], [4,3], [0,0]]
     ],
 
+    'test_from_res1':[
+        [[0, 0], [0, 0], [32, 6], [16, 36], [4, 10], [8, 5], [32, 3]],
+        [[0, 0], [32, 6], [16, 36], [4, 10], [8, 5], [0, 0], [32, 3]],
+        [[0, 0], [32, 6], [16, 36], [4, 10], [8, 5], [0, 0], [32, 3]],
+    ],
     # 'outs_sum': [[0, 1, 1, 0, 1, 0, 0, 1], 
     #              [0, 0, 0, 1, 0, 1, 1, 1],
     #              [0, 0, 1, 1, 1, 1, 0, 0]],
