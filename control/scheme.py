@@ -153,13 +153,13 @@ class Scheme(FloatLayout):
             for i, gene in enumerate(gnt):
                 start_y = -1
 
-                control = '{0:b}'.format(gene[0])[::-1]
+                control = '{0:b}'.format(gene[0])
                 while len(control) < n_steps_y:
-                    control += '0'
+                    control = '0' + control
 
-                switch = '{0:b}'.format(gene[1])[::-1]
+                switch = '{0:b}'.format(gene[1])
                 while len(switch) < n_steps_y:
-                    switch += '0'
+                    switch = '0' + switch
 
                 for j in range(n_steps_y):
                     # if bit in control bits is '1' draw control

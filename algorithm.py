@@ -48,22 +48,43 @@ class Genetic():
                     [16, 17], [1, 1], [32, 1], [1, 48]]
             >>> ganes_4_26 = [[0, 0], [1, 6], [9, 6], [0, 3],\
                     [16, 17], [1, 1], [32, 1]]
-            >>> Genetic(0).genes
+            >>> sign_no = 0
+            >>> Genetic(sign_no).genes
             [[0, 0]]
-            >>> Genetic(1).genes
+            >>> sign_no
+            0
+            >>> sign_no = 1
+            >>> Genetic(sign_no).genes
             [[0, 0]]
-            >>> len(Genetic(6).genes)
+            >>> sign_no
+            1
+            >>> sign_no = 6
+            >>> len(Genetic(sign_no).genes)
             61
-            >>> [x in Genetic(6).genes for x in ganes_6]
+            >>> sign_no
+            6
+            >>> [x in Genetic(sign_no).genes for x in ganes_6]
             [True, True, True, False, False, False, False]
-            >>> len(Genetic(5, (1, 1)).genes)
+            >>> sign_no
+            6
+            >>> sign_no = 5
+            >>> len(Genetic(sign_no, (1, 1)).genes)
             31
-            >>> [x in Genetic(5, (1, 1)).genes for x in ganes_5_11]
+            >>> sign_no
+            5
+            >>> [x in Genetic(sign_no, (1, 1)).genes for x in ganes_5_11]
             [True, True, True, False, False, False, False, False]
-            >>> len(Genetic(4, (2, 6)).genes)
+            >>> sign_no
+            5
+            >>> sign_no = 4
+            >>> len(Genetic(sign_no, (2, 6)).genes)
             7
-            >>> [x in Genetic(4, (2, 6)).genes for x in ganes_4_26]
+            >>> sign_no
+            4
+            >>> [x in Genetic(sign_no, (2, 6)).genes for x in ganes_4_26]
             [True, False, True, False, False, False, False]
+            >>> sign_no
+            4
 
         """
         genes = [[0, 0]]
@@ -148,15 +169,10 @@ class Genetic():
 
         Examples of execution:
             >>> gntc = Genetic(6)
-            >>> parents_indeces = gntc.selection([0, 0, 1, 0, 1, 1, 0])
-            >>> len(parents_indeces)
-            4
-            >>> len(parents_indeces[1])
-            2
-            >>> len(parents_indeces[-1])
-            1
-            >>> flattened = [val for sublist in parents_indeces for val in sublist] 
-            >>> [index in flattened for index in [0, 1, 2, 3, 4, 5, 6]]
+            >>> indeces = gntc.selection([0, 0, 1, 0, 1, 1, 0])
+            >>> len(indeces)
+            7
+            >>> [index in indeces for index in [0, 1, 2, 3, 4, 5, 6]]
             [False, False, True, False, True, True, False]
 
         """
@@ -183,27 +199,35 @@ class Genetic():
         if size % 2 == 1: 
             parent_indeces.append(random.choices(indeces, weights=values, k=1))
 
-        return parent_indeces
+        indeces = []
+        for paar in parent_indeces:
+            indeces.append(paar[0])
+            try:
+                indeces.append(paar[1])
+            except IndexError:
+                pass
 
-    def crossover(self, generation, parents, probability):
-        """ Crossovers the parents in generation to get new generation.
+        return indeces
+
+    def crossover(self, chunk, parents, probability):
+        """ Crossovers the parents in chunk to get new chunk.
         Here 2 point crossover is used.
 
         Args: 
-            generation (3D list of ints);
+            chunk (3D list of ints);
             parents (list of ints): list of parents indeces;
             probability (float): crossover probability.
 
-        Returns: new generation (3D list of ints).
+        Returns: new chunk (3D list of ints).
 
         Examples of execution:
-            >>> gntc = Genetic(6)
+            >>> gntc = Genetic(5)
             >>> gnrtn = [[[1, 6], [0, 0]],\
                          [[32, 3], [16, 3]],\
                          [[4, 24], [16, 6]],\
                          [[8, 3], [8, 33]],\
                          [[16, 36], [1, 36]]]
-            >>> indeces = [[0, 3], [2, 4], [2]]
+            >>> indeces = [0, 3, 2, 4, 2]
             >>> new_gnrtn = gntc.crossover(gnrtn, indeces, 1)
             >>> variety = [[1, 6], [0, 0], [32, 3], [16, 3], [4, 24],\
                 [16, 6], [8, 3], [8, 33], [16, 36], [1,36]]
@@ -213,31 +237,24 @@ class Genetic():
             [[True, True], [True, True], [True, True], [True, True], [True, True]]
 
         """
-        new_generation = []
+        new_chunk = []
 
-        for paar in parents[:-1]:
+        for first, second in zip(parents[::2], parents[1::2]):
             self.paar_crossover(
-                generation[paar[0]], 
-                generation[paar[1]], 
-                new_generation, 
+                chunk[first], 
+                chunk[second], 
+                new_chunk, 
                 probability
             )
-        if len(parents[-1]) == 1:
-            new_chrm = generation[parents[-1][0]].copy()
+        if len(parents) % 2 == 1:
+            new_chrm = chunk[parents[-1]].copy()
 
-            while new_chrm in new_generation:
+            while new_chrm in new_chunk:
                 new_chrm = self.chrm_mutation(new_chrm)
 
-            new_generation.append(new_chrm)
-        else:
-            self.paar_crossover(
-                generation[parents[-1][0]], 
-                generation[parents[-1][1]], 
-                new_generation, 
-                probability
-            )
+            new_chunk.append(new_chrm)
 
-        return new_generation
+        return new_chunk
 
     def paar_crossover(self, a, b, new_generation, probability):
         """ Crossover the paar of the parents chromosome.
@@ -347,9 +364,13 @@ class Genetic():
             >>> gnrtn_copy = [[[1,6], [32, 3]], [[8, 6], [16, 10]]]
             >>> gnrtn == gnrtn_copy
             True
-            >>> gntc.mutation(gnrtn, 1)
+            >>> mutated = gntc.mutation(gnrtn, 1)
             >>> gnrtn == gnrtn_copy
             False
+            >>> mutated == gnrtn_copy
+            False
+            >>> mutated == gnrtn
+            True
             >>> [chrm in gnrtn_copy[0] for chrm in gnrtn[0]]
             [False, False]
             >>> [chrm in gnrtn_copy[1] for chrm in gnrtn[1]]
@@ -368,6 +389,8 @@ class Genetic():
                     new_chromosome = self.chrm_mutation(new_chromosome)
 
                 generation.append(new_chromosome)
+
+        return generation
 
 if __name__ == '__main__':
     import doctest

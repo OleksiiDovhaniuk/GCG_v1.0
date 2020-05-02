@@ -11,17 +11,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 
+import file_work as fw
 from control.btn import Btn
 from control.dropDownMenu import DropDownMenu
 from control.layout import Separator10
 from control.lbl import Lbl, ResultsLbl
 from control.scheme import Scheme
-from control.sideConfigurations import (
-    Algorithm, 
-    Input, 
-    Plot, 
-    Results
-)
+from control.sideConfigurations import Algorithm, Input, Plot, Results
 from design import Design
 from process import Process
 
@@ -34,8 +30,10 @@ class Main(Screen):
     theme = Design().default_theme
     SCHEME_HEIGHT = 150
     MAX_FONT_SIZE = 16
-    HEIGHT_COEFNT = 1.5
-    CLOCK = .04
+    HEIGHT_COEFNT = 2
+    CLOCK = .016
+    RESUL_TIME = 3
+    RESUL_NO = 3
 
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
@@ -120,6 +118,7 @@ class Main(Screen):
         self.ids.btn_results.disabled = False
 
     def run(self, *args):
+        self.delta_time = datetime.now()
         self.ids.btn_run.clear_widgets()
         self.ids.btn_run.width = 240
         self.ids.btn_run.add_widget(self.btn_stop)
@@ -129,10 +128,15 @@ class Main(Screen):
         self.ids.btn_run.add_widget(self.btn_pause)
         self.proc = Process()
         self.run_event = Clock.schedule_interval(self.do_loop, self.CLOCK)
+        self.show_ttbl()
+        self.show_configs()
 
     def do_loop(self, *args):
         if not self.proc.process():
             self.stop()
+        if (datetime.now() - self.delta_time).total_seconds() > self.RESUL_TIME:
+            self.delta_time = datetime.now()
+            self.show_results()
         self.show_status()
 
     def pause(self, *args):
@@ -161,7 +165,7 @@ class Main(Screen):
     def show_ttbl(self):
         ttbl_str = ''
         ttbl_lbl = self.side_results.ids.ttbl_lbl
-        ttbl = self.proc.truth_table
+        ttbl = fw.read()['Truth Table']
         lines_number = 0
 
         for key in ttbl:
@@ -174,8 +178,7 @@ class Main(Screen):
                 key_space += row_key
                 ttbl_str += f'{key_space}: '
                 for value in ttbl[key][row_key]:
-                    if value == None: ttbl_str += 'X '
-                    else: ttbl_str += f'{str(value)} '
+                    ttbl_str += f'{value} '
                 ttbl_str += '\n'
                 lines_number += 1
 
@@ -186,93 +189,66 @@ class Main(Screen):
         self.side_results.resize_container()
 
     def show_results(self):
-        proc = self.proc
+        results = self.proc.bests
         scheme_height = self.SCHEME_HEIGHT
-        genotype_str = ''
-
-        if proc.have_result: genotypes = proc.proper_results
-        else: genotypes = proc.best_results.iloc[:5, :]
-
-        values_list = genotypes['value'].tolist()
+        font_size = self.MAX_FONT_SIZE
         container = self.side_results.ids.results_container        
         container.clear_widgets()
 
-        for index, value in enumerate(values_list):
-            chromosome_str = ['' for _ in range(len(genotypes.iloc[0, 0][0]))]
-            text_top = f'Chromosom #{index+1}:' 
+        if len(results) > self.RESUL_NO:
+            results = results[:-self.RESUL_NO+1]
 
-            for gene in genotypes.iloc[index, 0]:
-                for jndex, alet in enumerate(gene):
-                    chromosome_str[jndex] += f'{alet}'
-
-            for gene_str in chromosome_str:
-                genotype_str += f'{gene_str}\n'
-            
-            font_size = self.HEIGHT_COEFNT \
-                * self.side_results.width / len(chromosome_str[0])
-            if font_size > self.MAX_FONT_SIZE:
-                font_size = self.MAX_FONT_SIZE
-
-            value_round = round(value, 6)
-            str_time = str(proc.best_results.iloc[index, 2])[7:18] 
-            text_bottom = f'Fitness Function value {value_round} \n'
-            text_bottom += f'Search Time {str_time}\n'
-            text_bottom += f'Scheme:'
-
-            lbl_height = self.HEIGHT_COEFNT \
-                * genotype_str.count('\n') * int(font_size)
-
+        for index, result in enumerate(results):
+            lbl_height = (self.HEIGHT_COEFNT
+                * str(result).count('\n') 
+                * int(font_size)
+            )
             container.add_widget(Separator10())
             container.add_widget(
                 ResultsLbl(
-                    text=text_top,
+                    text=f'Chromosom #{index+1}',
                     halign='left',
-                    height=21
+                    height=font_size*self.HEIGHT_COEFNT,
                 )
             )
             container.add_widget(
                 ResultsLbl(
-                    text=genotype_str,
+                    text=str(result),
                     size_hint_y=None,
-                    height=lbl_height,
-                    font_size=font_size
-                )
-            )
-            container.add_widget(
-                ResultsLbl(
-                    text=text_bottom,
                     halign='left',
-                    height=84
+                    height=lbl_height,
+                    font_size=font_size,
                 )
             )
-            scroll_view \
-                 = ScrollView(do_scroll_x=True, effect_cls='ScrollEffect')
+            scroll_view = ScrollView(do_scroll_x=True, effect_cls='ScrollEffect')
             scroll_view.add_widget(
                 Scheme(
                     height=scheme_height,
-                    genotype=genotypes.iloc[index, 0]
+                    inputs=('X', 'Y', 'C1', 'al1', 'al2', 'al3'),
+                    outputs=('P', 'Q', 'C2', 'gr1', 'gr2', 'gr3'),
+                    genotype=result.chromosome,
                 )
             ) 
             container.add_widget(scroll_view)
             container.add_widget(Separator10())
             
-            genotype_str = ''
-
-        container.height = (125 + scheme_height + lbl_height ) * len(values_list)
+        container.height = (125 + scheme_height + lbl_height ) * len(results)
 
     def show_configs(self):
         configs_str = ''
-        configs = self.proc.configurations
+        configs = self.proc.configs
         configs_lbl = self.side_results.ids.configs_lbl
-        lines_number = len(configs)
+        
         for key in configs:
-            configs_str += f'{key}: '
-            configs_str += f'{configs[key]["value"]}\n'
+            configs_str += f'{key}: {configs[key]["value"]}\n'
         
         self.side_results.resize_container()
         configs_lbl.text = configs_str
-        configs_lbl.height = self.HEIGHT_COEFNT *\
-            configs_str.count('\n') * (configs_lbl.font_size + 2)
+        configs_lbl.height = (
+            self.HEIGHT_COEFNT
+            * len(configs) 
+            * (configs_lbl.font_size + 2)
+        )
         self.side_results.resize_container()
 
     def show_plot(self):
@@ -289,3 +265,5 @@ class Main(Screen):
 
     def show_status(self):
         self.ids.status_bar.text = f'Progress {self.proc.percent}%'
+
+

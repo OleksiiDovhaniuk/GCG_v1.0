@@ -3,7 +3,7 @@
         "name": "Genetic",
         "configurations": {
             "generation size": {
-                "value": 9999,
+                "value": 400,
                 "type": "int",
                 "min": "memorised number",
                 "max": 99999999999,
@@ -19,7 +19,7 @@
                 "group": "root"
             },
             "gene size": {
-                "value": 6,
+                "value": 4,
                 "type": "int",
                 "min": 2,
                 "max": 99,
