@@ -117,11 +117,12 @@ def fitness_function(errors, c, g, s, coefs):
         0.109
 
     """
-    value = (coefs[0] * k_from_error(errors) + 
-    coefs[1] * g_from_c(c) + 
-    coefs[2] * h_from_g(g) + 
-    coefs[3] * i_from_s(s))
-    return value
+    return (
+        coefs[0] * k_from_error(errors) + 
+        coefs[1] * g_from_c(c) + 
+        coefs[2] * h_from_g(g) + 
+        coefs[3] * i_from_s(s)
+    )
 
 def err_no(chromosome, sgn_no, inputs, outputs):
     """Returns errors number of the scheme (or chromosome, or genotype).
@@ -180,12 +181,11 @@ def err_no(chromosome, sgn_no, inputs, outputs):
 
     """
     err_no = 0
-    active_ins = inputs.copy()
     chromosome = [gene for gene in chromosome if gene != [0, 0]]
-    outs_no = len(outputs[0])
-    err_list = [[0] * sgn_no for _ in range(outs_no)]
+    out_no = len(outputs[0])
+    err_list = [[0] * sgn_no for _ in range(out_no)]
 
-    for ins, outs in zip(active_ins, outputs): 
+    for ins, outs in zip(inputs, outputs): 
         for control, switch in chromosome:
             if control & ins == control:
                 if '{0:b}'.format(switch & ins).count('1') == 1:
@@ -200,7 +200,7 @@ def err_no(chromosome, sgn_no, inputs, outputs):
                 err_list[i][j] += outs[i] ^ int(str_ins[j])
 
     min_list = sorted([min(row) for row in err_list])
-    for min_value in min_list[:outs_no]:
+    for min_value in min_list[:out_no]:
         err_no += min_value
 
     return err_no
