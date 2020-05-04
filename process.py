@@ -8,6 +8,8 @@ import file_work as fw
 from algorithm import Genetic
 from fitness_function import calculate
 
+import threading
+
 
 class Result():
     """ A class represents the result of the algorithm process.
@@ -56,13 +58,24 @@ class Result():
                 str_res += f'{gene}, '
         
         if self.value:
-            str_res += f'\nValue: {round(self.value, 5)}, '
+            str_res =  f'{str_res[:-2]}\nValue: {round(self.value, 5)}, '
         else:
             str_res += f'\nValue: None, '
 
-        str_res += f'Search Time: {self.time.total_seconds()}.'
+        str_res += f'\nSearch Time: {self.time.total_seconds()}.'
 
         return str_res
+
+def thread(func):
+    ''' This decorator makes new for function that is passed
+
+    '''
+    def wrapper(*args, **kwargs):
+        current_thread = threading.Thread(
+            target=func, args=args, kwargs=kwargs)
+        current_thread.start()
+
+    return wrapper 
 
 class Process():
     """ The class initialies and handles the Genetic Algorithm
@@ -128,6 +141,7 @@ class Process():
             []
 
         """
+        self.is_proc = True
         self.start_time = datetime.now()
         self.pause_time = timedelta()
         self.have_result = False
@@ -136,7 +150,8 @@ class Process():
         self.configs = configs = fw.read()['Algorithm']['configurations']
         self.coefs = configs['fitness function coeficients']['value']
 
-        t_tbl =   fw.read()['Truth Table']
+        t_tbl = fw.read()['Truth Table']
+        self.inputs_origin = t_tbl['inputs']
         self.inputs = prep_ins(
             t_tbl['inputs'],
             configs['gene size']['value']
@@ -144,7 +159,10 @@ class Process():
         self.outputs = prep_outs(t_tbl['outputs'])
         self.gene_no = configs['chromosome size']['value']
         self.gene_size = configs['gene size']['value']
-        self.gntc = Genetic(configs['gene size']['value'])
+        self.gntc = Genetic(
+            configs['gene size']['value'],
+            configs['control gates']['value'],
+            )
         self.new_generation = []
         self.generation = []
         self.results = []
@@ -212,7 +230,8 @@ class Process():
         
         values = calculate(
             chunk,
-            self.gene_size, 
+            self.gene_size,
+            self.inputs_origin, 
             self.inputs, 
             self.outputs, 
             self.coefs
@@ -519,6 +538,7 @@ class Process():
         values = calculate(
             chunk, 
             self.gene_size,
+            self.inputs_origin,
             self.inputs, 
             self.outputs, 
             self.coefs
@@ -573,6 +593,7 @@ class Process():
         else: 
             return x
 
+    # @thread
     def process(self):
         """ Process the algorithm. The method regulates witch stage should
         proceed next and also when to stop process.
@@ -600,10 +621,10 @@ class Process():
             elif self._crossing: self.crossover_chunk(self._crossover_step)
             elif self._mutating: self.mutate_chunk(self._mutation_step)
             elif self._calculating: self.calc_chunk(self._calc_step)
-            return True
+            self.is_proc =  True
             
         else:
-            return False
+            self.is_proc =  False
 
 def prep_ins( inputs, sgn_no):
     """ Interprets input signals of the truth table
@@ -679,7 +700,6 @@ def prep_outs(outputs):
 
     return [[int(signal[i]) for signal in outs]\
         for i in range(len(outs[0]))]
-        
 
 __test_values__ = {'prcs': Process()}
 
