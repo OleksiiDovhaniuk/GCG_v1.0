@@ -31,20 +31,17 @@ class Main(Screen):
     SCHEME_HEIGHT = 150
     MAX_FONT_SIZE = 16
     HEIGHT_COEFNT = 2
-    CLOCK = .016
+    CLOCK = .01
     RESUL_TIME = 3
-    RESUL_NO = 3
+    RESULT_NO = 3
+    SIDE_CONF_WIDTH = 768
 
     def __init__(self, **kwargs):
         super(Main, self).__init__(**kwargs)
-        self.side_config_algorithm \
-            = Algorithm(title='Algorithm Configurations', minimise=self.minimize_conf)
-        self.side_config_input \
-            = Input(title='Input Configurations', minimise=self.minimize_conf)
-        self.side_config_plot \
-            = Plot(title='Plot Configurations', minimise=self.minimize_conf)
-        self.side_results \
-            = Results(title='Results', minimise=self.minimize_conf)
+        self.side_config_algorithm = Algorithm()
+        self.side_config_input = Input()
+        self.side_config_plot = Plot()
+        self.side_results  = Results()
 
         self.btn_run = Btn(text='Run')
         self.btn_pause = Btn(text='Pause')
@@ -56,12 +53,13 @@ class Main(Screen):
         self.btn_restore.bind(on_release=self.restore)
         self.btn_stop.bind(on_release=self.stop)
 
+        self.show_config_algorithm()
         self.pause_start = None
 
     def show_config_algorithm(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_cont.width = 360
+        side_cont.width = self.SIDE_CONF_WIDTH
         side_cont.add_widget(self.side_config_algorithm)
 
         self.ids.btn_algorithm.disabled = True
@@ -72,7 +70,7 @@ class Main(Screen):
     def show_config_inputs(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_cont.width = 360
+        side_cont.width = self.SIDE_CONF_WIDTH
         side_cont.add_widget(self.side_config_input)
         
         self.side_config_algorithm.refresh_widgets()
@@ -85,7 +83,7 @@ class Main(Screen):
     def show_config_plot(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_cont.width = 360
+        side_cont.width = self.SIDE_CONF_WIDTH
         side_cont.add_widget(self.side_config_plot)
 
         self.side_config_algorithm.refresh_widgets()
@@ -98,7 +96,7 @@ class Main(Screen):
     def show_side_results(self, *args):
         side_cont = self.ids.side_conf_container
         side_cont.clear_widgets()
-        side_cont.width = 360
+        side_cont.width = self.SIDE_CONF_WIDTH
         side_cont.add_widget(self.side_results)
 
         self.side_config_algorithm.refresh_widgets()
@@ -132,7 +130,8 @@ class Main(Screen):
         self.show_configs()
 
     def do_loop(self, *args):
-        if not self.proc.process():
+        self.proc.process()
+        if not self.proc.is_proc:
             self.stop()
         if (datetime.now() - self.delta_time).total_seconds() > self.RESUL_TIME:
             self.delta_time = datetime.now()
@@ -195,12 +194,13 @@ class Main(Screen):
         container = self.side_results.ids.results_container        
         container.clear_widgets()
 
-        if len(results) > self.RESUL_NO:
-            results = results[:-self.RESUL_NO+1]
+        if len(results) > self.RESULT_NO:
+            results = results[:-self.RESULT_NO+1]
 
         for index, result in enumerate(results):
-            lbl_height = (self.HEIGHT_COEFNT
-                * str(result).count('\n') 
+            lbl_height = (
+                self.HEIGHT_COEFNT
+                * (str(result).count('\n') + 1)
                 * int(font_size)
             )
             container.add_widget(Separator10())
@@ -221,18 +221,25 @@ class Main(Screen):
                 )
             )
             scroll_view = ScrollView(do_scroll_x=True, effect_cls='ScrollEffect')
+            signals = [f'sgn{number}' for number in range(self.proc.gene_size)]
             scroll_view.add_widget(
                 Scheme(
                     height=scheme_height,
-                    inputs=('X', 'Y', 'C1', 'al1', 'al2', 'al3'),
-                    outputs=('P', 'Q', 'C2', 'gr1', 'gr2', 'gr3'),
+                    inputs=signals,
+                    outputs=signals,
                     genotype=result.chromosome,
                 )
             ) 
             container.add_widget(scroll_view)
             container.add_widget(Separator10())
             
-        container.height = (125 + scheme_height + lbl_height ) * len(results)
+        container.height = ((
+            (font_size*self.HEIGHT_COEFNT)
+            + scheme_height
+            + lbl_height
+            + 20)
+            * self.RESULT_NO
+        ) 
 
     def show_configs(self):
         configs_str = ''

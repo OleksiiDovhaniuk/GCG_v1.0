@@ -20,16 +20,18 @@ from design import Design
 
 
 Builder.load_file('view/sideConfigurations.kv')
+STORAGE_PATH = 'saves\storage'
 
 class SideConf(GreyDefault):
-    theme = Design().default_theme
-    title = StringProperty('Default Configurations')
-    minimise = ObjectProperty(None)
-    rootpath = 'saves\default'
+    _theme = Design().default_theme
 
     COLOR_DISABLED = (.8, .8, .8, 1)
     HINT_COLOR_NORMAL = (.4, .4, .4, 1)
     COLOR_NORMAL = (0, 0, 0, 1)
+
+    def __init__(self):
+        super().__init__()
+        self.ids.bottom.add_widget(SideConfBottom())
 
     def show_save(self):
         content = Save(save=self.save, cancel=self.dismiss_popup)
@@ -61,68 +63,38 @@ class SideConfBottom(BoxLayout):
     pass
 
 class Algorithm(SideConf):
-    saved_configs = fw.read()['Algorithm']['configurations']
-    active_configs = deepcopy(saved_configs)
-    rootpath = 'saves\confs'
+    TITLE = 'Algorithm Configurations'
 
-    inputs = {}
-    layouts_end_condition = {}
-
-    def __init__(self, **kwargs):
-        super(Algorithm, self).__init__(**kwargs)
-        saved_configs = self.saved_configs
+    def __init__(self):
+        super(Algorithm, self).__init__()
+        self.configs = configs = fw.read()['Algorithm']['configurations']
+        self.widgets = widgets = {}
         self.ids.container.clear_widgets()
-        bottom = SideConfBottom()
-        self.add_widget(bottom)
 
-        for key in saved_configs:
-            layout = LayoutConf()
-            label = Lbl(text=key)
-            radio_btn = None
-            text_input = AlgorithmConfigsInput(
-                key=key,
-                hint_text=f'{saved_configs[key]["value"]}',
-                input_filter=saved_configs[key]['type'],
-                valid_range=(
-                    saved_configs[key]['min'],
-                    saved_configs[key]['max']
-                ),
-                push_value=self.update_config
-            )
+        for key in configs:
+            data = [configs[key][dkey] for dkey in configs[key]]
 
-            if key in ['process time', 'iterations limit']:
-                radio_btn = RbtEndCondition(active=saved_configs[key]['is active'])
-                if not radio_btn.active:
-                    label.color         = self.COLOR_DISABLED
-                    text_input.disabled = True
-                layout.add_widget(radio_btn)
-                self.layouts_end_condition.update({
-                    key: {
-                        'Layout'     : layout,
-                        'Label'      : label,
-                        'RadioButton': radio_btn,
-                        'TextInput'  : text_input
-                    }
-                })
+            if key == 'control gates':
+                self.draw_config(key, t=True)
+                for name, dvalue in zip(('min', 'max'), data[0]):
+                    self.draw_config(name, dvalue, *data[1:4], intent=2)
+
+            elif key == 'fitness function coeficients':
+                self.draw_config(key, t=True)
+                dsum = sum(data[0])
+                for name, dvalue in zip(('alpha', 'betta', 'gamma', 'lambda'), data[0]):
+                    self.draw_config(name, dvalue, *data[1:4], intent=2)
+                    in_persent = round(dvalue/dsum - (dvalue/dsum % .1), 1)
+                    persent_lbl = Lbl(text=f'{in_persent}%')
+                    widgets[name]['Persenr Label'] = Lbl
+
+            elif key in ('process time', 'iterations limit'):
+                self.draw_config(key, *data, radio_btn=True)
+            
             else:
-                layout.add_widget(BoxLayout(size_hint=(None, None), size=(40, 40)))
-            layout.add_widget(label)
+                self.draw_config(key, *data)
+                
 
-            self.inputs.update({
-                key: {
-                    'Layout'     : layout,
-                    'Label'      : label,
-                    'RadioButton': radio_btn,
-                    'TextInput'  : text_input
-                }
-            })
-            layout.add_widget(text_input)
-            self.ids.container.add_widget(layout) 
-
-        for key in self.layouts_end_condition:
-            radio_btn = self.layouts_end_condition[key]['RadioButton']
-            radio_btn.bind(on_press=self.swap_end_conditions)
-        self.ids.container.add_widget(BoxLayout()) 
 
     def swap_end_conditions(self, instance):
         layouts = self.layouts_end_condition
@@ -248,28 +220,73 @@ class Algorithm(SideConf):
             data['Algorithm']['configurations'] = self.active_configs = self.saved_configs
         fw.save(data)
 
+    def draw_config(self, name, value=None, dtype=None, dmin=None, dmax=None, dactive=False, dgroup=None, intent=1, t=False, radio_btn=False):
+        """ Method draws one configuration item from the saved in file data.json.
+
+        Args:
+            name [str];
+            value [int, float];
+            dtype ("int", "float");
+            dmin [int, float, str];
+            dmax [int, float, str];
+            dactive [bool];
+            dgroup [int, str];
+            intent [int];
+            t [bool]: configuration has list of values;
+            radio_btn [bool]: configuration line has radio button;
+
+        """
+        widgets = self.widgets
+        tab_size = 40
+        lt = LayoutConf()
+        widgets[name] = {}
+        widgets[name]['Layout'] = lt
+
+        if radio_btn:
+            rd_btn = RbtEndCondition(active=dactive)
+            lt.add_widget(rd_btn)
+            widgets[name]['Radio Button'] = rd_btn
+        else:
+            lt.add_widget(BoxLayout(size_hint_x=None, width=tab_size*intent))
+        lt.add_widget(BoxLayout(size_hint_x=None, width=tab_size))
+
+        lbl = Lbl(text=name)
+        lt.add_widget(lbl)
+        widgets[name]['Label'] = lbl
+
+        if not t:
+            txt_in = AlgorithmConfigsInput(
+                key=name,
+                hint_text=str(value),
+                input_filter=dtype,
+                valid_range=(dmin, dmax),
+                push_value=self.update_config,
+            )
+            lt.add_widget(txt_in)
+            widgets[name]['Text Input'] = txt_in
+         
+        self.ids.container.add_widget(lt)
+
 class Input(SideConf):
+    TITLE = 'Input Editor'
+
     saved_ttbl = fw.read()['Truth Table']
     active_ttbl = deepcopy(saved_ttbl)
-    # inputs_frame = DataFrame.from_dict(active_ttbl['inputs'])
-    # outputs_frame = DataFrame.from_dict(active_ttbl['outputs']).replace([None], '  X')
-    # str_ttbl = {
-    #     'inputs' : inputs_frame.to_string(index=False), 
-    #     'outputs': outputs_frame.to_string(index=False)
-    # }
-
-    rootpath = 'saves\input'
 
     def __init__(self, **kwargs):
         super(Input, self).__init__(**kwargs)
         self.remove_widget(self.ids.container)
 
     def show_ttbl(self, *args):
-        content = TruthTable(get_ttbl=self.get_ttbl, 
-                             cancel=self.dismiss_popup,
-                             truth_table=self.active_ttbl)
-        self._popup = WhitePopup(title=f'Truth Table of {self.ids.device_name.text}',
-                                 content=content)
+        content = TruthTable(
+            get_ttbl=self.get_ttbl, 
+            cancel=self.dismiss_popup,
+            truth_table=self.active_ttbl
+        )
+        self._popup = WhitePopup(
+            title=f'Truth Table of {self.ids.device_name.text}',
+            content=content
+        )
         self._popup.open()
 
     def switch_tbl(self, *args):
@@ -286,13 +303,6 @@ class Input(SideConf):
 
     def refresh_widgets(self):
         truth_table = self.active_ttbl
-
-        # inputs_frame = DataFrame.from_dict(truth_table['inputs'])
-        # outputs_frame = DataFrame.from_dict(truth_table['outputs']).replace([None], '  X')
-        # self.str_ttbl = {
-        #     'inputs' : inputs_frame .to_string(index=False), 
-        #     'outputs': outputs_frame.to_string(index=False)
-        # }
 
         self.switch_tbl()
         self.switch_tbl()
@@ -311,11 +321,13 @@ class Input(SideConf):
             print(filename)
             fw.save_truth_table(self.active_ttbl, path+filename[1])
             self.dismiss_popup()
-        
+            
 class Plot(SideConf):
-    pass
+    TITLE = 'Plot View/Configurations'
 
 class Results(SideConf):
+    TITLE = 'Results'
+
     def __init__(self, **kwargs):
         super(Results, self).__init__(**kwargs)
         self.remove_widget(self.ids.container)

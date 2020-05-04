@@ -9,25 +9,25 @@
         orientation: 'vertical'
         GreyDefault:
             id: top_menu
-            size_hint_y: None
+            size_hint_y:None
             height: 34
-            padding: 1, 1
+            padding: (1, 1)
             Btn:
-                text:      'File'
-                id:         btn_file
-                disabled:   True
+                text: 'File'
+                id: btn_file
+                disabled: True
             Separator1
             BoxLayout:
-                id:          btn_run
+                id: btn_run
                 size_hint_x: None
                 width: 120
                 Btn:
-                    text:      'Run'
+                    text: 'Run'
                     on_release: root.run()
             Separator1
             Btn:
-                text:    'Help'
-                id:       btn_help
+                text: 'Help'
+                id: btn_help
                 disabled: True
         Separator1
         BoxLayout:
@@ -36,9 +36,9 @@
             DarkDefault:
                 id: plot
             BoxLayout:
-                id:          side_conf_container
-                size_hint_x: None
-                width:       0
+                id: side_conf_container
+                size_hint: None, 1
+                width: 0
             Separator1
             GreyDefault:
                 id: side_bar
