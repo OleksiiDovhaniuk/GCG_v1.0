@@ -165,11 +165,11 @@ def err_no(chromosome, sgn_no, inputs, outputs):
         >>> outs_copy = [[s for s in portion] for portion in outs_sum]
         >>> [err_no(chromosome, no_sum, ins_sum, outs_sum) \
             for chromosome in generation_sum]
-        [0, 10, 6, 0]
+        [0, 10, 6, 0, 10]
         >>> gnrtn_copy == generation_sum
         True
         >>> [chrm_copy == chrm for chrm_copy, chrm in zip(gnrtn_copy, generation_sum)]
-        [True, True, True, True]
+        [True, True, True, True, True]
         >>> ins_copy == ins_sum
         True
         >>> outs_copy == outs_sum
@@ -219,7 +219,7 @@ def delay_time(chromosome, sgn_no,  element_delay):
         >>> [delay_time(chromosome, no_or, 1) for chromosome in generation_or]
         [1, 1, 1, 1, 2]
         >>> [delay_time(chromosome, no_sum, 3) for chromosome in generation_sum]
-        [12, 15, 18, 12]
+        [12, 15, 18, 12, 18]
 
     """
     delay_list = [0] * sgn_no
@@ -247,7 +247,7 @@ def quantum_cost(chromosome, el_quantum_cost):
         >>> [quantum_cost(chromosome, 5) for chromosome in generation_or]
         [5, 5, 5, 5, 10]
         >>> [quantum_cost(chromosome, 5) for chromosome in generation_sum]
-        [25, 40, 45, 35]
+        [25, 40, 45, 35, 30]
 
     """
     element_no = 0
@@ -257,10 +257,11 @@ def quantum_cost(chromosome, el_quantum_cost):
        
     return element_no * el_quantum_cost
 
-def garbage_outs_number(sgn_no, inputs, outputs):
+def garbage_outs_number(chromosome, sgn_no, inputs, outputs):
     """ Calculates number of garbage outputs/ extra inputs.
 
     Args: 
+        chromosome: nested list;
         sgn_no (int): number of signals;
         inputs (tuple of ints): hexadecimal representation of
             input signals from truth table;
@@ -268,21 +269,28 @@ def garbage_outs_number(sgn_no, inputs, outputs):
             signals from truth table.
     
     Examples of execution:
-        >>> garbage_outs_number(no_or, ins_or, outs_or)
-        2
-        >>> garbage_outs_number(no_sum, ins_sum, outs_sum)
-        3
+        >>> [garbage_outs_number(chrm, no_or, ins_or_complet, outs_or) for chrm in generation_or]
+        [2, 2, 2, 2, 2]
+        >>> [garbage_outs_number(chrm, no_sum, ins_sum_complet, outs_sum) for chrm in generation_sum]
+        [3, 3, 3, 3, 0]
     """
-    align_no = len('{0:b}'.format(max(inputs)))
+    total_or = 0
+    for control, switch in tuple(chromosome):
+        total_or |= (control | switch)
+    
+    static_no = max(sgn_no-len(inputs), sgn_no-len(outputs[0]))
+    min_no = min(sgn_no-len(inputs), sgn_no-len(outputs[0]))
+    zero_no = '{0:b}'.format(total_or)[min_no:].count('0') 
 
-    return max(sgn_no-align_no, sgn_no-len(outputs[0]))
+    return static_no - zero_no
 
-def calculate(generation, sgn_no, inputs, outputs, coefs):
+def calculate(generation, sgn_no, inputs_ , inputs, outputs, coefs):
     """ Calculates fitness function values for the inputed generation.
 
     Args: 
         generation (3D list): current generation;
         sgn_no (int);
+        inputs_: dictionary;
         inputs (tuple of ints): input signals from truth table;
         outputs (2D tuple): output signals from truth table;
         coefs (tuple of ints): fitness function coeficients in order: α, ß, y, δ
@@ -306,7 +314,7 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
         >>> coefs_copy == coefs
         True
         >>> [round(result, 3) for result in calculate(generation_or, no_or,\
-            ins_or, outs_or, coefs)]
+            ins_or_complet, ins_or, outs_or, coefs)]
         [0.978, 0.978, 0.528, 0.528, 0.963]
         >>> gnrtn_copy == generation_or
         True
@@ -332,8 +340,8 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
         >>> outs_copy == outs_sum
         True
         >>> [round(result, 3) for result in calculate(generation_sum, no_sum,\
-            ins_sum, outs_sum, coefs)]
-        [0.945, 0.123, 0.169, 0.943]
+            ins_sum_complet, ins_sum, outs_sum, coefs)]
+        [0.945, 0.123, 0.169, 0.943, 0.148]
         >>> gnrtn_copy == generation_sum
         True
         >>> no_copy == no_sum
@@ -351,7 +359,7 @@ def calculate(generation, sgn_no, inputs, outputs, coefs):
     for chromosome in generation:
         e = err_no(chromosome, sgn_no, inputs, outputs)
         c = quantum_cost(chromosome, FREDKIN_QUANTUM_COST)
-        g = garbage_outs_number(sgn_no, inputs, outputs)
+        g = garbage_outs_number(chromosome, sgn_no, inputs_, outputs)
         s = delay_time(chromosome, sgn_no, FREDKIN_DELAY)
          
         results.append(fitness_function(e, c, g, s, coefs))
@@ -388,6 +396,11 @@ __test_values__ = {
     #                    [0, 0, 0]]],
 
     'ins_or': [1, 3, 5, 7],
+
+    'ins_or_complet': {
+        'X': '0011',
+        'Y': '0101',
+    },
 
     'outs_or': [[0], [1], [1], [1]], 
 
@@ -504,6 +517,12 @@ __test_values__ = {
                         [0, 1, 1, 0, 0, 2]]],
 
     'ins_sum': [5, 13, 21, 29, 37, 45, 53, 61],
+    
+    'ins_sum_complet': {
+         'X': '00001111',
+         'Y': '00110011',
+        'C1': '01010101',
+    },
 
     # 'outs_sum': [105, 23, 60],
 
@@ -536,7 +555,9 @@ __test_values__ = {
          [ 1,48]],
 
         [[32, 3], [ 0, 0], [ 4,24], [ 0, 0], [ 8, 3], [ 0, 0], [32,12], [ 2,17],
-         [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 4,34], [ 1,24]]
+         [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 4,34], [ 1,24]],
+
+        [[32, 24], [16, 40], [8, 48], [0, 0], [8, 48], [16, 40], [32, 24]],
     ],
     'big_generation': [[[0, 2, 1, 1, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0, 0],
