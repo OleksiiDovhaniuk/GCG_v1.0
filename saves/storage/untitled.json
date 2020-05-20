@@ -3,7 +3,7 @@
         "name": "Genetic",
         "configurations": {
             "Generation Size": {
-                "value": 9999,
+                "value": 5000,
                 "type": "int",
                 "min": "Memorised Number",
                 "max": 9999,
@@ -79,15 +79,15 @@
                 "type": "int",
                 "min": 1,
                 "max": 99999999999,
-                "is active": false,
+                "is active": true,
                 "group": "Process Limits"
             },
             "Iterations Limit": {
-                "value": 9999,
+                "value": 1000,
                 "type": "int",
                 "min": 1,
                 "max": 99999999999,
-                "is active": true,
+                "is active": false,
                 "group": "Process Limits"
             }
         }

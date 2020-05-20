@@ -12,7 +12,7 @@
             FileChooser:
                 id: file_chooser
                 multiselect: False
-                rootpath: "saves\confs"
+                rootpath: root.path
                 on_selection: file_input.show(self.selection[0])
                 FlChsrListLayout
                 FileChooserIconLayout
@@ -53,8 +53,7 @@
                 Btn:
                     text: "Open"
                     on_release:
-                        root.load(file_chooser.path,\
-                        file_chooser.selection)
+                        root.load(file_input.text)
 
 <Save>:
     BoxLayout:
@@ -70,6 +69,7 @@
             FileChooser:
                 id: file_chooser
                 multiselect: False
+                rootpath: root.path
                 on_selection: file_input.show(self.selection[0])
                 FlChsrListLayout
                 FileChooserIconLayout
@@ -110,8 +110,7 @@
                 Btn:
                     text: "Save"
                     on_release:
-                        root.save(file_chooser.path,\
-                        file_input.path + file_input.text)
+                        root.save(file_input.text)
 
 <TruthTable>:
     GreyDefault:

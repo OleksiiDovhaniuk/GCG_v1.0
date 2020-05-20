@@ -1,7 +1,5 @@
 <SideConf>:
     orientation: 'vertical'
-    size_hint_x: None
-    width: 768
     BoxLayout:
         size_hint_y: None
         height: 26
@@ -16,30 +14,30 @@
     BoxLayout:
         id: container
         orientation: 'vertical'
+        Btn:
+            id: reserved_place
+            size_hint: .4, None
+            height: self.width
+            pos_hint: {'center_x': .5}
+            disabled: True
+            background_disabled_normal: root._theme + 'ReservedPlace'
         BoxLayout:
-            BoxLayout:
-            Btn:
-                size_hint: None, None
-                size: 240, 240
-                pos_hint: {'center_y': .5}
-                disabled: True
-                background_disabled_normal: root._theme + 'ReservedPlace'
-            BoxLayout:
+            size_hint_y: None
+            height: root.height - 1.5 * reserved_place.height
+
     BoxLayout:
-        id: bottom
+        id: bottom_container
+        size_hint_y: None
+        height: 52
+        padding: 26, 10
 
 <SideConfBottom>:
-    size_hint_y: None
-    height: 52
-    padding: 26, 10
     BoxLayout
     SaveAsBtn:
         id: save_as_btn
-        on_release: root.parent.save_conf()
     Separator10
     OpenBtn:
         id: open_btn
-        on_release: root.parent.show_load()
 
 <Input>:
     BoxLayout:

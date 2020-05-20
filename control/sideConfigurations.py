@@ -12,215 +12,122 @@ from pandas import DataFrame
 import file_work as fw
 from control.dialog import Load, Save, TruthTable
 from control.layout import GreyDefault, LayoutConf
-from control.lbl import Lbl, ResultsLbl, TitleLbl
+from control.lbl import Lbl, InfoConfigLbl, ResultsLbl, TitleLbl
 from control.popup import WhitePopup
 from control.radioButton import RbtEndCondition
-from control.textInput import AlgorithmConfigsInput
+from control.textInput import AlgorithmConfigsInput, AlgorithmCoefInput
 from design import Design
 
 
 Builder.load_file('view/sideConfigurations.kv')
-STORAGE_PATH = 'saves\storage'
-
-class SideConf(GreyDefault):
-    _theme = Design().default_theme
-
-    COLOR_DISABLED = (.8, .8, .8, 1)
-    HINT_COLOR_NORMAL = (.4, .4, .4, 1)
-    COLOR_NORMAL = (0, 0, 0, 1)
-
-    def __init__(self):
-        super().__init__()
-        self.ids.bottom.add_widget(SideConfBottom())
-
-    def show_save(self):
-        content = Save(save=self.save, cancel=self.dismiss_popup)
-        content.ids.file_chooser.rootpath = self.rootpath
-        self._popup = WhitePopup(title  ="Save file", content=content)
-        self._popup.open()
-
-    def show_load(self):
-        content = Load(load=self.load, cancel=self.dismiss_popup)
-        content.ids.file_chooser.rootpath = self.rootpath
-
-        self._popup = WhitePopup(title="Open file", content=content)
-        self._popup.open()
-
-    def save(self, path, filename):        
-        with open(os.path.join(path, filename), 'w') as stream:
-            stream.write(str(self.data))
-        self.dismiss_popup()
-        
-    def load(self, path, filename):
-        with open(os.path.join(path, filename[0])) as stream:
-            self.data = stream.read()
-        self.dismiss_popup()
-        
-    def dismiss_popup(self):
-        self._popup.dismiss()
 
 class SideConfBottom(BoxLayout):
     pass
 
-class Algorithm(SideConf):
-    TITLE = 'Algorithm Configurations'
+class SideConf(GreyDefault):
+    _theme = Design().default_theme
+    C_DISABLED = (.8, .8, .8, 1)
+    C_NORMAL = (0, 0, 0, 1)
 
     def __init__(self):
-        super(Algorithm, self).__init__()
-        self.configs = configs = fw.read()['Algorithm']['configurations']
+        super().__init__()
+        self.data = fw.read()
+        bottom = SideConfBottom()
+        self.ids.bottom_container.add_widget(bottom)
+        bottom.ids.save_as_btn.bind(on_release=self.show_save)
+        bottom.ids.open_btn.bind(on_release=self.show_load)
+
+    def show_save(self, *args):
+        content = Save(save=self.save, cancel=self.dismiss_popup)
+        self._popup = WhitePopup(title="Save file", content=content)
+        self._popup.open()
+
+    def show_load(self, *args):
+        content = Load(load=self.load, cancel=self.dismiss_popup)
+        self._popup = WhitePopup(title="Open file", content=content)
+        self._popup.open()
+
+    def save(self, file_name):  
+        fw.save(self.data, name=file_name)      
+        fw.save(self.data)      
+        fw.autosave(self.data)      
+        self.dismiss_popup()
+        
+    def load(self, file_name):
+        if file_name:
+            self.data = fw.read(name=file_name)      
+            self.dismiss_popup()
+        
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+class Algorithm(SideConf):
+    TITLE = 'Algorithm Configurations'
+    COEFS = ('alpha', 'betta', 'gamma', 'lambda')
+
+    def __init__(self):
+        super().__init__()
+        self.configs = configs = self.data['Algorithm']['configurations']
         self.widgets = widgets = {}
         self.ids.container.clear_widgets()
+        scroll_view = ScrollView(do_scroll_x=True, effect_cls='ScrollEffect')
+        self.cont = BoxLayout(orientation='vertical', size_hint_y=None, height=10)
+        self.cont.padding = (40, 0)
+        coefs = self.COEFS
+
+        scroll_view.add_widget(self.cont)
+        self.ids.container.add_widget(scroll_view)        
 
         for key in configs:
             data = [configs[key][dkey] for dkey in configs[key]]
 
-            if key == 'control gates':
+            if key == 'Control Gates` Number':
                 self.draw_config(key, t=True)
                 for name, dvalue in zip(('min', 'max'), data[0]):
-                    self.draw_config(name, dvalue, *data[1:4], intent=2)
+                    self.draw_config(name, dvalue, *data[1:4], intent=1)
 
-            elif key == 'fitness function coeficients':
+            elif key == 'Fitness Function Coeficients':
                 self.draw_config(key, t=True)
                 dsum = sum(data[0])
-                for name, dvalue in zip(('alpha', 'betta', 'gamma', 'lambda'), data[0]):
-                    self.draw_config(name, dvalue, *data[1:4], intent=2)
-                    in_persent = round(dvalue/dsum - (dvalue/dsum % .1), 1)
-                    persent_lbl = Lbl(text=f'{in_persent}%')
-                    widgets[name]['Persenr Label'] = Lbl
+                for name, dvalue in zip(coefs, data[0]):
+                    self.draw_config(name, dvalue, *data[1:4], intent=1, is_coef=True)
+                    in_persent = dvalue / dsum * 100
+                    in_persent = round((in_persent - (in_persent % .05)), 1)
+                    widgets[name]['Info'].text = f'{in_persent}%'
+                    widgets[name]['Info'].change_status_to('Help')
 
-            elif key in ('process time', 'iterations limit'):
+            elif key in ('Process Time', 'Iterations Limit'):
                 self.draw_config(key, *data, radio_btn=True)
             
             else:
                 self.draw_config(key, *data)
-                
 
+        for key in coefs:
+            info_lbls = [widgets[k]['Text Input'] for k in coefs if k != key]
+            widgets[key]['Text Input'].mates = info_lbls
 
-    def swap_end_conditions(self, instance):
-        layouts = self.layouts_end_condition
-        configs = self.active_configs
+        self.bend_related_extremes()
+        widgets['Process Time']['Radio Button'].mates = [widgets['Iterations Limit']]
+        widgets['Iterations Limit']['Radio Button'].mates = [widgets['Process Time']]
 
-        if  instance.active:
-            for key in layouts:
-                label = layouts[key]['Label']
-                text_input = layouts[key]['TextInput']
-                is_r_btn_active = layouts[key]['RadioButton'].active
-                if is_r_btn_active:
-                    label.color = self.COLOR_NORMAL
-                    text_input.hint_text_color = self.HINT_COLOR_NORMAL
-                    configs[key]['is active'] = True
-                else:
-                    label.color = self.COLOR_DISABLED
-                    text_input.hint_text_color = self.COLOR_DISABLED
-                    configs[key]['is active'] = False
+    def bend_related_extremes(self):
+        """ Bends related text inputs based on min and max range values.
 
-                text_input.disabled = not is_r_btn_active
+        """
+        txt_inputs = [
+            self.widgets[key]['Text Input'] 
+            for key in self.widgets 
+            if self.widgets[key].get('Text Input', None)
+        ]
 
-        self.active_configs = configs
-        instance.active = True
-
-    def save_conf(self):
-        self.data = self.active_configs
-        self.show_save()
-    
-    def load(self, path, filename):
-        with open(os.path.join(path, filename[0])) as stream:
-            str_data = stream.read()
-        try:
-            self.active_configs = eval(str_data)
-            self.refresh_widgets()
-        except SyntaxError:
-            print(f'File {filename[0]} is corrupted')
-            return 
-        self.dismiss_popup()
-        
-    def save(self, path, filename):  
-        if len(filename.replace(' ','')) == 0:
-            return       
-        with open(os.path.join(path, filename), 'w') as stream:
-            stream.write(str(self.data))
-        self.refresh_widgets()
-        self.dismiss_popup()
-
-    def refresh_widgets(self):
-        saved_conf = self.saved_conf = self.active_configs
-        inputs = self.inputs
-
-        for key in inputs:
-            lbl = inputs[key]['Label']
-            btn = inputs[key]['RadioButton']
-            txt_input = inputs[key]['TextInput']
-            txt_input.text = ''
-            txt_input.hint_text = f'{saved_conf[key]["value"]}'
-            if btn: 
-                btn.active = saved_conf[key]['is active']
-                txt_input.disabled = not btn.active
-                if btn.active:
-                    lbl.color = self.COLOR_NORMAL
-                    txt_input.hint_text_color = self.HINT_COLOR_NORMAL
-                else:
-                    lbl.color = self.COLOR_DISABLED
-                    txt_input.hint_text_color = self.COLOR_DISABLED
-
-    def update_config(self, instence):
-        layouts_end_condition = self.layouts_end_condition
-        active_configs = self.active_configs
-
-        range_min = instence.valid_range[0]
-        range_max = instence.valid_range[1]
-        key = instence.key
-        txt = instence.text
-        valig = True
-        range_paar = []
-
-        try:
-            min_value = float(range_min)
-        except ValueError:
-            try:
-                min_value = float(active_configs[range_min]['value'])
-                range_paar.append([range_min, key])
-            except ValueError:
-                instence.text = ''
-                valig = False
-                print(f'A min value of the range of an active configuration {active_configs[key]} is corrupted') 
-
-        try:
-            max_value = float(range_max)
-        except ValueError:
-            try: 
-                max_value = float(active_configs[range_max]['value'])
-                range_paar.append([key, range_max])
-            except ValueError:
-                instence.text = ''
-                valig = False
-                print(f'A max value of the range of an active configuration {active_configs[key]} is corrupted')
-
-        try:
-            txt_float = float(txt)
-        except ValueError:
-            instence.text = ''
-            valig = False
-            print(f'Value in "{key}" is not appropriate')
-            print(f'... or not in range [{range_min}, {range_max}]')
-
-        if  min_value <= txt_float <=  max_value:
-            try:
-                active_configs[key]['value'] = int(txt)
-            except ValueError:
-                active_configs[key]['value'] = txt_float
-        else:
-            valig = False
-            instence.text = ''
-            print(f'Value in "{key}" is out of range') 
-
-        data = fw.read()
-        if valig: 
-            data['Algorithm']['configurations'] = self.active_configs = active_configs
-        else: 
-            data['Algorithm']['configurations'] = self.active_configs = self.saved_configs
-        fw.save(data)
-
-    def draw_config(self, name, value=None, dtype=None, dmin=None, dmax=None, dactive=False, dgroup=None, intent=1, t=False, radio_btn=False):
+        for inpt in txt_inputs:
+            if type(inpt.valid_range[0]) == str:
+                inpt.related_min = self.widgets[inpt.valid_range[0]]['Text Input']
+            
+            if type(inpt.valid_range[1]) == str:
+                inpt.related_max = self.widgets[inpt.valid_range[1]]['Text Input']
+            
+    def draw_config(self, name, value=None, dtype=None, dmin=None, dmax=None, dactive=False, dgroup=None, intent=0, t=False, radio_btn=False, is_coef=False):
         """ Method draws one configuration item from the saved in file data.json.
 
         Args:
@@ -234,38 +141,105 @@ class Algorithm(SideConf):
             intent [int];
             t [bool]: configuration has list of values;
             radio_btn [bool]: configuration line has radio button;
+            is_coef [bool];
 
         """
         widgets = self.widgets
         tab_size = 40
         lt = LayoutConf()
+        lt.spacing = 10
+        lt.add_widget(BoxLayout(size_hint_x=None, width=tab_size*intent))
         widgets[name] = {}
         widgets[name]['Layout'] = lt
 
         if radio_btn:
-            rd_btn = RbtEndCondition(active=dactive)
+            rd_btn = RbtEndCondition(active=dactive, group=dgroup)
             lt.add_widget(rd_btn)
             widgets[name]['Radio Button'] = rd_btn
-        else:
-            lt.add_widget(BoxLayout(size_hint_x=None, width=tab_size*intent))
-        lt.add_widget(BoxLayout(size_hint_x=None, width=tab_size))
 
         lbl = Lbl(text=name)
         lt.add_widget(lbl)
         widgets[name]['Label'] = lbl
 
+        info_lbl = InfoConfigLbl()
+        lt.add_widget(info_lbl)
+        widgets[name]['Info'] = info_lbl
+
         if not t:
-            txt_in = AlgorithmConfigsInput(
-                key=name,
-                hint_text=str(value),
-                input_filter=dtype,
-                valid_range=(dmin, dmax),
-                push_value=self.update_config,
-            )
+            if is_coef:
+                txt_in = AlgorithmCoefInput(
+                    key=name,
+                    hint_text=str(value),
+                    input_filter=dtype,
+                    valid_range=(dmin, dmax),
+                    info_label=info_lbl,
+                )
+            else:
+                txt_in = AlgorithmConfigsInput(
+                    key=name,
+                    hint_text=str(value),
+                    input_filter=dtype,
+                    valid_range=(dmin, dmax),
+                    info_label=info_lbl,
+                )
             lt.add_widget(txt_in)
             widgets[name]['Text Input'] = txt_in
+
+        if radio_btn:
+            rd_btn.label = lbl
+            if not rd_btn.active:
+                lbl.color = self.C_DISABLED
+                txt_in.disabled = True
+
+            if not t:
+                rd_btn.text_input = txt_in
          
-        self.ids.container.add_widget(lt)
+        self.cont.height += lt.height
+        self.cont.add_widget(lt)
+
+    def show_save(self, *args):
+        for key in self.data['Algorithm']['configurations']:
+            try:
+                self.data['Algorithm']['configurations'][key]['value']\
+                    = self.widgets[key]['Text Input'].get_value()
+                self.data['Algorithm']['configurations'][key]['is active']\
+                    = self.widgets[key]['Radio Button'].active
+            except KeyError:
+                continue
+        
+        SideConf.show_save(self)
+
+    def save(self, file_name, *args):
+        SideConf.save(self, file_name, *args)
+        self.refresh_inputs()
+
+    def load(self, file_name, *args):
+        SideConf.load(self, file_name, *args)
+        self.refresh_inputs()
+
+    def refresh_inputs(self):
+        configs = self.configs = self.data['Algorithm']['configurations']
+        widgets = self.widgets
+
+        for key in configs:
+            if key == 'Control Gates` Number':
+               for index, key2 in enumerate(('min', 'max')):
+                    widgets[key2]['Text Input'].text = ''
+                    widgets[key2]['Text Input'].hint_text = str(configs[key]['value'][index])
+
+            elif key == 'Fitness Function Coeficients':
+                for index, key2 in enumerate(self.COEFS):
+                    widgets[key2]['Text Input'].text = ''
+                    widgets[key2]['Text Input'].hint_text = str(configs[key]['value'][index])
+
+            elif key in ('Process Time', 'Iterations Limit'):
+                widgets[key]['Text Input'].text = ''
+                widgets[key]['Text Input'].hint_text = str(configs[key]['value'])
+                widgets[key]['Radio Button'].set_status(configs[key]['is active'])
+            
+            else:
+                widgets[key]['Text Input'].text = ''
+                widgets[key]['Text Input'].hint_text = str(configs[key]['value'])
 
 class Input(SideConf):
     TITLE = 'Input Editor'

@@ -242,8 +242,10 @@ class Scheme(FloatLayout):
 
 class SchemeDrawApp(App):
     def build(self):
-        parent      = ScrollView(do_scroll_x=True, 
-                                 effect_cls='ScrollEffect')
+        parent = ScrollView(
+            do_scroll_x=True, 
+            effect_cls='ScrollEffect'
+            )
         self.parent = Scheme()
         parent.add_widget(self.parent)
         return parent

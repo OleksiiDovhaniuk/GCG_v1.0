@@ -148,20 +148,20 @@ class Process():
         self.iter = 0
 
         self.configs = configs = fw.read()['Algorithm']['configurations']
-        self.coefs = configs['fitness function coeficients']['value']
+        self.coefs = configs['Fitness Function Coeficients']['value']
 
         t_tbl = fw.read()['Truth Table']
         self.inputs_origin = t_tbl['inputs']
         self.inputs = prep_ins(
             t_tbl['inputs'],
-            configs['gene size']['value']
+            configs['Gene Size']['value']
         )
         self.outputs = prep_outs(t_tbl['outputs'])
-        self.gene_no = configs['chromosome size']['value']
-        self.gene_size = configs['gene size']['value']
+        self.gene_no = configs['Chromosome Size']['value']
+        self.gene_size = configs['Gene Size']['value']
         self.gntc = Genetic(
-            configs['gene size']['value'],
-            configs['control gates']['value'],
+            configs['Gene Size']['value'],
+            configs['Control Gates` Number']['value'],
             )
         self.new_generation = []
         self.generation = []
@@ -219,7 +219,7 @@ class Process():
         start = datetime.now()
 
         current_size = len(self.results)
-        size = self.configs['generation size']['value']
+        size = self.configs['Generation Size']['value']
 
         if current_size + step_size > size:
             chunk = self.gntc.create(size-current_size, self.gene_no)
@@ -252,8 +252,8 @@ class Process():
         
         Examples of execution:
             >>> p = Process()
-            >>> p.configs['memorised number']['value'] = 5
-            >>> p.configs['generation size']['value'] = 100
+            >>> p.configs['Memorised Number']['value'] = 5
+            >>> p.configs['Generation Size']['value'] = 100
             >>> p.create_chunk(999)
             >>> p._creating
             False
@@ -278,8 +278,8 @@ class Process():
             0
 
         """
-        bests_no = self.configs['memorised number']['value']
-        size = self.configs['generation size']['value']
+        bests_no = self.configs['Memorised Number']['value']
+        size = self.configs['Generation size']['Value']
         results = self.results = sorted(self.results, key=lambda result: result.value)[-size:]
 
         if self.bests:
@@ -308,8 +308,8 @@ class Process():
             >>> p = Process()
             >>> p._creating
             True
-            >>> p.configs['memorised number']['value'] = 5
-            >>> p.configs['generation size']['value'] = 100
+            >>> p.configs['Memorised Number']['value'] = 5
+            >>> p.configs['Generation Size']['value'] = 100
             >>> p.create_chunk(999)
             >>> (p._creating, p._ending)
             (False, True)
@@ -339,8 +339,8 @@ class Process():
             >>> p = Process()
             >>> p._creating
             True
-            >>> p.configs['memorised number']['value'] = 5
-            >>> p.configs['generation size']['value'] = 100
+            >>> p.configs['Memorised Number']['value'] = 5
+            >>> p.configs['Generation Size']['value'] = 100
             >>> p.create_chunk(999)
             >>> (p._creating, p._ending)
             (False, True)
@@ -381,7 +381,7 @@ class Process():
                 self.gntc.crossover(
                     self.generation, 
                     self.parents[top:], 
-                    self.configs['crossover probability']['value']
+                    self.configs['Crossover Probability']['value']
                 )
             )
             self.generation = []
@@ -392,7 +392,7 @@ class Process():
                 self.gntc.crossover(
                     self.generation, 
                     self.parents[top: top+step], 
-                    self.configs['crossover probability']['value']
+                    self.configs['Crossover Probability']['value']
                 )
             )
 
@@ -411,8 +411,8 @@ class Process():
             >>> p = Process()
             >>> p._creating
             True
-            >>> p.configs['memorised number']['value'] = 5
-            >>> p.configs['generation size']['value'] = 100
+            >>> p.configs['Memorised Number']['value'] = 5
+            >>> p.configs['Generation Size']['value'] = 100
             >>> p.create_chunk(999)
             >>> (p._creating, p._ending)
             (False, True)
@@ -454,7 +454,7 @@ class Process():
             self.generation.extend(
                 self.gntc.mutation(
                     self.new_generation[top:],
-                    self.configs['mutation probability']['value']
+                    self.configs['Mutation Probability']['value']
                 )
             )
             self.results = []
@@ -465,7 +465,7 @@ class Process():
             self.generation.extend(
                 self.gntc.mutation(
                     self.new_generation[top: top+step],
-                    self.configs['mutation probability']['value']
+                    self.configs['Mutation Probability']['value']
                 )
             )
 
@@ -486,8 +486,8 @@ class Process():
             >>> p = Process()
             >>> p._creating
             True
-            >>> p.configs['memorised number']['value'] = 5
-            >>> p.configs['generation size']['value'] = 100
+            >>> p.configs['Memorised Number']['value'] = 5
+            >>> p.configs['Generation Size']['value'] = 100
             >>> p.create_chunk(999)
             >>> (p._creating, p._ending)
             (False, True)
@@ -599,8 +599,8 @@ class Process():
         proceed next and also when to stop process.
 
         """
-        time_info = self.configs['process time']
-        iter_info = self.configs['iterations limit']
+        time_info = self.configs['Process Time']
+        iter_info = self.configs['Iterations Limit']
         total_seconds = (datetime.now() - self.start_time - self.pause_time).total_seconds()
         
         if time_info['is active']:

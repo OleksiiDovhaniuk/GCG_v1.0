@@ -2,7 +2,7 @@ from functools import partial
 
 from kivy.factory import Factory
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from pandas import DataFrame
@@ -11,6 +11,7 @@ from control.cell import AddCell, Cell, EmptyCell, IndexCell, TitleCell
 from control.flChsr import FlChsrIconLayout, FlChsrListLayout
 from control.layout import TTblRow
 from design import Design
+from file_work import STORAGE_PATH
 
 
 Builder.load_file('view/dialog.kv')
@@ -18,6 +19,7 @@ Builder.load_file('view/dialog.kv')
 class Dialog(FloatLayout):
     theme = Design().default_theme
     cancel = ObjectProperty(None)
+    path = StringProperty(STORAGE_PATH)
 
 class Load(Dialog):
     load = ObjectProperty(None)

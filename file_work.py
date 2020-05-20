@@ -27,15 +27,15 @@ DEFAULT_DATA ={
     'Algorithm':{
         'name': 'Genetic',
         'configurations':{
-            'generation size':{
+            'Generation Size':{
                 'value': 400,
                 'type': 'int',
-                'min': 'memorised number',
+                'min': 'Memorised Number',
                 'max': 99999999999,
                 'is active': True,
                 'group': 'root'
             },
-            'chromosome size':{
+            'Chromosome Size':{
                 'value': 7,
                 'type': 'int',
                 'min': 2,
@@ -43,7 +43,7 @@ DEFAULT_DATA ={
                 'is active': True,
                 'group': 'root'
             },
-            'gene size':{
+            'Gene Size':{
                 'value': 6,
                 'type': 'int',
                 'min': 2,
@@ -51,23 +51,23 @@ DEFAULT_DATA ={
                 'is active': True,
                 'group': 'root'
             },
-            'memorised number':{
+            'Memorised Number':{
                 'value': 5,
                 'type': 'int',
                 'min': 2,
-                'max': 'generation size',
+                'max': 'Generation Size',
                 'is active': True,
                 'group': 'root'
             },
-            'control gates':{
+            'Control Gates':{
                 'value': [1, 1],
-                'type': 'list of ints',
+                'type': 'int',
                 'min': 1,
-                'max': 'gene size',
+                'max': 'Gene Size',
                 'is active': True,
                 'group': 'root'
             },
-            'crossover probability':{
+            'Crossover Probability':{
                 'value': .2,
                 'type': 'float',
                 'min': 0,
@@ -75,7 +75,7 @@ DEFAULT_DATA ={
                 'is active': True,
                 'group': 'root'
             },
-            'mutation probability':{
+            'Mutation Probability':{
                 'value': .02,
                 'type': 'float',
                 'min': 0,
@@ -83,29 +83,29 @@ DEFAULT_DATA ={
                 'is active': True,
                 'group': 'root'
             },
-            'fitness function coeficients':{
+            'Fitness Function Coeficients':{
                 'value': [.91, .03, .03, .03],
-                'type': 'list of float',
+                'type': 'float',
                 'min': 0,
-                'max': 1,
+                'max': 1.7976931348623157e+308,
                 'is active': True,
                 'group': 'root'
             },
-            'process time':{
+            'Process Time':{
                 'value': 600,
                 'type': 'int',
                 'min': 1,
                 'max': 99999999999,
                 'is active': True,
-                'group': 'process limits'
+                'group': 'Process Limits'
             },
-            'iterations limit':{
+            'Iterations Limit':{
                 'value': 1000,
                 'type': 'int',
                 'min': 1,
                 'max': 99999999999,
                 'is active': False,
-                'group': 'process limits'
+                'group': 'Process Limits'
             },
         },
     },
@@ -131,12 +131,13 @@ DEFAULT_DATA ={
 
 _max_autosaves_no = 5
 
-def save(data, path=DEFAULT_PATH):
+def save(data, path=DEFAULT_PATH, name=None):
     """ Function saves  configurations` data from .json file.
 
     Args: 
         data: nested dictionary;
-        path (str);
+        path [str];
+        name [str].
 
      Examples of execution:
         >>> save(DEFAULT_DATA, 'saves/test.json')
@@ -144,16 +145,24 @@ def save(data, path=DEFAULT_PATH):
         [Errno 2] No such file or directory: 'D:1/2/saves/test2.json'
     """
     try:
-        with open(path, 'w+') as f:
-            json.dump(data, f, indent=4, sort_keys=False)
+        if name:
+            if name[-5:] != '.json': 
+                name = f'{name}.json'
+            with open(f'{STORAGE_PATH}/{name}', 'w+') as f:
+                json.dump(data, f, indent=4, sort_keys=False)
+        else:
+            with open(path, 'w+') as f:
+                json.dump(data, f, indent=4, sort_keys=False)
 
     except IOError as e:
         print(e)
 
-def read(path=DEFAULT_PATH):
+def read(path=DEFAULT_PATH, name=None):
     """ Function reads the configurations` data from .json file.
 
-    Args: path (str).
+    Args: 
+        path [str];
+        name [str].
 
     Examples of execution:
         >>> read('saves/test.json')['Algorithm']['name']
@@ -164,8 +173,14 @@ def read(path=DEFAULT_PATH):
 
     """
     try:
-        with open(path, 'r') as f:
-            return json.load(f)
+        if name:
+            if name[-5:] != '.json':
+                name = f'{name}.json'
+            with open(f'{STORAGE_PATH}/{name}', 'r') as f:
+                return json.load(f)
+        else:
+            with open(path, 'r') as f:
+                return json.load(f)
 
     except IOError as e:
         print(e)
