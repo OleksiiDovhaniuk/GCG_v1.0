@@ -1,5 +1,6 @@
 import os
 from copy import deepcopy
+from functools import partial
 
 from kivy.factory import Factory
 from kivy.lang import Builder
@@ -10,12 +11,13 @@ from kivy.uix.scrollview import ScrollView
 from pandas import DataFrame
 
 import file_work as fw
+from control.cell import AddCell, Cell, EmptyCell, IndexCell, TitleCell
 from control.dialog import Load, Save, TruthTable
-from control.layout import GreyDefault, LayoutConf
-from control.lbl import Lbl, InfoConfigLbl, ResultsLbl, TitleLbl
+from control.layout import GreyDefault, LayoutConf, TTblRow, Separator10
+from control.lbl import InfoConfigLbl, Lbl, ResultsLbl, TitleLbl
 from control.popup import WhitePopup
 from control.radioButton import RbtEndCondition
-from control.textInput import AlgorithmConfigsInput, AlgorithmCoefInput
+from control.textInput import AlgorithmCoefInput, AlgorithmConfigsInput, TxtInput
 from design import Design
 
 
@@ -243,58 +245,42 @@ class Algorithm(SideConf):
 
 class Input(SideConf):
     TITLE = 'Input Editor'
+    HEADER_HEIGHT = 32
+    PADDING_X = 20
 
-    saved_ttbl = fw.read()['Truth Table']
-    active_ttbl = deepcopy(saved_ttbl)
+    def __init__(self):
+        super().__init__()
+        self.ttbl = ttbl = self.data['Truth Table']
+        contr = self.ids.container
+        self.widgets = []
 
-    def __init__(self, **kwargs):
-        super(Input, self).__init__(**kwargs)
-        self.remove_widget(self.ids.container)
-
-    def show_ttbl(self, *args):
-        content = TruthTable(
-            get_ttbl=self.get_ttbl, 
-            cancel=self.dismiss_popup,
-            truth_table=self.active_ttbl
+        # Header of the input side configuration view.
+        contr.clear_widgets()
+        self.device_name_txtin = TxtInput(
+            hint_text='Untitled',
         )
-        self._popup = WhitePopup(
-            title=f'Truth Table of {self.ids.device_name.text}',
-            content=content
+        self.device_name_txtin.halign='center'
+        lt = GreyDefault(
+            orientation='horizontal', 
+            size_hint_y=None,
+            height=self.HEADER_HEIGHT,
+            padding=(self.PADDING_X, 0),
         )
-        self._popup.open()
+        lt.add_widget(
+            Lbl(
+                text='Device Name:',
+                size_hint_x=None,
+                width=140
+            )
+        )
+        lt.add_widget(self.device_name_txtin)
 
-    def switch_tbl(self, *args):
-        btn = self.ids.switch_btn
-        for key in ['inputs', 'outputs']:
-            if key != btn.text:
-                self.ids.tbl_lbl.text = str(self.active_ttbl[key])
-                btn.text = key
-                return
-    
-    def get_ttbl(self, truth_table, *args):        
-        self.active_ttbl = truth_table
-        self.refresh_widgets()
-
-    def refresh_widgets(self):
-        truth_table = self.active_ttbl
-
-        self.switch_tbl()
-        self.switch_tbl()
+        contr.add_widget(Separator10())
+        contr.add_widget(lt)
+        contr.add_widget(GreyDefault())
 
 
-    def load(self, path, filename):
-        self.active_ttbl = fw.read_truth_table(os.path.join(path, filename[0]))
-        self.refresh_widgets()
-        self.dismiss_popup()
-        
-    def save(self, path, filename):  
-        if len(filename.replace(' ','')) == 0:
-            pass
-        else:       
-            print(path)
-            print(filename)
-            fw.save_truth_table(self.active_ttbl, path+filename[1])
-            self.dismiss_popup()
+
             
 class Plot(SideConf):
     TITLE = 'Plot View/Configurations'

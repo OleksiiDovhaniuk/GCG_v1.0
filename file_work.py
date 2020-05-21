@@ -109,6 +109,7 @@ DEFAULT_DATA ={
             },
         },
     },
+    'Device Name': 'Untitled',
     'Truth Table':{
         'inputs': {
             'X': '00001111', 

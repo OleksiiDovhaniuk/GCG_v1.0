@@ -73,8 +73,6 @@ class Main(Screen):
         side_cont.width = self.SIDE_CONF_WIDTH
         side_cont.add_widget(self.side_config_input)
         
-        self.side_config_algorithm.refresh_widgets()
-
         self.ids.btn_algorithm.disabled = False
         self.ids.btn_inputs.disabled = True
         self.ids.btn_plot.disabled = False
