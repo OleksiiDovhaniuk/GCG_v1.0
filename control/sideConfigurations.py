@@ -15,7 +15,7 @@ from pandas import DataFrame
 import file_work as fw
 from control.cell import AddCell, Cell, EmptyCell, IndexCell, TitleCell
 from control.dialog import Load, Save, TruthTable
-from control.layout import GreyDefault, LayoutConf, TTblRow, Separator10
+from control.layout import GreyDefault, LayoutConf, TTblRow, Separator10, Line1Dark
 from control.lbl import InfoCoefLbl, InfoLbl, Lbl, ResultsLbl, TitleLbl
 from control.popup import WhitePopup
 from control.radioButton import RbtEndCondition
@@ -82,10 +82,14 @@ class Algorithm(SideConf):
         scroll_view = ScrollView(
             do_scroll_x=True, 
             effect_cls='ScrollEffect',
-            pos = (0, 80),
+            pos_hint={'center_x': .5, 'center_y': .5},
         )
-        self.cont = BoxLayout(orientation='vertical', size_hint_y=None, height=10)
-        self.cont.padding = (40, 0)
+        self.cont = BoxLayout(
+            orientation='vertical', 
+            size_hint_y=None,
+            height = 40
+            )
+        self.cont.padding = (40, 20)
         coefs = self.COEFS
 
         scroll_view.add_widget(self.cont)
@@ -114,6 +118,8 @@ class Algorithm(SideConf):
             
             else:
                 self.draw_config(key, *data)
+                
+            self.cont.add_widget(Line1Dark())
 
         for key in coefs:
             mates_txtin = [widgets[k]['Text Input'] for k in coefs if k != key]
@@ -279,11 +285,15 @@ class Input(SideConf):
     def __init__(self):
         super().__init__()
         self.device = device = self.data['Device']
-        cont = self.ids.container
+        self.cont = cont = GreyDefault(
+            orientation='vertical',
+            pos_hint={'center_x': .5, 'center_y': .5},
+        ) 
+        self.ids.container.clear_widgets()
+        self.ids.container.add_widget(cont)
         self.widgets = []
 
         # Header of the input side configuration view.
-        cont.clear_widgets()
         self.device_name_txtin = TxtInput(
             hint_text=device['Name'],
         )

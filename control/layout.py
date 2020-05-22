@@ -36,6 +36,9 @@ class LayoutConf(DefaultLayout):
 class TTblRow(DefaultLayout):
     pass
 
+class Line1Dark(LightDefault):
+    pass
+
 class Separator1(DefaultLayout):
     pass
 
