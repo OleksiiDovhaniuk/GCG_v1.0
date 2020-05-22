@@ -150,7 +150,7 @@ class Process():
         self.configs = configs = fw.read()['Algorithm']['configurations']
         self.coefs = configs['Fitness Function Coeficients']['value']
 
-        t_tbl = fw.read()['Truth Table']
+        t_tbl = fw.read()['Device']['Truth Table']
         self.inputs_origin = t_tbl['inputs']
         self.inputs = prep_ins(
             t_tbl['inputs'],
