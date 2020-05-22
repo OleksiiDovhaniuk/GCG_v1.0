@@ -6,6 +6,8 @@ from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.button import Button
 from kivy.uix.scatter import Scatter
 from kivy.uix.scrollview import ScrollView
 from pandas import DataFrame
@@ -14,7 +16,7 @@ import file_work as fw
 from control.cell import AddCell, Cell, EmptyCell, IndexCell, TitleCell
 from control.dialog import Load, Save, TruthTable
 from control.layout import GreyDefault, LayoutConf, TTblRow, Separator10
-from control.lbl import InfoConfigLbl, Lbl, ResultsLbl, TitleLbl
+from control.lbl import InfoCoefLbl, InfoLbl, Lbl, ResultsLbl, TitleLbl
 from control.popup import WhitePopup
 from control.radioButton import RbtEndCondition
 from control.textInput import AlgorithmCoefInput, AlgorithmConfigsInput, TxtInput
@@ -72,7 +74,16 @@ class Algorithm(SideConf):
         self.configs = configs = self.data['Algorithm']['configurations']
         self.widgets = widgets = {}
         self.ids.container.clear_widgets()
-        scroll_view = ScrollView(do_scroll_x=True, effect_cls='ScrollEffect')
+
+        # Create info label.
+        self.info_lbl = InfoLbl(self.ids.container)
+
+        # Add and fill with configs scroll view.
+        scroll_view = ScrollView(
+            do_scroll_x=True, 
+            effect_cls='ScrollEffect',
+            pos = (0, 80),
+        )
         self.cont = BoxLayout(orientation='vertical', size_hint_y=None, height=10)
         self.cont.padding = (40, 0)
         coefs = self.COEFS
@@ -95,8 +106,8 @@ class Algorithm(SideConf):
                     self.draw_config(name, dvalue, *data[1:4], intent=1, is_coef=True)
                     in_persent = dvalue / dsum * 100
                     in_persent = round((in_persent - (in_persent % .05)), 1)
-                    widgets[name]['Info'].text = f'{in_persent}%'
-                    widgets[name]['Info'].change_status_to('Help')
+                    widgets[name]['Coeficient Info'].text = f'{in_persent}%'
+                    widgets[name]['Coeficient Info'].change_status_to('Help')
 
             elif key in ('Process Time', 'Iterations Limit'):
                 self.draw_config(key, *data, radio_btn=True)
@@ -105,8 +116,8 @@ class Algorithm(SideConf):
                 self.draw_config(key, *data)
 
         for key in coefs:
-            info_lbls = [widgets[k]['Text Input'] for k in coefs if k != key]
-            widgets[key]['Text Input'].mates = info_lbls
+            mates_txtin = [widgets[k]['Text Input'] for k in coefs if k != key]
+            widgets[key]['Text Input'].mates = mates_txtin
 
         self.bend_related_extremes()
         widgets['Process Time']['Radio Button'].mates = [widgets['Iterations Limit']]
@@ -129,6 +140,8 @@ class Algorithm(SideConf):
             if type(inpt.valid_range[1]) == str:
                 inpt.related_max = self.widgets[inpt.valid_range[1]]['Text Input']
             
+        # self.ids.container.add_widget(self.info_lbl)
+
     def draw_config(self, name, value=None, dtype=None, dmin=None, dmax=None, dactive=False, dgroup=None, intent=0, t=False, radio_btn=False, is_coef=False):
         """ Method draws one configuration item from the saved in file data.json.
 
@@ -163,18 +176,19 @@ class Algorithm(SideConf):
         lt.add_widget(lbl)
         widgets[name]['Label'] = lbl
 
-        info_lbl = InfoConfigLbl()
-        lt.add_widget(info_lbl)
-        widgets[name]['Info'] = info_lbl
 
         if not t:
             if is_coef:
+                coef_lbl = InfoCoefLbl()
+                widgets[name]['Coeficient Info'] = coef_lbl
+                lt.add_widget(coef_lbl)
                 txt_in = AlgorithmCoefInput(
                     key=name,
                     hint_text=str(value),
                     input_filter=dtype,
                     valid_range=(dmin, dmax),
-                    info_label=info_lbl,
+                    info_label=self.info_lbl,
+                    info_coef = coef_lbl,
                 )
             else:
                 txt_in = AlgorithmConfigsInput(
@@ -182,7 +196,7 @@ class Algorithm(SideConf):
                     hint_text=str(value),
                     input_filter=dtype,
                     valid_range=(dmin, dmax),
-                    info_label=info_lbl,
+                    info_label=self.info_lbl,
                 )
             lt.add_widget(txt_in)
             widgets[name]['Text Input'] = txt_in
@@ -199,20 +213,32 @@ class Algorithm(SideConf):
         self.cont.height += lt.height
         self.cont.add_widget(lt)
 
-    def show_save(self, *args):
+    def save(self, file_name=None, *args):
         for key in self.data['Algorithm']['configurations']:
-            try:
-                self.data['Algorithm']['configurations'][key]['value']\
-                    = self.widgets[key]['Text Input'].get_value()
-                self.data['Algorithm']['configurations'][key]['is active']\
-                    = self.widgets[key]['Radio Button'].active
-            except KeyError:
-                continue
-        
-        SideConf.show_save(self)
+            if key == 'Control Gates` Number':
+                for index, extreme in enumerate(('min', 'max')):
+                    self.data['Algorithm']['configurations'][key]['value'][index]\
+                        = self.widgets[extreme]['Text Input'].get_value()
 
-    def save(self, file_name, *args):
-        SideConf.save(self, file_name, *args)
+            elif key == 'Fitness Function Coeficients':
+                for index, coef in enumerate(self.COEFS):
+                    self.data['Algorithm']['configurations'][key]['value'][index]\
+                        = self.widgets[coef]['Text Input'].get_value()
+            else:
+                try:
+                    self.data['Algorithm']['configurations'][key]['value']\
+                        = self.widgets[key]['Text Input'].get_value()
+                    self.data['Algorithm']['configurations'][key]['is active']\
+                        = self.widgets[key]['Radio Button'].active
+                except KeyError:
+                    continue
+
+        if file_name:
+            SideConf.save(self, file_name, *args)
+        else:
+            fw.save()
+            fw.autosave()
+
         self.refresh_inputs()
 
     def load(self, file_name, *args):
@@ -243,6 +269,8 @@ class Algorithm(SideConf):
                 widgets[key]['Text Input'].text = ''
                 widgets[key]['Text Input'].hint_text = str(configs[key]['value'])
 
+            widgets['alpha']['Text Input'].refresh_coef_info()
+
 class Input(SideConf):
     TITLE = 'Input Editor'
     HEADER_HEIGHT = 32
@@ -250,14 +278,14 @@ class Input(SideConf):
 
     def __init__(self):
         super().__init__()
-        self.ttbl = ttbl = self.data['Truth Table']
-        contr = self.ids.container
+        self.device = device = self.data['Device']
+        cont = self.ids.container
         self.widgets = []
 
         # Header of the input side configuration view.
-        contr.clear_widgets()
+        cont.clear_widgets()
         self.device_name_txtin = TxtInput(
-            hint_text='Untitled',
+            hint_text=device['Name'],
         )
         self.device_name_txtin.halign='center'
         lt = GreyDefault(
@@ -275,13 +303,10 @@ class Input(SideConf):
         )
         lt.add_widget(self.device_name_txtin)
 
-        contr.add_widget(Separator10())
-        contr.add_widget(lt)
-        contr.add_widget(GreyDefault())
+        cont.add_widget(Separator10())
+        cont.add_widget(lt)
+        cont.add_widget(GreyDefault())
 
-
-
-            
 class Plot(SideConf):
     TITLE = 'Plot View/Configurations'
 

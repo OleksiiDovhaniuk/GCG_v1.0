@@ -33,7 +33,6 @@ class AlgorithmConfigsInput(TxtInput):
     MAX_CHARACTERS = 8
     
     def insert_text(self, substring, from_undo=False):
-        # self.info_label.change_status_to('Error')
 
         if not len(self.text) < self.MAX_CHARACTERS:
             substring = ''
@@ -81,12 +80,14 @@ class AlgorithmConfigsInput(TxtInput):
             try:
                 digit = int(new_text)
             except ValueError:
+                self.show_warning(dtype='int')
                 return ''
 
         elif self.input_filter == 'float':
             try:
                 digit = float(new_text)
             except ValueError:
+                self.show_warning(dtype='float')
                 return ''
 
         else:
@@ -94,10 +95,12 @@ class AlgorithmConfigsInput(TxtInput):
 
         if digit < self.get_extreme('min'):
             self.text = str(self.get_extreme('min'))
+            self.show_warning(dmin=self.valid_range[0])
             return ''
             
         elif digit > self.get_extreme('max'):
             self.text = str(self.get_extreme('max'))
+            self.show_warning(dmax=self.valid_range[1])
             return ''
 
         else:
@@ -154,16 +157,25 @@ class AlgorithmConfigsInput(TxtInput):
             return float(text)
         else:
             return None
-        
 
-    # def on_focus(self, *args):
-    #     if not self.focus:
-    #             text_size = len(self.text)
-    #             if text_size > 0:
-    #                 self.push_value(self)
+    def show_warning(self, dmin=None, dmax=None, dtype=None):
+        warning = f'[WARNING]: {self.key} should be '
 
+        if dtype: warning += f'non-negative {dtype}-type.'
+        elif dmin: warning += f'not less than {dmin}.'
+        elif dmax: warning += f'not bigger than {dmax}.'
+        else: warning = '[ERROR]: Unknown issue in the code!'
+
+        self.info_label.pop_up(warning)
+
+    def on_focus(self, *args):
+        if not self.focus and self.text:
+            self.is_proper_input('')
+
+    
 class AlgorithmCoefInput(AlgorithmConfigsInput):
     mates = []
+    info_coef = ObjectProperty(None)
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         pos = self.cursor[0]
@@ -188,7 +200,7 @@ class AlgorithmCoefInput(AlgorithmConfigsInput):
         TextInput.keyboard_on_key_down(self, window, keycode, text, modifiers)
     
     def insert_text(self, substring, from_undo=False):
-        self.info_label.change_status_to('Help')
+        self.info_coef.change_status_to('Help')
         pos = self.cursor[0]
 
         if (
@@ -230,7 +242,7 @@ class AlgorithmCoefInput(AlgorithmConfigsInput):
         else:
             in_persent = 0
         in_persent = round((in_persent - (in_persent % .05)), 1) 
-        self.info_label.text = f'{in_persent}%'
+        self.info_coef.text = f'{in_persent}%'
 
         for txt_in in self.mates:
             if txt_in.text:
@@ -243,7 +255,13 @@ class AlgorithmCoefInput(AlgorithmConfigsInput):
             else:
                 in_persent = 0
             in_persent = round((in_persent - (in_persent % .05)), 1) 
-            txt_in.info_label.text = f'{in_persent}%'
+            txt_in.info_coef.text = f'{in_persent}%'
+
+    def refresh_coef_info(self):
+        self.change_persents(float(self.hint_text))
+
+    def get_value(self):
+        return float(self.info_coef.text[:-1]) / 100
 
 class NameInput(TxtInput):
     def select_textinput(self):

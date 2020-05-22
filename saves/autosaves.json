@@ -1,18 +1,18 @@
 {
-    "2020-05-20 17:42:11.251923": {
+    "2020-05-22 13:04:35.573645": {
         "Algorithm": {
             "name": "Genetic",
             "configurations": {
                 "Generation Size": {
-                    "value": 5000,
+                    "value": 50,
                     "type": "int",
                     "min": "Memorised Number",
-                    "max": 9999,
+                    "max": 99999999999,
                     "is active": true,
                     "group": "root"
                 },
                 "Chromosome Size": {
-                    "value": 20,
+                    "value": 7,
                     "type": "int",
                     "min": 2,
                     "max": 99,
@@ -42,7 +42,7 @@
                     ],
                     "type": "int",
                     "min": 1,
-                    "max": "Gene Size",
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "root"
                 },
@@ -79,7 +79,7 @@
                     "value": 600,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "Process Limits"
                 },
@@ -87,41 +87,44 @@
                     "value": 1000,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": false,
                     "group": "Process Limits"
                 }
             }
         },
-        "Truth Table": {
-            "inputs": {
-                "X": "00001111",
-                "Y": "00110011",
-                "C1": "01010101"
-            },
-            "outputs": {
-                "S": "01101001",
-                "C2": "00010111",
-                "P": "00111100"
+        "Device": {
+            "Name": "Untitled",
+            "Truth Table": {
+                "inputs": {
+                    "X": "00001111",
+                    "Y": "00110011",
+                    "C1": "01010101"
+                },
+                "outputs": {
+                    "S": "01101001",
+                    "C2": "00010111",
+                    "P": "00111100"
+                }
             }
         },
         "Results": {},
         "Plot Configurations": {}
     },
-    "2020-05-20 17:43:20.958071": {
+    "2020-05-22 13:05:05.156489": {
         "Algorithm": {
             "name": "Genetic",
             "configurations": {
                 "Generation Size": {
-                    "value": 9999,
+                    "value": 400,
                     "type": "int",
                     "min": "Memorised Number",
-                    "max": 9999,
+                    "max": 99999999999,
                     "is active": true,
                     "group": "root"
                 },
                 "Chromosome Size": {
-                    "value": 20,
+                    "value": 7,
                     "type": "int",
                     "min": 2,
                     "max": 99,
@@ -151,7 +154,231 @@
                     ],
                     "type": "int",
                     "min": 1,
-                    "max": "Gene Size",
+                    "max": 9223372036854775807,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Crossover Probability": {
+                    "value": 0.2,
+                    "type": "float",
+                    "min": 0,
+                    "max": 1,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Mutation Probability": {
+                    "value": 0.02,
+                    "type": "float",
+                    "min": 0,
+                    "max": 1,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Fitness Function Coeficients": {
+                    "value": [
+                        0.91,
+                        5.0,
+                        0.03,
+                        5.0
+                    ],
+                    "type": "float",
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Process Time": {
+                    "value": 600,
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "is active": true,
+                    "group": "Process Limits"
+                },
+                "Iterations Limit": {
+                    "value": 1000,
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "is active": false,
+                    "group": "Process Limits"
+                }
+            }
+        },
+        "Device": {
+            "Name": "Untitled",
+            "Truth Table": {
+                "inputs": {
+                    "X": "00001111",
+                    "Y": "00110011",
+                    "C1": "01010101"
+                },
+                "outputs": {
+                    "S": "01101001",
+                    "C2": "00010111",
+                    "P": "00111100"
+                }
+            }
+        },
+        "Results": {},
+        "Plot Configurations": {}
+    },
+    "2020-05-22 13:10:25.409237": {
+        "Algorithm": {
+            "name": "Genetic",
+            "configurations": {
+                "Generation Size": {
+                    "value": 400,
+                    "type": "int",
+                    "min": "Memorised Number",
+                    "max": 99999999999,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Chromosome Size": {
+                    "value": 7,
+                    "type": "int",
+                    "min": 2,
+                    "max": 99,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Gene Size": {
+                    "value": 6,
+                    "type": "int",
+                    "min": 2,
+                    "max": 99,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Memorised Number": {
+                    "value": 5,
+                    "type": "int",
+                    "min": 2,
+                    "max": "Generation Size",
+                    "is active": true,
+                    "group": "root"
+                },
+                "Control Gates` Number": {
+                    "value": [
+                        1,
+                        1
+                    ],
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Crossover Probability": {
+                    "value": 0.2,
+                    "type": "float",
+                    "min": 0,
+                    "max": 1,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Mutation Probability": {
+                    "value": 0.02,
+                    "type": "float",
+                    "min": 0,
+                    "max": 1,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Fitness Function Coeficients": {
+                    "value": [
+                        0.083,
+                        0.457,
+                        0.002,
+                        0.457
+                    ],
+                    "type": "float",
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Process Time": {
+                    "value": 600,
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "is active": true,
+                    "group": "Process Limits"
+                },
+                "Iterations Limit": {
+                    "value": 1000,
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "is active": false,
+                    "group": "Process Limits"
+                }
+            }
+        },
+        "Device": {
+            "Name": "Untitled",
+            "Truth Table": {
+                "inputs": {
+                    "X": "00001111",
+                    "Y": "00110011",
+                    "C1": "01010101"
+                },
+                "outputs": {
+                    "S": "01101001",
+                    "C2": "00010111",
+                    "P": "00111100"
+                }
+            }
+        },
+        "Results": {},
+        "Plot Configurations": {}
+    },
+    "2020-05-22 13:10:52.823451": {
+        "Algorithm": {
+            "name": "Genetic",
+            "configurations": {
+                "Generation Size": {
+                    "value": 50,
+                    "type": "int",
+                    "min": "Memorised Number",
+                    "max": 99999999999,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Chromosome Size": {
+                    "value": 7,
+                    "type": "int",
+                    "min": 2,
+                    "max": 99,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Gene Size": {
+                    "value": 6,
+                    "type": "int",
+                    "min": 2,
+                    "max": 99,
+                    "is active": true,
+                    "group": "root"
+                },
+                "Memorised Number": {
+                    "value": 5,
+                    "type": "int",
+                    "min": 2,
+                    "max": "Generation Size",
+                    "is active": true,
+                    "group": "root"
+                },
+                "Control Gates` Number": {
+                    "value": [
+                        1,
+                        1
+                    ],
+                    "type": "int",
+                    "min": 1,
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "root"
                 },
@@ -188,49 +415,52 @@
                     "value": 600,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "Process Limits"
                 },
                 "Iterations Limit": {
-                    "value": 9999,
+                    "value": 1000,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": false,
                     "group": "Process Limits"
                 }
             }
         },
-        "Truth Table": {
-            "inputs": {
-                "X": "00001111",
-                "Y": "00110011",
-                "C1": "01010101"
-            },
-            "outputs": {
-                "S": "01101001",
-                "C2": "00010111",
-                "P": "00111100"
+        "Device": {
+            "Name": "Untitled",
+            "Truth Table": {
+                "inputs": {
+                    "X": "00001111",
+                    "Y": "00110011",
+                    "C1": "01010101"
+                },
+                "outputs": {
+                    "S": "01101001",
+                    "C2": "00010111",
+                    "P": "00111100"
+                }
             }
         },
         "Results": {},
         "Plot Configurations": {}
     },
-    "2020-05-20 17:49:49.304653": {
+    "2020-05-22 13:11:04.162700": {
         "Algorithm": {
             "name": "Genetic",
             "configurations": {
                 "Generation Size": {
-                    "value": 9999,
+                    "value": 50,
                     "type": "int",
                     "min": "Memorised Number",
-                    "max": 9999,
+                    "max": 99999999999,
                     "is active": true,
                     "group": "root"
                 },
                 "Chromosome Size": {
-                    "value": 20,
+                    "value": 7,
                     "type": "int",
                     "min": 2,
                     "max": 99,
@@ -260,7 +490,7 @@
                     ],
                     "type": "int",
                     "min": 1,
-                    "max": "Gene Size",
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "root"
                 },
@@ -282,10 +512,10 @@
                 },
                 "Fitness Function Coeficients": {
                     "value": [
-                        0.91,
-                        0.03,
-                        0.03,
-                        0.03
+                        0.25,
+                        0.25,
+                        0.25,
+                        0.25
                     ],
                     "type": "float",
                     "min": 0,
@@ -297,248 +527,33 @@
                     "value": 600,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": true,
                     "group": "Process Limits"
                 },
                 "Iterations Limit": {
-                    "value": 9999,
+                    "value": 1000,
                     "type": "int",
                     "min": 1,
-                    "max": 99999999999,
+                    "max": 9223372036854775807,
                     "is active": false,
                     "group": "Process Limits"
                 }
             }
         },
-        "Truth Table": {
-            "inputs": {
-                "X": "00001111",
-                "Y": "00110011",
-                "C1": "01010101"
-            },
-            "outputs": {
-                "S": "01101001",
-                "C2": "00010111",
-                "P": "00111100"
-            }
-        },
-        "Results": {},
-        "Plot Configurations": {}
-    },
-    "2020-05-20 17:51:11.306421": {
-        "Algorithm": {
-            "name": "Genetic",
-            "configurations": {
-                "Generation Size": {
-                    "value": 9999,
-                    "type": "int",
-                    "min": "Memorised Number",
-                    "max": 9999,
-                    "is active": true,
-                    "group": "root"
+        "Device": {
+            "Name": "Untitled",
+            "Truth Table": {
+                "inputs": {
+                    "X": "00001111",
+                    "Y": "00110011",
+                    "C1": "01010101"
                 },
-                "Chromosome Size": {
-                    "value": 20,
-                    "type": "int",
-                    "min": 2,
-                    "max": 99,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Gene Size": {
-                    "value": 6,
-                    "type": "int",
-                    "min": 2,
-                    "max": 99,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Memorised Number": {
-                    "value": 5,
-                    "type": "int",
-                    "min": 2,
-                    "max": "Generation Size",
-                    "is active": true,
-                    "group": "root"
-                },
-                "Control Gates` Number": {
-                    "value": [
-                        1,
-                        1
-                    ],
-                    "type": "int",
-                    "min": 1,
-                    "max": "Gene Size",
-                    "is active": true,
-                    "group": "root"
-                },
-                "Crossover Probability": {
-                    "value": 0.2,
-                    "type": "float",
-                    "min": 0,
-                    "max": 1,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Mutation Probability": {
-                    "value": 0.02,
-                    "type": "float",
-                    "min": 0,
-                    "max": 1,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Fitness Function Coeficients": {
-                    "value": [
-                        0.91,
-                        0.03,
-                        0.03,
-                        0.03
-                    ],
-                    "type": "float",
-                    "min": 0,
-                    "max": 1.7976931348623157e+308,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Process Time": {
-                    "value": 600,
-                    "type": "int",
-                    "min": 1,
-                    "max": 99999999999,
-                    "is active": true,
-                    "group": "Process Limits"
-                },
-                "Iterations Limit": {
-                    "value": 9999,
-                    "type": "int",
-                    "min": 1,
-                    "max": 99999999999,
-                    "is active": false,
-                    "group": "Process Limits"
+                "outputs": {
+                    "S": "01101001",
+                    "C2": "00010111",
+                    "P": "00111100"
                 }
-            }
-        },
-        "Truth Table": {
-            "inputs": {
-                "X": "00001111",
-                "Y": "00110011",
-                "C1": "01010101"
-            },
-            "outputs": {
-                "S": "01101001",
-                "C2": "00010111",
-                "P": "00111100"
-            }
-        },
-        "Results": {},
-        "Plot Configurations": {}
-    },
-    "2020-05-20 17:54:06.545042": {
-        "Algorithm": {
-            "name": "Genetic",
-            "configurations": {
-                "Generation Size": {
-                    "value": 9999,
-                    "type": "int",
-                    "min": "Memorised Number",
-                    "max": 9999,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Chromosome Size": {
-                    "value": 20,
-                    "type": "int",
-                    "min": 2,
-                    "max": 99,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Gene Size": {
-                    "value": 6,
-                    "type": "int",
-                    "min": 2,
-                    "max": 99,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Memorised Number": {
-                    "value": 5,
-                    "type": "int",
-                    "min": 2,
-                    "max": "Generation Size",
-                    "is active": true,
-                    "group": "root"
-                },
-                "Control Gates` Number": {
-                    "value": [
-                        1,
-                        1
-                    ],
-                    "type": "int",
-                    "min": 1,
-                    "max": "Gene Size",
-                    "is active": true,
-                    "group": "root"
-                },
-                "Crossover Probability": {
-                    "value": 0.2,
-                    "type": "float",
-                    "min": 0,
-                    "max": 1,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Mutation Probability": {
-                    "value": 0.02,
-                    "type": "float",
-                    "min": 0,
-                    "max": 1,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Fitness Function Coeficients": {
-                    "value": [
-                        0.91,
-                        0.03,
-                        0.03,
-                        0.03
-                    ],
-                    "type": "float",
-                    "min": 0,
-                    "max": 1.7976931348623157e+308,
-                    "is active": true,
-                    "group": "root"
-                },
-                "Process Time": {
-                    "value": 600,
-                    "type": "int",
-                    "min": 1,
-                    "max": 99999999999,
-                    "is active": false,
-                    "group": "Process Limits"
-                },
-                "Iterations Limit": {
-                    "value": 9999,
-                    "type": "int",
-                    "min": 1,
-                    "max": 99999999999,
-                    "is active": true,
-                    "group": "Process Limits"
-                }
-            }
-        },
-        "Truth Table": {
-            "inputs": {
-                "X": "00001111",
-                "Y": "00110011",
-                "C1": "01010101"
-            },
-            "outputs": {
-                "S": "01101001",
-                "C2": "00010111",
-                "P": "00111100"
             }
         },
         "Results": {},

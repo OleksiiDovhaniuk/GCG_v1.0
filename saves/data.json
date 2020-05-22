@@ -3,15 +3,15 @@
         "name": "Genetic",
         "configurations": {
             "Generation Size": {
-                "value": 9999,
+                "value": 50,
                 "type": "int",
                 "min": "Memorised Number",
-                "max": 9999,
+                "max": 99999999999,
                 "is active": true,
                 "group": "root"
             },
             "Chromosome Size": {
-                "value": 20,
+                "value": 7,
                 "type": "int",
                 "min": 2,
                 "max": 99,
@@ -41,7 +41,7 @@
                 ],
                 "type": "int",
                 "min": 1,
-                "max": "Gene Size",
+                "max": 9223372036854775807,
                 "is active": true,
                 "group": "root"
             },
@@ -63,10 +63,10 @@
             },
             "Fitness Function Coeficients": {
                 "value": [
-                    0.91,
-                    0.03,
-                    0.03,
-                    0.03
+                    0.25,
+                    0.25,
+                    0.25,
+                    0.25
                 ],
                 "type": "float",
                 "min": 0,
@@ -78,30 +78,33 @@
                 "value": 600,
                 "type": "int",
                 "min": 1,
-                "max": 99999999999,
-                "is active": false,
+                "max": 9223372036854775807,
+                "is active": true,
                 "group": "Process Limits"
             },
             "Iterations Limit": {
-                "value": 9999,
+                "value": 1000,
                 "type": "int",
                 "min": 1,
-                "max": 99999999999,
-                "is active": true,
+                "max": 9223372036854775807,
+                "is active": false,
                 "group": "Process Limits"
             }
         }
     },
-    "Truth Table": {
-        "inputs": {
-            "X": "00001111",
-            "Y": "00110011",
-            "C1": "01010101"
-        },
-        "outputs": {
-            "S": "01101001",
-            "C2": "00010111",
-            "P": "00111100"
+    "Device": {
+        "Name": "Untitled",
+        "Truth Table": {
+            "inputs": {
+                "X": "00001111",
+                "Y": "00110011",
+                "C1": "01010101"
+            },
+            "outputs": {
+                "S": "01101001",
+                "C2": "00010111",
+                "P": "00111100"
+            }
         }
     },
     "Results": {},

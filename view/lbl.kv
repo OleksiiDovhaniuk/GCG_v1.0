@@ -1,3 +1,6 @@
+ #:import atlas design.default_theme
+
+
 <Lbl>:
     font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
     size_hint_y: None
@@ -8,10 +11,18 @@
     text_size: self.size
     font_size: 16
 
-<InfoConfigLbl>:
+<InfoLbl>:
+    background_disabled_normal: atlas + 'Lbl_Info'
+    size_hint: None, None
+    size: 400, 200
+    halign: 'center'
+    valign: 'center'
+    color: .1, .1, .1, 1
+    disabled: True
+
+<InfoCoefLbl>:
     halign: 'right'
     color: self.STATUS[self.status]
-
 
 <ResultsLbl>:
     halign: 'center'

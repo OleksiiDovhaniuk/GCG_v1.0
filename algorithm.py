@@ -89,6 +89,8 @@ class Genetic():
         """
         genes = [[0, 0]]
         max_num = int(2 ** sgn_no - 1)
+        if control_range[0] > control_range[1]:
+            control_range = [control_range[1]] * 2
 
         for control in range(max_num):
             once_no = '{0:b}'.format(control).count('1')

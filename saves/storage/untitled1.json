@@ -6,7 +6,7 @@
                 "value": 400,
                 "type": "int",
                 "min": "Memorised Number",
-                "max": 9999,
+                "max": 99999999999,
                 "is active": true,
                 "group": "root"
             },
@@ -41,7 +41,7 @@
                 ],
                 "type": "int",
                 "min": 1,
-                "max": "Gene Size",
+                "max": 9223372036854775807,
                 "is active": true,
                 "group": "root"
             },
@@ -63,10 +63,10 @@
             },
             "Fitness Function Coeficients": {
                 "value": [
-                    0.91,
-                    0.03,
-                    0.03,
-                    0.03
+                    0.083,
+                    0.457,
+                    0.002,
+                    0.457
                 ],
                 "type": "float",
                 "min": 0,
@@ -78,7 +78,7 @@
                 "value": 600,
                 "type": "int",
                 "min": 1,
-                "max": 99999999999,
+                "max": 9223372036854775807,
                 "is active": true,
                 "group": "Process Limits"
             },
@@ -86,22 +86,25 @@
                 "value": 1000,
                 "type": "int",
                 "min": 1,
-                "max": 99999999999,
+                "max": 9223372036854775807,
                 "is active": false,
                 "group": "Process Limits"
             }
         }
     },
-    "Truth Table": {
-        "inputs": {
-            "X": "00001111",
-            "Y": "00110011",
-            "C1": "01010101"
-        },
-        "outputs": {
-            "S": "01101001",
-            "C2": "00010111",
-            "P": "00111100"
+    "Device": {
+        "Name": "Untitled",
+        "Truth Table": {
+            "inputs": {
+                "X": "00001111",
+                "Y": "00110011",
+                "C1": "01010101"
+            },
+            "outputs": {
+                "S": "01101001",
+                "C2": "00010111",
+                "P": "00111100"
+            }
         }
     },
     "Results": {},
