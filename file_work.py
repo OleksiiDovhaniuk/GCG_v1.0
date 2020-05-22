@@ -59,11 +59,11 @@ DEFAULT_DATA ={
                 'is active': True,
                 'group': 'root'
             },
-            'Control Gates':{
+            'Control Gates` Number':{
                 'value': [1, 1],
                 'type': 'int',
                 'min': 1,
-                'max': 'Gene Size',
+                'max': 9223372036854775807,
                 'is active': True,
                 'group': 'root'
             },
@@ -95,7 +95,7 @@ DEFAULT_DATA ={
                 'value': 600,
                 'type': 'int',
                 'min': 1,
-                'max': 99999999999,
+                'max': 9223372036854775807,
                 'is active': True,
                 'group': 'Process Limits'
             },
@@ -103,23 +103,25 @@ DEFAULT_DATA ={
                 'value': 1000,
                 'type': 'int',
                 'min': 1,
-                'max': 99999999999,
+                'max': 9223372036854775807,
                 'is active': False,
                 'group': 'Process Limits'
             },
         },
     },
-    'Device Name': 'Untitled',
-    'Truth Table':{
-        'inputs': {
-            'X': '00001111', 
-            'Y': '00110011', 
-            'C1': '01010101', 
-        },
-        'outputs': {
-            'S': '01101001', 
-            'C2': '00010111', 
-            'P': '00111100',
+    'Device':{
+        'Name': 'Untitled',
+        'Truth Table':{
+            'inputs':{
+                'X': '00001111', 
+                'Y': '00110011', 
+                'C1': '01010101', 
+            },
+            'outputs':{
+                'S': '01101001', 
+                'C2': '00010111', 
+                'P': '00111100',
+            },
         },
     },
     'Results':{
@@ -209,11 +211,20 @@ def autosave(data):
         >>> saves[[key for key in saves][0]]['Truth Table']['outputs']['P']
         '00111100'
     """
-    autosaves = read(AUTOSAVE_PATH)
-    autosaves[str(datetime.now())] = data
-    
-    while len(autosaves) > _max_autosaves_no:
-        del autosaves[[key for key in autosaves][0]]
+    try:
+        with open(AUTOSAVE_PATH, 'r') as f:
+            autosaves = json.load(f)
+        autosaves[str(datetime.now())] = data
+        while len(autosaves) > _max_autosaves_no:
+            del autosaves[[key for key in autosaves][0]]
+
+    except IOError as e:
+        print(e)
+        autosaves = {str(datetime.now()): data}
+
+    except TypeError as e:
+        print(e)
+        autosaves = {str(datetime.now()): data}
         
     save(autosaves, AUTOSAVE_PATH)
 
