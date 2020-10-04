@@ -5,24 +5,33 @@
     background_down: self.theme + 'Cell_down'
     font_size: 16
     size_hint: None, None
-    size: 48, 48
+    size: 32, 32
     color: 0, 0, 0, 1
     valign: 'center'
     halign: 'center'
     text_size: self.size
 
+<SwitchCellBtn>:
+    background_normal:
+        atlas + 'SwitchCellBtn_hovered'\
+        if self.hovered else atlas + 'SwitchCellBtn_normal'
+    background_down: atlas + 'SwitchCellBtn_down'
+    background_disabled_normal: atlas + 'SwitchCellBtn_disabled'
+    size: 24, 16
+    text: ''
+
 <TitleCell>:
     background_normal:
-        self.theme + 'TitleCell_hovered' \
-        if self.hovered else self.theme + 'TitleCell_normal'
-    background_down: self.theme + 'TitleCell_down'
+        atlas + 'Title' + self.cell_type + 'Cell_hovered' \
+        if self.hovered else atlas + 'Title' + self.cell_type + 'Cell_normal'
+    background_down: atlas + 'Title' + self.cell_type + 'Cell_down'
     foreground_color: (0, 0, 0, 1) if self.focus else (1, 1, 1, 1)
-    font_size: 14 if self.focus else 15
+    font_size: 14 if self.focus else 16
     size_hint: None, None
-    size: 48, 48
+    size: 32, 32
     halign: 'left' if self.focus else 'center'
     valign: 'center'
-    padding: [2, 15] if self.focus else [0, 15]
+    padding: [2, 6] if self.focus else [0, 6]
     text_size: self.size
     multiline: False
     write_tab: False

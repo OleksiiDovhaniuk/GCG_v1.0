@@ -172,7 +172,6 @@ class AlgorithmConfigsInput(TxtInput):
         if not self.focus and self.text:
             self.is_proper_input('')
 
-    
 class AlgorithmCoefInput(AlgorithmConfigsInput):
     mates = []
     info_coef = ObjectProperty(None)
@@ -263,10 +262,12 @@ class AlgorithmCoefInput(AlgorithmConfigsInput):
     def get_value(self):
         return float(self.info_coef.text[:-1]) / 100
 
-class NameInput(TxtInput):
-    def select_textinput(self):
+class DeviceNameInput(TxtInput):
+    def on_focus(self, *args):
         if self.focus:
-            Clock.schedule_once(lambda dt: self.select_all())
+            self.halign = 'left'
+        else:
+            self.halign = 'center'
 
 class FileInput(TxtInput):
     def __init__ (self, **kwargs):

@@ -39,17 +39,38 @@
 	"Cell_h_hovered": 	[153, 475, 32, 32],
 	"Cell_v_hovered": 	[153, 438, 32, 32],
 
-	"AddCell_normal":	[42,  438, 32, 32],
-	"AddCell_hovered": 	[79,  438, 32, 32],
-	"AddCell_down":		[116, 438, 32, 32],
+	"AddCell_normal":	[6,  401, 30, 30],
+	"AddCell_hovered": 	[43, 401, 30, 30],
+	"AddCell_down":		[80, 401, 30, 30],
 
-	"IndexCell_normal": [6,  401, 30, 30],
-	"IndexCell_hovered":[43, 401, 30, 30],
-	"IndexCell_down":	[80, 401, 30, 30],
+	"IndexCell_normal":  [6,  401, 30, 30],
+	"IndexCell_hovered": [43, 401, 30, 30],
+	"IndexCell_down":	 [80, 401, 30, 30],
 
-	"TitleCell_normal": [6,  401, 30, 30],
-	"TitleCell_hovered":[43, 401, 30, 30],
-	"TitleCell_down":	[80, 401, 30, 30],
+	"SwitchCellBtn_normal":  [254, 379, 24, 16],
+	"SwitchCellBtn_hovered": [283, 379, 24, 16],
+	"SwitchCellBtn_down":	 [254, 358, 24, 16],
+	"SwitchCellBtn_disabled":[283, 358, 24, 16],
+
+	"TitleCell_normal":  [6,  401, 30, 30],
+	"TitleCell_hovered": [43, 401, 30, 30],
+	"TitleCell_down":	 [80, 401, 30, 30],
+
+	"TitleInputCell_normal":	[42,  438, 32, 32],
+	"TitleInputCell_hovered": 	[79,  438, 32, 32],
+	"TitleInputCell_down":		[116, 438, 32, 32],
+
+	"TitleOutputCell_normal":	[338, 474, 32, 32],
+	"TitleOutputCell_hovered": 	[375, 474, 32, 32],
+	"TitleOutputCell_down":		[412, 474, 32, 32],
+
+	"InputsCell_normal":  [6,  401, 30, 30],
+	"InputsCell_hovered": [43, 401, 30, 30],
+	"InputsCell_down":	  [80, 401, 30, 30],
+
+	"OutputsCell_normal":  [6,  401, 30, 30],
+	"OutputsCell_hovered": [43, 401, 30, 30],
+	"OutputsCell_down":	   [80, 401, 30, 30],
 
 	"ArrowBtn_normal":	[5,   298, 24, 24],
 	"ArrowBtn_hovered":	[34,  298, 24, 24],

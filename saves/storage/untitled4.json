@@ -93,7 +93,7 @@
         }
     },
     "Device": {
-        "Name": "test242",
+        "Name": "Untitled",
         "Truth Table": {
             "inputs": {
                 "X": "00001111",
