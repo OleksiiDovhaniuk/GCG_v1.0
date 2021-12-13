@@ -1,0 +1,124 @@
+ #:import utils kivy.utils
+
+<GreyDefault>:
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: self.theme + 'bg'
+            pos: self.pos
+            size: self.size
+
+<DarkDefault>:
+    canvas.before:
+        Clear
+        Color:
+            rgb: (.6, .6, .6)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<LightDefault>:
+    canvas.before:
+        Clear
+        Color:
+            rgb: (.8, .8, .8)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<WhiteDefault>:
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<HorisontalMenuBar>:
+    size_hint_y: None
+    height: 30
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: self.theme + 'bg'
+            pos: self.pos
+            size: self.size
+
+<HorizontalConf>:
+    size_hint_y: None
+    height: 30
+
+<VerticalMenuBar>:
+    orientation: 'vertical'
+    size_hint: None, 1
+    width: 40
+    canvas:
+        Clear
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<LayoutConf>:
+    padding: 5, .5* (self.height-26)
+    size_hint: .95, None
+    height: 40
+    pos_hint: {'center_x': .5}
+    canvas:
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            source: self.theme + 'bg'
+            pos: self.pos
+            size: self.size
+
+<TTblRow>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: 48
+
+<Separator1>:
+    size_hint: None, None
+    size: 1, 1
+
+<Line1Dark>:
+    size_hint_y:None
+    height: 1
+    canvas.before:
+        Color:
+            # TODO: Set color as part of default_theme (menu_bar_bg)
+            rgb: utils.get_color_from_hex('#E0E0E0')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Line1Blue>:
+    size_hint_y:None
+    height: 1
+    canvas.before:
+        Color:
+            # TODO: Set color as part of default_theme (menu_bar_bg)
+            rgb: utils.get_color_from_hex('#56CCF2')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Separator10>:
+    size_hint: None, None
+    size: 10, 10
+
+<PropertyLayout>:
+    padding: 0, 0
+    size_hint: 1, None
+    height: 32
+
+<SubtitleLayout>:
+    # orientation: 'vertical'
+    size_hint: 1, None
+    height: 37

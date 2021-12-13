@@ -1,0 +1,18 @@
+# Ignoring python virtual environment.
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.pyc 
+speed_test.*
+res/gate/view/*
+
+# Ignore speed_test.py
+.speed_test.py
+
+# Ignore dist
+.DIST
+.dist

@@ -1,0 +1,91 @@
+ #:import utils kivy.utils
+ #:import hex kivy.utils.get_color_from_hex
+
+<Btn>:
+    size_hint: None, None
+    size: 220, 24
+    background_normal:
+        self.theme + 'Btn_hovered' \
+        if self.hovered else self.theme + 'Btn_normal'
+    background_down: self.theme + 'Btn_down'
+    background_disabled_normal: self.theme + 'Btn_disabled'
+    font_name: 'res/font/Futura.ttf'
+    font_size: '16sp'
+    color: 1, 1, 1, 1 
+    disabled_color: hex('#BDBDBD')
+    halign: 'center'
+    valign: 'middle'
+    text_size: self.size
+    canvas.before:
+        Clear
+
+<ArrowBtn>:
+    size: 24, 24
+    background_normal:
+        self.theme + 'ArrowBtn_hovered'\
+        if self.hovered else self.theme + 'ArrowBtn_normal'
+    background_down: self.theme + 'ArrowBtn_down'
+
+<SaveAsBtn>:
+    size: 32, 32
+    background_normal:
+        self.theme + 'SaveAsBtn_hovered'\
+        if self.hovered else self.theme + 'SaveAsBtn_normal'
+    background_down: self.theme + 'SaveAsBtn_down'
+
+<OpenBtn>:
+    size: 32, 32
+    background_normal:
+        self.theme + 'OpenBtn_hovered'\
+        if self.hovered else self.theme + 'OpenBtn_normal'
+    background_down: self.theme + 'OpenBtn_down'
+
+<IconViewBtn>:
+    size: 32, 32
+    background_normal:
+        self.theme + 'IconViewBtn_hovered'\
+        if self.hovered else self.theme + 'IconViewBtn_normal'
+    background_down: self.theme + 'IconViewBtn_down'
+
+<ListViewBtn>:
+    size: 32, 32
+    background_normal:
+        self.theme + 'ListViewBtn_hovered'\
+        if self.hovered else self.theme + 'ListViewBtn_normal'
+    background_down: self.theme + 'ListViewBtn_down'
+
+<EditBtn>:
+    size: 32, 32
+    background_normal:
+        self.theme + 'EditBtn_hovered'\
+        if self.hovered else self.theme + 'EditBtn_normal'
+    background_down: self.theme + 'EditBtn_down'
+
+<DropDownBtn>:
+    size: 60, 24
+    font_size: '16sp'
+    color: 0, 0, 0, .3
+
+<PropertyDropDown>:
+    size_hint: 1, 1
+    background_normal:
+        self.theme + 'ToolBtn_hovered' \
+        if self.hovered else self.theme + 'ToolBtn_normal'
+    background_down: self.theme + 'ToolBtn_down'
+    background_disabled_normal: self.theme + 'ToolBtn_disabled'
+    halign: 'left' 
+    color: 0, 0, 0, 1
+    padding: (5, 0)
+    
+
+<ToolBtn>:
+    size: 120, 24
+    font_size: '16sp'
+    color: 0, 0, 0, 1
+    disabled_color: 0, 0, 0, 1
+
+    background_normal:
+        self.theme + 'ToolBtn_hovered' \
+        if self.hovered else self.theme + 'ToolBtn_normal'
+    background_down: self.theme + 'ToolBtn_down'
+    background_disabled_normal: self.theme + 'ToolBtn_disabled'

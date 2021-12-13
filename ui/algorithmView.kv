@@ -1,0 +1,836 @@
+#:import hex kivy.utils.get_color_from_hex
+#:import theme design.default_theme
+
+
+<BoxTitle>:
+    orientation: 'vertical'
+    size_hint_y: None
+    spacing: 6
+
+    BoxLayout:
+        id: title_line
+        size_hint_y: None
+        height: 24
+        spacing: 10
+        Lbl:
+            id: title
+            text: self.parent.parent.label
+            size_hint: None, None
+            size: 185, 24
+            halign: 'right'
+
+        ListSpecs:
+            id: list_specs
+            padding: 10, 0
+            size_hint: None, None
+            size: self.parent.parent.list_width, 24
+            halign: 'left'
+            valign: 'middle'
+            font_size: '16sp'
+            color: hex('#000000')
+            disabled_color: hex('#000000')
+            background_normal:
+                theme + 'ListSpecs_hovered' \
+                if self.hovered else theme + 'ListSpecs_normal'
+            background_down: theme + 'ListSpecs_down'
+            background_disabled_normal: theme + 'ListSpecs_disabled'
+            font_name: 'res/font/Futura.ttf'
+            text_size: self.size
+            canvas.before:
+                Clear
+            canvas.after:
+                Rectangle:
+                    pos: self.pos[0]+self.width-24, self.pos[1]
+                    size: 24, 24
+                    source: theme + 'ListSpecs_arrow'
+            on_release: self.open_list()
+
+    BoxLayout:
+        id: box
+        size_hint_y: None
+        height: 0
+
+<ListBtn>:
+    size_hint: None, None
+    size: 629, 24
+    padding: 23, 0
+    halign: 'left'
+    valign: 'middle'
+    font_size: '16sp'
+    color: hex('#ffffff')
+    disabled_color: hex('#56CCF2')
+    text_size: self.size
+    background_normal:
+        theme + 'ListBtn_hovered' \
+        if self.hovered else theme + 'ListBtn_normal'
+    background_disabled_normal: theme + 'ListBtn_disabled'
+    canvas.after:
+        Rectangle:
+            pos: self.pos
+            size: 24, 24
+            source:
+                theme + 'ListBtn_check' \
+                if self.disabled else theme + 'Empty'
+    font_name: 'res/font/Futura.ttf'
+
+<GeneticAlgorithmSpecs>:
+    size_hint_y: None
+    orientation: 'vertical'
+    spacing: 6
+    padding: 0, 12
+
+    Lbl:
+        text: 'General:'
+
+    DigitSpec:
+        id: gen_size
+        label: 'Generation size:'
+        default: 200
+        value: 200
+        min_value: 10
+        value_type: 'int'
+
+    DigitSpec:
+        id: chrm_size 
+        label: 'Chromosome size:'
+        default: 30
+        value: 30
+        min_value: 2
+        value_type: 'int'
+
+    DigitSpec:
+        id: gms
+        label: 'Generation memory size:'
+        default: 5
+        value: 5
+        min_value: 0
+        max_bind: gen_size
+        value_type: 'int'
+
+    SpecsSeparator:
+        
+    Lbl:
+        text: 'Coefficients:'
+
+    WeightSpec:
+        id: parity
+        group: 'Coefficients'
+        label: 'Parity:'
+        default: 20.
+        value: 20.
+        on_parent: self.parent.group_up(self)
+
+    WeightSpec:
+        id: qcost
+        group: 'Coefficients'
+        label: 'Quantum cost:'
+        default: 40.
+        value: 40.
+        on_parent: self.parent.group_up(self)
+
+    WeightSpec:
+        id: delay
+        group: 'Coefficients'
+        label: 'Delay:'
+        default: 40.
+        value: 40.
+        on_parent: self.parent.group_up(self)
+
+    WeightSpec:
+        id: abits
+        group: 'Coefficients'
+        label: 'Ancillary bits:'
+        default: 50.
+        value: 50.
+        on_parent: self.parent.group_up(self)
+
+    WeightSpec:
+        id: tlc
+        group: 'Coefficients'
+        label: 'Total logical cost:'
+        default: 50.
+        value: 50.
+        on_parent: self.parent.group_up(self)
+
+    
+    SpecsSeparator:
+
+    Lbl:
+        text: 'Stagnation:'
+
+    BoxLayout:
+        id: stagnation
+        size_hint_y: None
+        height: 0
+
+<PostGASpecs>:
+    orientation: 'vertical'
+    size_hint_y: None
+    spacing: 6
+
+    DigitSpec:
+        id: stagnation_coef
+        label: 'Stagnation coefficient:'
+        default: 100
+        value: 100
+        min_value: 1
+        value_type: 'int'
+
+    BoxLayout:
+        id: box
+        orientation: 'vertical'
+        size_hint_y: None
+        spacing: 6
+
+        SpecsSeparator:
+
+        Lbl:
+            id: title
+            text: 'PostGA:'
+
+        BoxLayout:
+            id: specs
+            size_hint_y: None
+            padding: 30, 0
+
+            BoxLayout:
+                id: left_specs
+                orientation: 'vertical'
+                size_hint_y: None
+                spacing: 6
+
+                Lbl:
+                    text: 'General:'
+
+                DigitSpec:
+                    id: island_size
+                    label: 'Generation size:'
+                    default: 200
+                    value: 200
+                    min_value: 10
+                    input_width: 170
+                    value_type: 'int'
+
+                Lbl: 
+                    text: 'Coefficients:'
+
+                WeightSpec:
+                    id: parity
+                    group: 'Coefficients'
+                    label: 'Parity:'
+                    default: 20.
+                    value: 20.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: qcost
+                    group: 'Coefficients'
+                    label: 'Quantum cost:'
+                    default: 40.
+                    value: 40.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: delay
+                    group: 'Coefficients'
+                    label: 'Delay:'
+                    default: 40.
+                    value: 40.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: abits
+                    group: 'Coefficients'
+                    label: 'Ancillary bits:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: tlc
+                    group: 'Coefficients'
+                    label: 'Total logical cost:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                Lbl: 
+                    text: 'Selection:'
+
+                WeightSpec:
+                    id: roulette_wheel
+                    group: 'Selection'
+                    label: 'Roulette wheel weight:'
+                    default: 20.
+                    value: 20.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: rank
+                    group: 'Selection'
+                    label: 'Rank weight:'
+                    default: 40.
+                    value: 40.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: steady_state
+                    group: 'Selection'
+                    label: 'Steady state weight:'
+                    default: 40.
+                    value: 40.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: tournament
+                    group: 'Selection'
+                    label: 'Tournament weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: elitism
+                    group: 'Selection'
+                    label: 'Elitism weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: boltsman
+                    group: 'Selection'
+                    label: 'Boltsman weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+            BoxLayout:
+                id: right_specs
+                orientation: 'vertical'
+                size_hint_y: None
+                spacing: 6
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 24
+                
+                Lbl:
+                    text: 'Crossover:'
+
+                DigitSpec:
+                    id: crossover_prob
+                    label: 'Probability:'
+                    default: .2
+                    value: .2
+                    min_value: 0
+                    max_value: 0
+                    input_width: 170
+                    value_type: 'float'
+
+                WeightSpec:
+                    id: one_point_crossover
+                    group: 'Crossover'
+                    label: 'One-point weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: two_point_crossover
+                    group: 'Crossover'
+                    label: 'Two-point weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: uniform_crossover
+                    group: 'Crossover'
+                    label: 'Uniform weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+                
+                BoxLayout:
+                    size_hint_y: None
+                    height: 24
+
+                Lbl:
+                    text: 'Mutation:'
+                
+                DigitSpec:
+                    id: mutation_prob
+                    label: 'Probability:'
+                    default: .2
+                    value: .2
+                    min_value: 0
+                    max_value: 0
+                    input_width: 170
+                    value_type: 'float'
+
+                WeightSpec:
+                    id: one_point_mutation
+                    group: 'Mutation'
+                    label: 'One-point weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: two_point_mutation
+                    group: 'Mutation'
+                    label: 'Two-point weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+
+                WeightSpec:
+                    id: uniform_mutation
+                    group: 'Mutation'
+                    label: 'Uniform weight:'
+                    default: 50.
+                    value: 50.
+                    input_width: 115
+                    on_parent: self.parent.parent.parent.parent.group_up(self)
+                            
+                DigitSpec:
+                    id: two_point_max_length
+                    label: 'Two-point max length:'
+                    default: 3
+                    value: 3
+                    min_value: 2
+                    max_bind: self.parent.parent.parent.parent.chrm_size
+                    input_width: 170
+                    value_type: 'int'
+                            
+                DigitSpec:
+                    id: uniform_max_no
+                    label: 'Uniform max No.:'
+                    default: 3
+                    value: 3
+                    min_value: 2
+                    max_bind: self.parent.parent.parent.parent.chrm_size
+                    input_width: 170
+                    value_type: 'int'
+
+
+<IslandModelSpecs>:
+    orientation: 'vertical'
+    size_hint_y: None
+    spacing: 6
+
+    DigitSpec:
+        id: stagnation_coef
+        label: 'Stagnation coefficient:'
+        default: 100
+        value: 100
+        min_value: 1
+        value_type: 'int'
+
+    BoxLayout:
+        id: migration_type
+        orientation: 'vertical'
+        size_hint_y: None
+        height: 24
+
+    DigitSpec:
+        id: migrants_no
+        label: 'Migrants No.:'
+        default: 20
+        value: 20
+        min_value: 0
+        value_type: 'int'
+
+    BoxLayout:
+        id: box
+        orientation: 'vertical'
+        size_hint_y: None
+        spacing: 6
+
+    BoxLayout:
+        size_hint_y: None
+        height: 12
+
+    Btn:
+        id: add_btn
+        text: 'Add Island'
+        on_press: self.parent.add_island()
+
+<IslandSpecs>:
+    orientation: 'vertical'
+    size_hint_y: None
+
+    SpecsSeparator:
+
+    BoxLayout:
+        id: title_line
+        size_hint_y: None
+        height: 24
+
+        Lbl:
+            id: title
+            text: 'Island #{}:'.format(self.parent.parent.set_index)
+
+        BoxLayout:
+        DelBtn:
+            id: del_btn
+            content: self.parent.parent
+            disabled: self.parent.parent.del_status()
+    
+    BoxLayout:
+        id: specs
+        size_hint_y: None
+        padding: 30, 0
+
+        BoxLayout:
+            id: left_specs
+            orientation: 'vertical'
+            size_hint_y: None
+            spacing: 6
+
+            Lbl:
+                text: 'General:'
+
+            WeightSpec:
+                id: island_weight
+                label: 'Island weight:'
+                group: 'Islands'
+                default: 1.
+                value: 1.
+                input_width: 115
+                segment_color_hex: '#E76E54'
+                on_parent: self.parent.parent.parent.islands_group_up(self)
+
+            Lbl: 
+                text: 'Coefficients:'
+
+            WeightSpec:
+                id: parity
+                group: 'Coefficients'
+                label: 'Parity:'
+                default: 20.
+                value: 20.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: qcost
+                group: 'Coefficients'
+                label: 'Quantum cost:'
+                default: 40.
+                value: 40.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: delay
+                group: 'Coefficients'
+                label: 'Delay:'
+                default: 40.
+                value: 40.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: abits
+                group: 'Coefficients'
+                label: 'Ancillary bits:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: tlc
+                group: 'Coefficients'
+                label: 'Total logical cost:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            Lbl: 
+                text: 'Selection:'
+
+            WeightSpec:
+                id: roulette_wheel
+                group: 'Selection'
+                label: 'Roulette wheel weight:'
+                default: 20.
+                value: 20.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: rank
+                group: 'Selection'
+                label: 'Rank weight:'
+                default: 40.
+                value: 40.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: steady_state
+                group: 'Selection'
+                label: 'Steady state weight:'
+                default: 40.
+                value: 40.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: tournament
+                group: 'Selection'
+                label: 'Tournament weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: elitism
+                group: 'Selection'
+                label: 'Elitism weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: boltsman
+                group: 'Selection'
+                label: 'Boltsman weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+        BoxLayout:
+            id: right_specs
+            orientation: 'vertical'
+            size_hint_y: None
+            spacing: 6
+
+            BoxLayout:
+                size_hint_y: None
+                height: 24
+            
+            Lbl:
+                text: 'Crossover:'
+
+            DigitSpec:
+                id: crossover_prob
+                label: 'Probability:'
+                default: .2
+                value: .2
+                min_value: 0
+                max_value: 0
+                input_width: 170
+                value_type: 'float'
+
+            WeightSpec:
+                id: one_point_crossover
+                group: 'Crossover'
+                label: 'One-point weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: two_point_crossover
+                group: 'Crossover'
+                label: 'Two-point weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: uniform_crossover
+                group: 'Crossover'
+                label: 'Uniform weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+            
+            BoxLayout:
+                size_hint_y: None
+                height: 24
+
+            Lbl:
+                text: 'Mutation:'
+            
+            DigitSpec:
+                id: mutation_prob
+                label: 'Probability:'
+                default: .2
+                value: .2
+                min_value: 0
+                max_value: 0
+                input_width: 170
+                value_type: 'float'
+
+            WeightSpec:
+                id: one_point_mutation
+                group: 'Mutation'
+                label: 'One-point weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: two_point_mutation
+                group: 'Mutation'
+                label: 'Two-point weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+
+            WeightSpec:
+                id: uniform_mutation
+                group: 'Mutation'
+                label: 'Uniform weight:'
+                default: 50.
+                value: 50.
+                input_width: 115
+                on_parent: self.parent.parent.parent.group_up(self)
+                        
+            DigitSpec:
+                id: two_point_max_length
+                label: 'Two-point max length:'
+                default: 3
+                value: 3
+                min_value: 2
+                max_bind: self.parent.parent.parent.chrm_size
+                input_width: 170
+                value_type: 'int'
+                        
+            DigitSpec:
+                id: uniform_max_no
+                label: 'Uniform max No.:'
+                default: 3
+                value: 3
+                min_value: 2
+                max_bind: self.parent.parent.parent.chrm_size
+                input_width: 170
+                value_type: 'int'
+        
+<DigitSpec>:
+    size_hint_y: None
+    height: 24
+    spacing: 10
+
+    Lbl:
+        id: title
+        text: self.parent.label
+        size_hint: None, None
+        size: 185, 24
+        halign: 'right'
+
+    DigitInput:
+        id: input
+        input_filter: self.parent.value_type
+        width: self.parent.input_width
+        on_parent:
+            self.bind(focus=self.parent.validate)
+
+
+
+<DigitInput>:
+    size_hint: None, None
+    size: 200, 24
+    padding: 10, 0
+    font_name: 'res/font/Futura.ttf'
+    background_normal: theme + 'TextInput_normal'
+    background_active: theme + 'TextInput_focused'
+    background_disabled_normal: theme + 'TextInput_disabled'
+    color: hex('#000000')
+    hint_text_color: hex('#BDBDBD')
+    cursor_color: hex('#56CCF2')
+    cursor_width: 2
+    write_tab: False
+    multiline: False
+    font_size: '16sp'
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+
+<SpecsSeparator>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: 25
+    BoxLayout:
+        size_hint_y: None
+        height: 16
+    Line1Dark:
+    BoxLayout:
+
+<WeightSpec>:
+    size_hint_y: None
+    height: 24
+    spacing: 10
+    value_type: 'float'
+    min_value: 0
+    input_width: 150
+
+    Lbl:
+        id: segment
+        size_hint: None, None
+        size: 40, 24
+        halign: 'right'
+        color: hex(self.parent.segment_color_hex)
+
+<DelBtn>:
+    size_hint: None, None
+    size: 24, 24
+    background_normal:
+        self.theme + 'DelBtn_hovered' \
+        if self.hovered else self.theme + 'DelBtn_normal'
+    background_down: self.theme + 'DelBtn_down'
+    background_disabled_normal: self.theme + 'DelBtn_disabled'
+
+
+
+<IterationNoSpecs>:
+    orientation: 'vertical'
+    size_hint_y: None
+    spacing: 6
+
+    DigitSpec:
+        label: 'Iteration No.:'
+        value: 100
+        default: 100
+        min_value: 10
+
+<TimeLimitSpecs>:
+    orientation: 'vertical'
+    size_hint_y: None
+    spacing: 6
+
+    DigitSpec:
+        label: 'Time (in sec.):'
+        value: 60
+        default: 60
+        min_value: 10

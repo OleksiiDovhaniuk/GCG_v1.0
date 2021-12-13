@@ -1,0 +1,47 @@
+<WhitePopup>:
+    title_color: 0, 0, 0, 1
+    title_size: 18
+    size_hint: 1, 1
+    font_name: 'res/fonts/source_code_pro/SourceCodePro-Medium.otf'
+    background: self.theme + 'bg'
+
+<ProgressPopup>:
+    auto_dismiss: False
+    size_hint: None, None
+    size: 400, 300
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+
+        BoxLayout:
+            id: container
+            orientation: 'vertical'
+
+        BoxLayout:
+            size_hint_y: None
+            height: 26
+
+            ProgressBar:
+                id: progress_bar
+                max: 100
+            Label:
+                id: progress
+                color: 0, 0, 0, 1
+                size_hint_x: .15
+                halign: 'left'
+                text: '0%'
+
+        BoxLayout:
+            size_hint_y: None
+            height: 26
+            Btn:
+                id: cancel
+                text: 'Cancel'
+                on_press: root.dismiss()
+                disabled: True
+            BoxLayout:
+            Btn:
+                id: pause
+                text: 'Pause'
+                disabled: True

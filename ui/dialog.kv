@@ -1,0 +1,174 @@
+<Load>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        GreyDefault:
+            size_hint_y: None
+            height: 14
+        WhiteDefault:
+            size_hint_y: None
+            height: 430
+            FileChooser:
+                id: file_chooser
+                multiselect: False
+                rootpath: root.path
+                on_selection: file_input.show(self.selection[0])
+                FlChsrListLayout
+                FileChooserIconLayout
+        GreyDefault:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint_y: None
+                height: 44
+                padding: 5, 0
+                Lbl:
+                    text: 'File name: '
+                    size_hint: None, None
+                    size: 130, 34
+                    font_size: 18
+                    halign: 'right'
+                    pos_hint: {'y_center':.5}
+                FileInput:
+                    id: file_input
+                    size_hint_y: None
+                    height: 32
+                    font_size: 16
+                    valign: 'bottom'
+                    multiline: False
+            BoxLayout:
+                size_hint_y: None
+                height: 44
+                padding: 20, 0
+                ListViewBtn:
+                    on_press: file_chooser.view_mode = 'list'
+                Separator10
+                IconViewBtn:
+                    on_press: file_chooser.view_mode = 'icon'
+                BoxLayout:
+                Btn:
+                    text: "Cancel"
+                    on_release: root.cancel()
+                Separator10
+                Btn:
+                    text: "Open"
+                    on_release:
+                        root.load(file_input.text)
+
+<Save>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        GreyDefault:
+            size_hint_y: None
+            height: 14
+        WhiteDefault:
+            size_hint_y: None
+            height: 430
+            FileChooser:
+                id: file_chooser
+                multiselect: False
+                rootpath: root.path
+                on_selection: file_input.show(self.selection[0])
+                FlChsrListLayout
+                FileChooserIconLayout
+        GreyDefault:
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint_y: None
+                height: 44
+                padding: 5, 0
+                Lbl:
+                    text: 'File name: '
+                    size_hint: None, None
+                    size: 130, 34
+                    font_size: 18
+                    halign: 'right'
+                    pos_hint: {'y_center':.5}
+                FileInput:
+                    id: file_input
+                    size_hint_y: None
+                    height: 32
+                    font_size: 16
+                    valign: 'bottom'
+                    multiline: False
+            BoxLayout:
+                size_hint_y: None
+                height: 44
+                padding: 20, 0
+                ListViewBtn:
+                    on_press: file_chooser.view_mode = 'list'
+                Separator10
+                IconViewBtn:
+                    on_press: file_chooser.view_mode = 'icon'
+                BoxLayout:
+                Btn:
+                    text: "Cancel"
+                    on_release: root.cancel()
+                Separator10
+                Btn:
+                    text: "Save"
+                    on_release:
+                        root.save(file_input.text)
+
+<TruthTable>:
+    GreyDefault:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        canvas.before:
+            Clear
+            Color:
+                rgb: (1, 1, 1)
+            Rectangle:
+                source: self.theme + 'bg'
+                pos: self.pos
+                size: self.size
+        ScrollView:
+            do_scroll_x: True
+            do_scroll_y: True
+            BoxLayout:
+                id: scroll_view
+                size_hint: None, None
+                size: 1300, 1000
+                pos_hint:{'left': 1}
+                BoxLayout:
+                    id: inputs_cont
+                    orientation: 'vertical'
+                    size_hint:  None, None
+                    size: 600, 1000
+                    Lbl:
+                        text: 'Inputs'
+                        font_size: 18
+                    BoxLayout:
+                        id: inputs_tbl
+                        orientation: 'vertical'
+                BoxLayout:
+                    id: outputs_cont
+                    orientation: 'vertical'
+                    size_hint:  None, None
+                    size: 600, 1000
+                    Lbl:
+                        text: 'Outputs'
+                        font_size: 18
+                    BoxLayout:
+                        id: outputs_tbl
+                        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: 44
+            padding: 20, 0
+            BoxLayout:
+            Btn:
+                text: "Reset"
+                on_release: root.reset()
+            Separator10
+            Btn:
+                text: "Cancel"
+                on_release: root.cancel()
+            Separator10
+            Btn:
+                id: apply_btn
+                text: "Apply"
+                on_release: root.apply()

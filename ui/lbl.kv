@@ -1,0 +1,50 @@
+<Lbl>:
+    font_name: 'res/font/Futura.ttf'
+    size_hint_y: None
+    height: 24
+    color: 0, 0, 0, 1
+    halign: 'left'
+    valign: 'middle'
+    text_size: self.size
+    font_size: '16sp'
+
+<InfoLbl>:
+    background_disabled_normal: atlas + 'Lbl_Info'
+    size_hint: None, None
+    size: 400, 200
+    halign: 'center'
+    valign: 'center'
+    color: .1, .1, .1, 1
+    disabled: True
+
+<InfoCoefLbl>:
+    halign: 'right'
+    color: self.STATUS[self.status]
+
+<ResultsLbl>:
+    halign: 'center'
+    size_hint_y: None
+    height: 28
+    font_size: 16
+
+<TitleLbl>:
+    size_hint: 1, None
+    height: 32
+    text: '[b]'+ self.title + '[/b]'
+    markup: True
+    font_size: 24
+
+<PropertyLbl>:
+    size_hint: None, 1
+    width: 240
+    halign: 'right'
+    text: self.title + ': '
+    font_size: 16
+
+<SubtitleLbl>:
+    size_hint: None, 1
+    width: 600
+    halign: 'left'
+    text: self.subtitle
+    font_size: 16
+

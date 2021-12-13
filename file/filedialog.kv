@@ -1,0 +1,17 @@
+
+<LoadDialog>:
+    orientation: "vertical"
+
+    FileChooserListView:
+        id: filechooser
+        path: 'D:\Workspace\Python\projects\QubitLab\file'
+
+    BoxLayout:
+        size_hint_y: None
+        height: '30sp'
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+        Button:
+            text: "Save"
+            on_release: root.save(filechooser.path, filechooser.selection)

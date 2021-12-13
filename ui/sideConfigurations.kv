@@ -1,0 +1,80 @@
+<SideConf>:
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: None
+        height: 26
+        Separator10
+        Lbl:
+            font_size: 12
+            text: '[color=#133957]' + root.TITLE + '[/color]'
+            # markup: True
+    LightDefault:
+        size_hint_y: None
+        height: 1
+    FloatLayout:
+        id: container
+        orientation: 'vertical'
+        Btn:
+            id: reserved_place
+            size_hint: .4, None
+            height: self.width
+            pos_hint: {'center_x': .5}
+            disabled: True
+            background_disabled_normal: root._theme + 'ReservedPlace'
+        BoxLayout:
+            size_hint_y: None
+            height: root.height - 1.5 * reserved_place.height
+
+    BoxLayout:
+        id: bottom_container
+        size_hint_y: None
+        height: 52
+        padding: 26, 10
+
+<SideConfBottom>:
+    BoxLayout
+    SaveAsBtn:
+        id: save_as_btn
+    Separator10
+    OpenBtn:
+        id: open_btn
+
+
+<ResultsContent>:
+    DefaultLayout:
+        id: side_results_container
+        orientation: 'vertical'
+        size_hint: None, None
+        size: 768, 5000
+        padding: 10, 10
+
+        TitleLbl:
+            title: 'Truth Table'
+
+        ResultsLbl:
+            id: ttbl_lbl
+            text: 'no information is present'
+            size_hint_y: None
+
+        TitleLbl:
+            id: results_title
+            title: 'Results'
+
+        DefaultLayout:
+            id: results_container
+            orientation: 'vertical'
+            size_hint_y: None
+            height: results_title.height
+
+            ResultsLbl:
+                text: 'no information is present'
+
+        TitleLbl:
+            title: 'Configurations'
+
+        ResultsLbl:
+            id: configs_lbl
+            text: 'no information is present'
+            size_hint_y: None
+
+        DefaultLayout

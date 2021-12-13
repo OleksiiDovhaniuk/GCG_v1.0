@@ -1,0 +1,329 @@
+#:import theme design.default_theme
+#:import hex kivy.utils.get_color_from_hex
+
+<TitleRow>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: '43sp'
+
+    BoxLayout:
+        CheckBox:
+            id: checkbox
+            size_hint_x: None
+            width: '42sp'
+            active: True
+
+        TableTitle:
+            text: 'Designation'
+            size_hint_x: 1
+        
+        TableTitle:
+            text: 'Base'
+            size_hint_x: .65
+
+        TableTitle:
+            text: 'Delay'
+
+        TableTitle:
+            text: 'QCost'
+
+        TableTitle:
+            text: 'Total Logical Cost'
+            size_hint_x: 1.25
+
+        TableTitle:
+            text: 'Parity'
+        
+        BoxLayout:
+            size_hint_x: None
+            width: '84sp'
+
+    SeparatorH1sp:
+
+<DataRow>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: '43sp'
+
+    BoxLayout:
+        CheckBox:
+            id: checkbox
+            size_hint_x: None
+            width: '42sp'
+            active: True
+
+        DataLbl:
+            text: root.desig
+            size_hint_x: 1
+        
+        DataLbl:
+            text: root.base
+            size_hint_x: .65
+
+        DataLbl:
+            text: root.delay
+
+        DataLbl:
+            text: root.qcost
+
+        DataLbl:
+            text: root.tlc
+            size_hint_x: 1.25
+
+        DataLbl:
+            text: root.parity
+        
+        BoxLayout:
+            size_hint_x: None
+            width: '84sp'
+
+            EditRowBtn:
+                id: edit_btn
+
+            DelRowBtn:
+                id: del_btn
+                desig: root.desig
+                table: root.parent
+                row: root
+       
+    SeparatorH1sp:
+
+<TableTitle>:
+    font_name: 'res/font/FiraSans-Bold.ttf'
+    size_hint: .7, 1
+    color: hex('#000000') 
+    disabled_color: hex('#000000')
+    text_size: self.size
+    font_size: '14sp'
+    background_normal:
+        theme + 'Tab_down' \
+        if self.hovered else theme + 'Empty'
+    background_down: theme + 'Tab_down'
+    background_disabled_normal: theme + 'Tab_down'
+    canvas.after:
+        Rectangle:
+            pos: self.pos[0]+self.width-self.height*.7, self.pos[1]+self.height*.24
+            size: self.height*.5, self.height*.5
+            source: theme + 'ListSpecs_arrow'
+
+    
+
+<TableLbl>:
+    font_name: 'res/font/FiraSans-Bold.ttf'
+    size_hint: .7, None
+    height: '42sp'
+    color: 0, 0, 0, 1
+    halign: 'center'
+    valign: 'middle'
+    text_size: self.size
+    font_size: '14sp'
+       
+<DataLbl>:
+    font_name: 'res/font/FiraSans-Regular.ttf'
+
+<EditRowBtn>:
+    size_hint: None, None
+    size: '42sp', '42sp'
+
+    background_normal:
+        theme + 'Empty' \
+        if self.hovered else theme + 'Empty'
+    background_down: theme + 'Empty'
+
+    canvas:
+        Rectangle:
+            pos: self.pos[0] + sp(13), self.pos[1] + sp(13)
+            size: sp(16), sp(16)
+            source: theme + 'EditBtn'
+
+<DelRowBtn>:
+    size_hint: None, None
+    size: '42sp', '42sp'
+
+    background_normal:
+        theme + 'Empty' \
+        if self.hovered else theme + 'Empty'
+    background_down: theme + 'Empty'
+
+    canvas:
+        Rectangle:
+            pos: self.pos[0] + sp(13), self.pos[1] + sp(13)
+            size: sp(16), sp(16)
+            source: theme + 'DelBtn_red'
+
+
+<DelPopup>:
+    title: 'Delete Basis Component'
+    size_hint: None, None
+    size: '400sp', '166sp'
+    auto_dismiss: False
+    
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint_y: None
+            height: '72sp' 
+
+
+            BoxLayout:
+                size_hint_x: None
+                width: '42sp'
+
+                canvas:
+                    Rectangle:
+                        pos: self.pos[0] + sp(6), self.pos[1] + self.parent.height - sp(36)
+                        size: sp(24), sp(24)
+                        source: theme + 'attention_sign'
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Lbl:
+                    size_hint_y: None
+                    height: '48sp'
+                    text: 'If ' + root.desig + ' is deleted from the list, it cannot longer be used. Are you sure about that?'
+                    font_size: '14sp'
+                    color: 1, 1, 1, 1
+                
+                TxtInput:
+                    id: txt_input
+                    size_hint_y: None
+                    height: '24sp'
+                    hint_text: 'Type delete'
+
+        BoxLayout:
+
+            PopupDelBtn:
+                id: del_btn
+                size_hint: None, None
+                size: '180sp', '24sp'
+                text: 'Delete'
+                disabled: True
+            
+            BoxLayout:
+
+            Btn:
+                size_hint: None, None
+                size: '180sp', '24sp'
+                text: 'Cencel'
+                on_release: root.dismiss()
+
+                background_normal:
+                    self.theme + 'Btn_hovered' \
+                    if self.hovered else self.theme + 'CencelBtn_normal'
+
+<AddRowBtn>:
+    text: 'Add Component'
+    size_hint: None, None
+    size: '180sp', '24sp'
+
+<SeparatorH1sp>:
+    size_hint_y: None
+    height: '1sp'
+
+    canvas:
+        Color:
+            rgb: hex('#E0E0E0')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<FilterDropdown>:
+    auto_width: False
+    size_hint: None, None
+    size: '302sp', '242sp'
+
+    BoxLayout:
+        id: box
+        orientation: 'vertical'
+        size_hint: None, None
+        size: '302sp', '242sp'
+        padding: '4sp'
+        canvas.before:
+            Color:
+                # TODO: Set color as part of default_theme (menu_bar_bg)
+                rgb: hex('#E0E0E0')
+            Rectangle:
+                size: self.size
+                pos: self.pos
+            Color:
+                # TODO: Set color as part of default_theme (menu_bar_bg)
+                rgb: hex('#FFFFFF')
+            Rectangle:
+                size: self.size[0]-sp(2), self.size[1]-sp(2) 
+                pos: self.pos[0]+sp(1), self.pos[1]+sp(1)
+
+        SortBtn:
+
+        SortBtn:
+            how_sort: 'Largest to Smallest'
+            sort_dir: 'ZA'
+
+        ScrollView:
+            size_hint_y: None
+            height: '160sp'
+            canvas.before:
+                Color:
+                    # TODO: Set color as part of default_theme (menu_bar_bg)
+                    rgb: hex('#E0E0E0')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+                Color:
+                    # TODO: Set color as part of default_theme (menu_bar_bg)
+                    rgb: hex('#FFFFFF')
+                Rectangle:
+                    size: self.size[0]-sp(2), self.size[1]-sp(2) 
+                    pos: self.pos[0]+sp(1), self.pos[1]+sp(1)
+            
+            BoxLayout:
+                id: varients
+                orientation: 'vertical'
+                size_hint_y: None
+                height: '30sp'
+                padding: '5sp', '0sp'
+                spacing: '6sp'
+
+                Lbl: 
+                    text: '(Select All)'
+
+                BoxLayout:
+            
+        BoxLayout:
+            spacing: '6sp'
+            BoxLayout:
+            Btn:
+                text: 'OK'
+                width: '120sp'
+            Btn:
+                text: 'Cancel'
+                width: '120sp'
+                on_release: root.dismiss()
+
+                background_normal:
+                    self.theme + 'Btn_hovered' \
+                    if self.hovered else self.theme + 'CencelBtn_normal'
+
+<SortBtn>:
+    size_hint: 1, None
+    height: '24sp'
+    padding: '24sp', '0sp'
+    text: 'Sort {}'.format(self.how_sort)
+    how_sort: 'Smallest to Largest'
+    color: hex('#000000')
+    valign: 'middle'
+    halign: 'left'
+    text_size: self.size
+
+    background_normal:
+        theme + 'Empty' \
+        if self.hovered else theme + 'Empty'
+    background_down: theme + 'Empty'
+
+    canvas.after:
+        Rectangle:
+            pos: self.pos[0], self.pos[1]
+            size: sp(24), sp(24)
+            source: theme + root.sort_dir + '_sort'
+        

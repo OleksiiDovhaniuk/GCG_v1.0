@@ -1,0 +1,136 @@
+<EmptySignal@BoxLayout>:
+    canvas:
+        Clear
+
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (0, self.height/2, self.width, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+<EmptySignalMiddle@BoxLayout>:
+    canvas:
+        Clear
+
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (0, self.height/2, self.width, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (self.width/2, 0, self.width/2, self.height)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+<SignedSignalTop@SignedSignal>:
+    canvas:
+        Clear
+
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (0, self.height/2, self.width, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (self.width/2, 0, self.width/2, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        # Rectangle:
+        #     pos: self.pos
+        #     size: self.size
+        #     source: self.node_path
+
+<SignedSignalMiddle@SignedSignal>:
+    canvas:
+        Clear
+
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (0, self.height/2, self.width, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (self.width/2, 0, self.width/2, self.height)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        # Rectangle:
+        #     pos: self.pos
+        #     size: self.size
+        #     source: self.node_path
+
+<SignedSignalBottom@SignedSignal>:
+    canvas:
+        Clear
+
+        Color:
+            rgb: (1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (0, self.height/2, self.width, self.height/2)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        Color:
+            rgb: (0, 0, 0)
+        Line:
+            points: (self.width/2, self.height/2, self.width/2, self.height)
+            width: self.height/10
+            cap: 'square'
+            joint: 'miter'
+
+        # Rectangle:
+        #     pos: self.pos
+        #     size: self.size
+        #     source: self.node_path

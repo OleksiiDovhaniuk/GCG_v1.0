@@ -1,0 +1,184 @@
+{"defaulttheme-0.png": {
+	"TextInput_normal":	  [3, 973, 144, 48],
+	"TextInput_focused":  [3, 922, 144, 48],
+	"TextInput_disabled": [3, 871, 144, 48],
+
+<<<<<<< HEAD
+	"Btn_disabled":	[3, 871, 144, 48],
+	"Btn_normal":  	[3, 820, 144, 48],
+	"CencelBtn_normal": [3, 769, 144, 48],
+	"Btn_hovered": 	[3, 718, 144, 48],
+	"Btn_down":		[3, 667, 144, 48],
+	
+=======
+	"Btn_normal":  	[269, 302, 72, 24],
+	"Btn_hovered": 	[346, 302, 72, 24],
+	"Btn_down":		[423, 302, 72, 24],
+	"Btn_disabled":	[423, 302, 72, 24],
+
+	"DelBtn_normal":  	[161, 241, 24, 24],
+	"DelBtn_hovered": 	[186, 241, 24, 24],
+	"DelBtn_down":		[211, 241, 24, 24],
+	"DelBtn_disabled":	[237, 241, 24, 24],
+
+	"SaveAsBtn_normal":  [5,   363, 32, 32],
+	"SaveAsBtn_hovered": [42,  363, 32, 32],
+	"SaveAsBtn_down":	 [79,  363, 32, 32],
+	"SaveAsBtn_disabled":[116, 363, 32, 32],
+
+	"OpenBtn_normal":	[5,   326, 32, 32],
+	"OpenBtn_hovered": 	[42,  326, 32, 32],
+	"OpenBtn_down":		[79,  326, 32, 32],
+	"OpenBtn_disabled":	[116, 326, 32, 32],
+
+	"IconViewBtn_normal":	[190, 475, 32, 32],
+	"IconViewBtn_hovered": 	[227, 475, 32, 32],
+	"IconViewBtn_down":		[264, 475, 32, 32],
+	"IconViewBtn_disabled":	[301, 475, 32, 32],
+
+	"ListViewBtn_normal":	[190, 438, 32, 32],
+	"ListViewBtn_hovered": 	[227, 438, 32, 32],
+	"ListViewBtn_down":		[264, 438, 32, 32],
+	"ListViewBtn_disabled":	[301, 438, 32, 32],
+
+	"EditBtn_normal":	[190, 401, 32, 32],
+	"EditBtn_hovered": 	[227, 401, 32, 32],
+	"EditBtn_down":		[264, 401, 32, 32],
+	"EditBtn_disabled":	[301, 401, 32, 32],
+
+	"Cell_normal":  	[43,  476, 30, 30],
+	"Cell_hovered": 	[80,  476, 30, 30],
+	"Cell_down":		[117, 476, 30, 30],
+	"Cell_h_hovered": 	[153, 475, 32, 32],
+	"Cell_v_hovered": 	[153, 438, 32, 32],
+
+	"AddCell_normal":	[6,  401, 30, 30],
+	"AddCell_hovered": 	[43, 401, 30, 30],
+	"AddCell_down":		[80, 401, 30, 30],
+
+	"IndexCell_normal":  [6,  401, 30, 30],
+	"IndexCell_hovered": [43, 401, 30, 30],
+	"IndexCell_down":	 [80, 401, 30, 30],
+
+	"SwitchCellBtn_normal":  [254, 379, 24, 16],
+	"SwitchCellBtn_hovered": [283, 379, 24, 16],
+	"SwitchCellBtn_down":	 [254, 358, 24, 16],
+	"SwitchCellBtn_disabled":[283, 358, 24, 16],
+
+	"TitleCell_normal":  [6,  401, 30, 30],
+	"TitleCell_hovered": [43, 401, 30, 30],
+	"TitleCell_down":	 [80, 401, 30, 30],
+
+	"TitleInputCell_normal":	[42,  438, 32, 32],
+	"TitleInputCell_hovered": 	[79,  438, 32, 32],
+	"TitleInputCell_down":		[116, 438, 32, 32],
+
+	"TitleOutputCell_normal":	[338, 474, 32, 32],
+	"TitleOutputCell_hovered": 	[375, 474, 32, 32],
+	"TitleOutputCell_down":		[412, 474, 32, 32],
+
+	"InputsCell_normal":  [6,  401, 30, 30],
+	"InputsCell_hovered": [43, 401, 30, 30],
+	"InputsCell_down":	  [80, 401, 30, 30],
+
+	"OutputsCell_normal":  [6,  401, 30, 30],
+	"OutputsCell_hovered": [43, 401, 30, 30],
+	"OutputsCell_down":	   [80, 401, 30, 30],
+
+	"ArrowBtn_normal":	[5,   298, 24, 24],
+	"ArrowBtn_hovered":	[34,  298, 24, 24],
+	"ArrowBtn_down":	[63,  298, 24, 24],
+	"ArrowBtn_pressed":	[92,  298, 24, 24],
+	"ArrowBtn_disabled":[121, 298, 24, 24],
+
+>>>>>>> parent of 395bcd5 (Restart workflow)
+	"ListSpecs_normal":   [236, 271, 72, 24],
+	"ListSpecs_hovered":  [313, 271, 72, 24],
+	"ListSpecs_down":     [390, 271, 72, 24],
+	"ListSpecs_disabled": [390, 271, 72, 24],
+<<<<<<< HEAD
+	"ListSpecs_arrow": [271, 3, 64, 64],
+	"CloseBtn_bg_down": [232, 298, 32, 32],
+
+	"ListBtn_normal":	[94, 182, 24, 24],
+	"ListBtn_hovered": 	[30, 182, 24, 24],
+	"ListBtn_disabled":	[94, 182, 24, 24],
+	"ListBtn_check":    [338, 3, 64, 64],
+
+
+	"RunBtn": [238, 893, 128, 128],
+	"ReportBtn": [369, 893, 128, 128],
+	"HistoryBtn": [500, 893, 128, 128],
+	"EntityBtn": [631, 893, 128, 128],
+	"BasisBtn": [762, 893, 128, 128],
+	"AlgorithmBtn": [893, 893, 128, 128],
+
+	"PauseBtn": [238, 762, 128, 128],
+	"MinimizeBtn": [369, 762, 128, 128],
+	"RestoreDownBtn": [500, 762, 128, 128],
+	"MaximizeBtn": [631, 762, 128, 128],
+	"CloseBtn_down": [762, 762, 128, 128],
+	"CloseBtn_normal": [893, 762, 128, 128],
+
+
+	"Attention_sign": [3, 3, 64, 64],
+	"DelBtn_red": [70, 3, 64, 64],
+	"EditBtn": [137, 3, 64, 64],
+	"Tabdown": [204, 3, 64, 64],
+	"Tabup": [271, 3, 64, 64],
+	"Tabup": [271, 3, 64, 64],
+	"List_checkb": [338, 3, 64, 64],
+	"List_checkk": [405, 3, 64, 64],
+	"AZ_sort": [472, 3, 64, 64],
+	"Sorted":  [539, 3, 64, 64],
+	"ZA_sort": [606, 3, 64, 64],
+
+	"Empty": [957, 3, 64, 64]}}
+=======
+	"ListSpecs_arrow": [115, 241, 24, 24],
+
+	"ListBtn_normal":   [250, 201, 30, 30],
+	"ListBtn_hovered":  [200, 201, 30, 30],
+	"ListBtn_disabled": [250, 201, 30, 30],
+	"ListBtn_check":    [139, 241, 24, 24],
+
+	"TextInput_normal":	  [236, 271, 72, 24],
+	"TextInput_focused":  [390, 271, 72, 24],
+	"TextInput_disabled": [159, 271, 72, 24],
+
+	"RadioButton_on":  [42, 237, 32, 32],
+	"RadioButton_off": [79, 237, 32, 32],
+
+	"PlotBtn_normal":	[5, 94,  32, 84],
+	"PlotBtn_hovered": 	[5, 183, 32, 84],
+	"PlotBtn_down":		[5, 5,   32, 84],
+	"PlotBtn_disabled":	[5, 5,   32, 84],
+
+	"AlgorithmBtn_normal":	[42,  94, 32, 138],
+	"AlgorithmBtn_hovered":	[79,  94, 32, 138],
+	"AlgorithmBtn_down":	    	[116, 94, 32, 138],
+	"AlgorithmBtn_disabled":  	[116, 94, 32, 138],
+
+	"InputsBtn_normal":		[42,  5, 32, 84],
+	"InputsBtn_hovered":		[79,  5, 32, 84],
+	"InputsBtn_down":	    	[116, 5, 32, 84],
+	"InputsBtn_disabled": 	[116, 5, 32, 84],
+
+	"ResultsBtn_normal":	[155, 121, 32, 111],
+	"ResultsBtn_hovered":	[153, 324, 32, 111],
+	"ResultsBtn_down":	    [155, 5, 	32, 111],
+	"ResultsBtn_disabled": 	[155, 5, 	32, 111],
+
+	"ToolBtn_normal":	[480, 480, 24, 24],
+	"ToolBtn_hovered":	[338, 440, 24, 24],
+	"ToolBtn_down":		[375, 440, 24, 24],
+	"ToolBtn_disabled":	[338, 440, 24, 24],
+
+	"filechooser_folder": [190, 332, 64, 64],
+
+	"filechooser_selected": [191, 296, 30, 30],
+
+
+	"ReservedPlace":	 [267, 5, 240, 240],
+	"Empty": [480, 480, 32, 32]}}
+>>>>>>> parent of 395bcd5 (Restart workflow)

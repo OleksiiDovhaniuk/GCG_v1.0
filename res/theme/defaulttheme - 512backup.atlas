@@ -1,0 +1,181 @@
+{"defaulttheme-0.png": {"bg_light": [6, 476, 30, 30],
+	"bg": [6, 440, 28, 28],
+	"HorizontalContainer": [6, 438, 30, 30],
+	"Lbl_Info": [233, 299, 30, 30],
+
+	"Btn_normal":  	[269, 302, 72, 24],
+	"CencelBtn_normal":  	[269, 331, 72, 24],
+
+	"Btn_hovered": 	[346, 302, 72, 24],
+	"Btn_down":		[423, 302, 72, 24],
+	"Btn_disabled":	[423, 302, 72, 24],
+
+	"MinimizeBtn": [107, 139, 24, 24],
+	"MaximizeBtn": [131, 139, 24, 24],
+	"RestoreDownBtn": [131, 115, 24, 24],
+	"CloseBtn_normal": [155, 139, 24, 24],
+	"CloseBtn_bg_down": [232, 298, 32, 32],
+	"CloseBtn_down": [155, 115, 24, 24],
+	
+	"ToolBtn_normal": [179, 139, 24, 24],
+	"ToolBtn_down": [179, 115, 24, 24],
+	
+	"ReportBtn_normal": [5, 108, 24, 24],
+	"ReportBtn_down": [5, 79, 24, 24],
+	
+	"HistoryBtn_normal": [34, 108, 24, 24],
+	"HistoryBtn_down": [34, 79, 24, 24],
+	
+	"EntityBtn_normal": [121, 79, 24, 24],
+	"EntityBtn_down": [150, 79, 24, 24],
+	
+	"BasisBtn_normal": [63, 108, 24, 24],
+	"BasisBtn_down": [63, 79, 24, 24],
+	
+	"AlgorithmBtn_normal": [92, 108, 24, 24],
+	"AlgorithmBtn_down": [92, 79, 24, 24],
+	
+	"RunBtn_normal": [179, 139, 24, 24],
+	"RunBtn_down": [179, 115, 24, 24],
+
+	
+
+
+	"CloudPntr": [346, 331, 12, 8],
+
+
+	"MenuBtn_normal":  	[222, 182, 24, 24],
+	"MenuBtn_hovered": 	[158, 182, 24, 24],
+	"MenuBtn_down":		[158, 182, 24, 24],
+	"MenuBtn_disabled":	[158, 182, 24, 24],
+
+	"DelBtn_normal":  	[10, 167, 64, 64],
+	"DelBtn_hovered": 	[74, 167, 64, 64],
+	"DelBtn_down":		[138, 167, 64, 64],
+	"DelBtn_disabled":	[202, 167, 64, 64],
+
+	"SaveAsBtn_normal":  [5,   363, 32, 32],
+	"SaveAsBtn_hovered": [42,  363, 32, 32],
+	"SaveAsBtn_down":	 [79,  363, 32, 32],
+	"SaveAsBtn_disabled":[116, 363, 32, 32],
+
+	"OpenBtn_normal":	[5,   326, 32, 32],
+	"OpenBtn_hovered": 	[42,  326, 32, 32],
+	"OpenBtn_down":		[79,  326, 32, 32],
+	"OpenBtn_disabled":	[116, 326, 32, 32],
+
+	"IconViewBtn_normal":	[190, 475, 32, 32],
+	"IconViewBtn_hovered": 	[227, 475, 32, 32],
+	"IconViewBtn_down":		[264, 475, 32, 32],
+	"IconViewBtn_disabled":	[301, 475, 32, 32],
+
+	"ListViewBtn_normal":	[30, 142, 24, 24],
+	"ListViewBtn_hovered": 	[94, 142, 24, 24],
+	"ListViewBtn_down":		[94, 142, 24, 24],
+	"ListViewBtn_disabled":	[94, 142, 24, 24],
+
+	"EditBtn_normal":	[190, 401, 32, 32],
+	"EditBtn_hovered": 	[227, 401, 32, 32],
+	"EditBtn_down":		[264, 401, 32, 32],
+	"EditBtn_disabled":	[301, 401, 32, 32],
+
+	"Cell_normal":  	[43,  476, 30, 30],
+	"Cell_hovered": 	[80,  476, 30, 30],
+	"Cell_down":		[117, 476, 30, 30],
+	"Cell_h_hovered": 	[153, 475, 32, 32],
+	"Cell_v_hovered": 	[153, 438, 32, 32],
+
+	"AddCell_normal":	[6,  401, 30, 30],
+	"AddCell_hovered": 	[43, 401, 30, 30],
+	"AddCell_down":		[80, 401, 30, 30],
+
+	"IndexCell_normal":  [6,  401, 30, 30],
+	"IndexCell_hovered": [43, 401, 30, 30],
+	"IndexCell_down":	 [80, 401, 30, 30],
+
+	"SwitchCellBtn_normal":  [254, 379, 24, 16],
+	"SwitchCellBtn_hovered": [283, 379, 24, 16],
+	"SwitchCellBtn_down":	 [254, 358, 24, 16],
+	"SwitchCellBtn_disabled":[283, 358, 24, 16],
+
+	"TitleCell_normal":  [6,  401, 30, 30],
+	"TitleCell_hovered": [43, 401, 30, 30],
+	"TitleCell_down":	 [80, 401, 30, 30],
+
+	"TitleInputCell_normal":	[42,  438, 32, 32],
+	"TitleInputCell_hovered": 	[79,  438, 32, 32],
+	"TitleInputCell_down":		[116, 438, 32, 32],
+
+	"TitleOutputCell_normal":	[338, 474, 32, 32],
+	"TitleOutputCell_hovered": 	[375, 474, 32, 32],
+	"TitleOutputCell_down":		[412, 474, 32, 32],
+
+	"InputsCell_normal":  [6,  401, 30, 30],
+	"InputsCell_hovered": [43, 401, 30, 30],
+	"InputsCell_down":	  [80, 401, 30, 30],
+
+	"OutputsCell_normal":  [6,  401, 30, 30],
+	"OutputsCell_hovered": [43, 401, 30, 30],
+	"OutputsCell_down":	   [80, 401, 30, 30],
+
+	"ArrowBtn_normal":	[5,   298, 24, 24],
+	"ArrowBtn_hovered":	[34,  298, 24, 24],
+	"ArrowBtn_down":	[63,  298, 24, 24],
+	"ArrowBtn_pressed":	[92,  298, 24, 24],
+	"ArrowBtn_disabled":[121, 298, 24, 24],
+
+	"ListSpecs_normal":   [236, 271, 72, 24],
+	"ListSpecs_hovered":  [313, 271, 72, 24],
+	"ListSpecs_down":     [390, 271, 72, 24],
+	"ListSpecs_disabled": [390, 271, 72, 24],
+	"ListSpecs_arrow": [10, 135, 32, 32],
+
+	"ListBtn_normal":	[94, 182, 24, 24],
+	"ListBtn_hovered": 	[30, 182, 24, 24],
+	"ListBtn_disabled":	[94, 182, 24, 24],
+	"ListBtn_check":    [42, 135, 32, 32],
+
+	"TextInput_normal":	  [236, 271, 72, 24],
+	"TextInput_focused":  [390, 271, 72, 24],
+	"TextInput_disabled": [159, 271, 72, 24],
+
+	"RadioButton_on":  [42, 237, 32, 32],
+	"RadioButton_off": [79, 237, 32, 32],
+
+	"PlotBtn_normal":	[5, 94,  32, 84],
+	"PlotBtn_hovered": 	[5, 183, 32, 84],
+	"PlotBtn_down":		[5, 5,   32, 84],
+	"PlotBtn_disabled":	[5, 5,   32, 84],
+
+	"InputsBtn_normal":		[42,  5, 32, 84],
+	"InputsBtn_hovered":		[79,  5, 32, 84],
+	"InputsBtn_down":	    	[116, 5, 32, 84],
+	"InputsBtn_disabled": 	[116, 5, 32, 84],
+
+	"ResultsBtn_normal":	[155, 121, 32, 111],
+	"ResultsBtn_hovered":	[153, 324, 32, 111],
+	"ResultsBtn_down":	    [155, 5, 	32, 111],
+	"ResultsBtn_disabled": 	[155, 5, 	32, 111],
+
+	"ToolBtn_normal":	[480, 480, 24, 24],
+	"ToolBtn_hovered":	[338, 440, 24, 24],
+	"ToolBtn_down":		[375, 440, 24, 24],
+	"ToolBtn_disabled":	[338, 440, 24, 24],
+
+	"filechooser_folder": [190, 332, 64, 64],
+
+	"filechooser_selected": [191, 296, 30, 30],
+
+	"attention_sign": [203, 115, 48, 48],
+	"DelBtn_red": [336, 384, 48, 48],
+	"EditBtn": [386, 384, 48, 48],
+	"Tab_down": [341, 275, 16, 16],
+
+	"Filter": [309, 371, 24, 24],
+	"AZ_sort": [345, 359, 24, 24],
+	"ZA_sort": [370, 359, 24, 24],
+
+
+
+	"ReservedPlace":	 [267, 5, 240, 240],
+	"Empty": [480, 480, 32, 32]}}

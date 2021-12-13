@@ -1,0 +1,13 @@
+ #:import atlas design.default_theme
+ #:import utils kivy.utils
+
+<Main>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            # TODO: Set color as part of default_theme (menu_bar_bg)
+            rgb: utils.get_color_from_hex('#EEEEEE')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
